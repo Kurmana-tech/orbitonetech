@@ -77,8 +77,30 @@ $pageTitle = $metaTitles[$currentPage] ?? 'Orbitone Tech Solutions';
         <nav>
           <ul class="nav-menu">
             <li><a href="?page=home" class="nav-link <?= $currentPage === 'home' ? 'active' : '' ?>">Home</a></li>
-            <li><a href="?page=about" class="nav-link <?= $currentPage === 'about' ? 'active' : '' ?>">About</a></li>
             
+            <!-- Company Dropdown -->
+            <li class="nav-dropdown">
+              <a href="?page=about" class="nav-link <?= in_array($currentPage, ['about','process','careers']) ? 'active' : '' ?>">
+                Company <i class="ri-arrow-down-s-line"></i>
+              </a>
+              <div class="dropdown-menu dropdown-menu-sm">
+                <div>
+                  <a href="?page=about" class="dropdown-item">
+                    <div class="dropdown-item-title">About Us</div>
+                    <div class="dropdown-item-desc">Who we are & our mission</div>
+                  </a>
+                  <a href="?page=process" class="dropdown-item">
+                    <div class="dropdown-item-title">Our Process</div>
+                    <div class="dropdown-item-desc">7-step software lifecycle</div>
+                  </a>
+                  <a href="?page=careers" class="dropdown-item">
+                    <div class="dropdown-item-title">Careers</div>
+                    <div class="dropdown-item-desc">Join our engineering team</div>
+                  </a>
+                </div>
+              </div>
+            </li>
+
             <!-- Services Mega Menu -->
             <li class="nav-dropdown">
               <a href="?page=services" class="nav-link <?= in_array($currentPage, ['services','web-development','app-development','ai-solutions','data-analytics','marketing-analytics','digital-marketing']) ? 'active' : '' ?>">
@@ -120,10 +142,8 @@ $pageTitle = $metaTitles[$currentPage] ?? 'Orbitone Tech Solutions';
             </li>
 
             <li><a href="?page=industries" class="nav-link <?= $currentPage === 'industries' ? 'active' : '' ?>">Industries</a></li>
-            <li><a href="?page=process" class="nav-link <?= $currentPage === 'process' ? 'active' : '' ?>">Our Process</a></li>
             <li><a href="?page=projects" class="nav-link <?= $currentPage === 'projects' ? 'active' : '' ?>">Projects</a></li>
             <li><a href="?page=blog" class="nav-link <?= $currentPage === 'blog' ? 'active' : '' ?>">Insights</a></li>
-            <li><a href="?page=careers" class="nav-link <?= $currentPage === 'careers' ? 'active' : '' ?>">Careers</a></li>
             <li><a href="?page=contact" class="nav-link <?= $currentPage === 'contact' ? 'active' : '' ?>">Contact</a></li>
           </ul>
         </nav>
@@ -147,19 +167,28 @@ $pageTitle = $metaTitles[$currentPage] ?? 'Orbitone Tech Solutions';
   <!-- Mobile Drawer -->
   <div class="mobile-nav-drawer" id="mobileNav">
     <a href="?page=home">Home</a>
-    <a href="?page=about">About Us</a>
-    <a href="?page=services">Services Overview</a>
-    <a href="?page=web-development">• Web Development</a>
-    <a href="?page=app-development">• Application Development</a>
-    <a href="?page=ai-solutions">• AI Solutions</a>
-    <a href="?page=data-analytics">• Data Analytics</a>
-    <a href="?page=marketing-analytics">• Marketing Analytics</a>
-    <a href="?page=digital-marketing">• Digital Marketing</a>
+    <div class="mobile-nav-group">
+      <a href="?page=about" class="mobile-nav-parent">Company</a>
+      <div class="mobile-nav-sub">
+        <a href="?page=about">• About Us</a>
+        <a href="?page=process">• Our Process</a>
+        <a href="?page=careers">• Careers</a>
+      </div>
+    </div>
+    <div class="mobile-nav-group">
+      <a href="?page=services" class="mobile-nav-parent">Services</a>
+      <div class="mobile-nav-sub">
+        <a href="?page=web-development">• Web Development</a>
+        <a href="?page=app-development">• Application Development</a>
+        <a href="?page=ai-solutions">• AI Solutions</a>
+        <a href="?page=data-analytics">• Data Analytics</a>
+        <a href="?page=marketing-analytics">• Marketing Analytics</a>
+        <a href="?page=digital-marketing">• Digital Marketing</a>
+      </div>
+    </div>
     <a href="?page=industries">Industries</a>
-    <a href="?page=process">Our Process</a>
     <a href="?page=projects">Projects & Portfolio</a>
     <a href="?page=blog">Insights / Blog</a>
-    <a href="?page=careers">Careers</a>
     <a href="?page=contact">Contact Us</a>
     <div style="margin-top: 1rem; padding: 0.5rem 0;">
       <a href="../orbitone/" class="theme-toggle-btn" style="text-align: center; text-decoration: none; display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; padding: 10px; border-radius: 20px; border: 1px solid #cbd5e1; background: #ffffff; color: #0b192c; font-weight: 600;">

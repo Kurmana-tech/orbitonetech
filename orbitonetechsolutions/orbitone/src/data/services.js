@@ -16,7 +16,7 @@ const megaphoneLightImg = '/assets/megaphone-light.png';
 export const SERVICES_DATA = [
   {
     id: "web-development",
-    sectionNumber: "02",
+    sectionNumber: "01",
     title: "Web Development",
     tagline: "High-Performance Digital Experiences",
     description: "We build fast, secure and scalable web solutions tailored to your business needs.",
@@ -37,7 +37,7 @@ export const SERVICES_DATA = [
   },
   {
     id: "application-development",
-    sectionNumber: "03",
+    sectionNumber: "02",
     title: "Application Development",
     tagline: "Mobile Excellence & Cross-Platform Speed",
     description: "Custom mobile and cross-platform applications that drive engagement and accelerate growth.",
@@ -57,7 +57,7 @@ export const SERVICES_DATA = [
   },
   {
     id: "ai-machine-learning",
-    sectionNumber: "04",
+    sectionNumber: "03",
     title: "AI & Machine Learning",
     tagline: "Intelligent Automation & Neural Systems",
     description: "Smart AI solutions to automate processes, predict outcomes and enable intelligent decisions.",
@@ -77,7 +77,7 @@ export const SERVICES_DATA = [
   },
   {
     id: "data-analytics",
-    sectionNumber: "05",
+    sectionNumber: "04",
     title: "Data Analytics",
     tagline: "Actionable Insights & Big Data Intelligence",
     description: "Turn your data into actionable insights using advanced analytics and visualization.",
@@ -101,7 +101,7 @@ export const SERVICES_DATA = [
   },
   {
     id: "marketing-analytics",
-    sectionNumber: "06",
+    sectionNumber: "05",
     title: "Marketing Analytics",
     tagline: "ROI Optimization & Conversion Precision",
     description: "Measure, optimize and maximize your marketing performance with data-driven strategies.",
@@ -124,7 +124,7 @@ export const SERVICES_DATA = [
   },
   {
     id: "digital-marketing",
-    sectionNumber: "07",
+    sectionNumber: "06",
     title: "Digital Marketing",
     tagline: "Omnichannel Growth & Audience Acquisition",
     description: "Grow your brand, reach the right audience and achieve measurable results.",
