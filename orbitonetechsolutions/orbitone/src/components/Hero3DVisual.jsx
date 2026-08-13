@@ -78,7 +78,7 @@ export default function Hero3DVisual() {
         }}
       >
         <img
-          src={roboImg}
+          src={theme === 'light' ? '/assets/robo-light.png' : roboImg}
           alt="Orbitone Technology Ecosystem"
           className="floating-image"
           style={{
