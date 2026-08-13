@@ -376,7 +376,7 @@ html, body {
 
 /* Navbar Logo responsiveness and transition */
 .navbar-logo {
-  height: 160px;
+  height: 54px;
   width: auto;
   display: block;
   object-fit: contain;
@@ -384,7 +384,7 @@ html, body {
 }
 
 .scrolled .navbar-logo {
-  height: 110px;
+  height: 42px;
 }
 
 .mobile-menu-btn {
@@ -423,10 +423,10 @@ html, body {
 
 @media (max-width: 768px) {
   .navbar-logo {
-    height: 110px !important;
+    height: 44px !important;
   }
   .scrolled .navbar-logo {
-    height: 90px !important;
+    height: 36px !important;
   }
   .floating-hero-artwork img {
     max-height: 45vh !important;
