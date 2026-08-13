@@ -78,7 +78,7 @@ export default function Hero3DVisual() {
         }}
       >
         <img
-          src={theme === 'light' ? '/assets/robo-light.png' : roboImg}
+          src={roboImg}
           alt="Orbitone Technology Ecosystem"
           className="floating-image"
           style={{
@@ -91,8 +91,8 @@ export default function Hero3DVisual() {
             transform: 'translateZ(45px)',
             filter: theme === 'light'
               ? (isHovered
-                ? `drop-shadow(${-rotate.y * 2}px ${-rotate.x * 2}px 25px rgba(45, 140, 255, 0.2)) contrast(1.04) brightness(1.05) saturate(1.05)`
-                : 'drop-shadow(0 10px 20px rgba(45, 140, 255, 0.12)) contrast(1.02) brightness(1.03)')
+                ? `drop-shadow(${-rotate.y * 2}px ${-rotate.x * 2}px 25px rgba(11, 25, 44, 0.15))`
+                : 'drop-shadow(0 14px 28px rgba(11, 25, 44, 0.08))')
               : (isHovered
                 ? `drop-shadow(${-rotate.y * 2.5}px ${-rotate.x * 2.5}px 45px rgba(45, 140, 255, 0.5))`
                 : 'drop-shadow(0 18px 35px rgba(0, 0, 0, 0.45))'),

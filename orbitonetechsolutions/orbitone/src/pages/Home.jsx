@@ -12,7 +12,7 @@ export default function Home() {
   const [showVideoModal, setShowVideoModal] = useState(false);
 
   return (
-    <div style={{ position: 'relative', width: '100%', background: 'var(--deep-navy)', minHeight: '100vh' }}>
+    <div style={{ position: 'relative', width: '100%', background: 'var(--bg-deep)', minHeight: '100vh' }}>
       {/* Fixed Sticky Top Navbar */}
       <Navbar />
 

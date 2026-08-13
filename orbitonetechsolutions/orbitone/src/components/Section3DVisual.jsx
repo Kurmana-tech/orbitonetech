@@ -131,8 +131,8 @@ export default function Section3DVisual({ src, alt, glowColor = 'rgba(45, 140, 2
             transform: 'translateZ(35px)',
             filter: theme === 'light'
               ? (isHovered
-                ? `drop-shadow(${-rotate.y * 1.8}px ${-rotate.x * 1.8}px 25px ${hoverShadowColor}) contrast(1.04) brightness(1.05) saturate(1.05)`
-                : `drop-shadow(0 10px 20px ${defaultShadowColor}) contrast(1.02) brightness(1.03)`)
+                ? `drop-shadow(${-rotate.y * 1.8}px ${-rotate.x * 1.8}px 25px rgba(11, 25, 44, 0.12))`
+                : 'drop-shadow(0 12px 26px rgba(11, 25, 44, 0.07))')
               : (isHovered
                 ? `drop-shadow(${-rotate.y * 2.2}px ${-rotate.x * 2.2}px 35px ${hoverShadowColor})`
                 : `drop-shadow(0 15px 30px ${defaultShadowColor})`),
