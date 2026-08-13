@@ -5,6 +5,14 @@ const dashboardImg = '/assets/dashboard-clean-transparent.png';
 const marketingImg = '/assets/marketing-clean-transparent.png';
 const megaphoneImg = '/assets/megaphone-clean-transparent.png';
 
+// Light Theme Specific Transparent Assets
+const laptopLightImg = '/assets/web-dev-light.png';
+const smartphoneLightImg = '/assets/app-dev-light.png';
+const neuralBrainLightImg = '/assets/ai-brain-light.png';
+const dashboardLightImg = '/assets/dashboard-light.png';
+const marketingLightImg = '/assets/marketing-light.png';
+const megaphoneLightImg = '/assets/megaphone-light.png';
+
 export const SERVICES_DATA = [
   {
     id: "web-development",
@@ -13,6 +21,7 @@ export const SERVICES_DATA = [
     tagline: "High-Performance Digital Experiences",
     description: "We build fast, secure and scalable web solutions tailored to your business needs.",
     imageSrc: laptopImg,
+    imageSrcLight: laptopLightImg,
     glowColor: "rgba(45, 140, 255, 0.45)",
     features: [
       "Responsive Websites",
@@ -33,6 +42,7 @@ export const SERVICES_DATA = [
     tagline: "Mobile Excellence & Cross-Platform Speed",
     description: "Custom mobile and cross-platform applications that drive engagement and accelerate growth.",
     imageSrc: smartphoneImg,
+    imageSrcLight: smartphoneLightImg,
     glowColor: "rgba(16, 185, 129, 0.45)",
     features: [
       "iOS Development",
@@ -52,6 +62,7 @@ export const SERVICES_DATA = [
     tagline: "Intelligent Automation & Neural Systems",
     description: "Smart AI solutions to automate processes, predict outcomes and enable intelligent decisions.",
     imageSrc: neuralBrainImg,
+    imageSrcLight: neuralBrainLightImg,
     glowColor: "rgba(108, 92, 231, 0.5)",
     features: [
       "Predictive Analytics",
@@ -71,6 +82,7 @@ export const SERVICES_DATA = [
     tagline: "Actionable Insights & Big Data Intelligence",
     description: "Turn your data into actionable insights using advanced analytics and visualization.",
     imageSrc: dashboardImg,
+    imageSrcLight: dashboardLightImg,
     glowColor: "rgba(45, 140, 255, 0.45)",
     features: [
       "Data Visualization",
@@ -94,6 +106,7 @@ export const SERVICES_DATA = [
     tagline: "ROI Optimization & Conversion Precision",
     description: "Measure, optimize and maximize your marketing performance with data-driven strategies.",
     imageSrc: marketingImg,
+    imageSrcLight: marketingLightImg,
     glowColor: "rgba(247, 147, 0, 0.5)",
     features: [
       "Campaign Tracking",
@@ -116,6 +129,7 @@ export const SERVICES_DATA = [
     tagline: "Omnichannel Growth & Audience Acquisition",
     description: "Grow your brand, reach the right audience and achieve measurable results.",
     imageSrc: megaphoneImg,
+    imageSrcLight: megaphoneLightImg,
     glowColor: "rgba(247, 147, 0, 0.5)",
     imageMaxWidth: "880px",
     features: [

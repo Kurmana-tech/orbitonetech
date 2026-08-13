@@ -12,7 +12,7 @@ export default function ServiceSection({ service }) {
   const { theme } = useTheme();
   const { id, sectionNumber, title, description, features, techBadges, metrics, ctaText, imageSrc, glowColor, imageMaxWidth } = service;
 
-  const finalImageSrc = imageSrc;
+  const finalImageSrc = (theme === 'light' && service.imageSrcLight) ? service.imageSrcLight : imageSrc;
   const sectionContentRef = useRef(null);
 
   useEffect(() => {
