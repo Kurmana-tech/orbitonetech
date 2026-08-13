@@ -25,24 +25,6 @@ export default function HeroSection({ onWatchStory }) {
     >
       {/* Left Side: Copywriting & CTAs - Shifted slightly to the right */}
       <div className="section-content" style={{ flex: '1 1 38%', maxWidth: '520px', zIndex: 3 }}>
-        {/* Eyebrow */}
-        <div
-          className="section-badge"
-          style={{
-            background: 'rgba(247, 147, 0, 0.1)',
-            borderColor: 'rgba(247, 147, 0, 0.3)',
-            color: 'var(--orbit-orange)',
-            display: 'flex',
-            flexWrap: 'wrap',
-            whiteSpace: 'normal',
-            maxWidth: '100%',
-            lineHeight: 1.4,
-            textAlign: 'left'
-          }}
-        >
-          WELCOME TO ORBITONE TECH SOLUTIONS
-        </div>
-
         {/* Main Heading */}
         <h1
           style={{
