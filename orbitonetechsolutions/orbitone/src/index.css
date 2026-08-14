@@ -627,6 +627,14 @@ section, [id] {
     align-items: center !important;
     justify-content: space-between !important;
     text-align: left !important;
+    padding-top: 40px !important;
+    padding-bottom: 40px !important;
+    min-height: auto !important;
+  }
+  #hero-section.section-container {
+    padding-top: 30px !important;
+    padding-bottom: 40px !important;
+    min-height: auto !important;
   }
   .section-content {
     display: flex !important;

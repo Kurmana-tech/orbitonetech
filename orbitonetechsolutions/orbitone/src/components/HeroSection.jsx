@@ -9,12 +9,12 @@ export default function HeroSection({ onWatchStory }) {
       id="hero-section"
       className="section-container"
       style={{
-        minHeight: '100vh',
+        minHeight: 'auto',
         position: 'relative',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingTop: '100px',
+        paddingTop: '30px',
         paddingBottom: '40px',
         paddingLeft: '6.5%',
         paddingRight: '3%',

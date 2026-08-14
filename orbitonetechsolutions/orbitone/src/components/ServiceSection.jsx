@@ -46,13 +46,13 @@ export default function ServiceSection({ service }) {
       id={id}
       className="section-container"
       style={{
-        minHeight: '100vh',
+        minHeight: 'auto',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         position: 'relative',
-        paddingTop: '80px',
-        paddingBottom: '40px',
+        paddingTop: '50px',
+        paddingBottom: '50px',
         paddingLeft: '6.5%',
         paddingRight: '3%',
         maxWidth: '1650px',
