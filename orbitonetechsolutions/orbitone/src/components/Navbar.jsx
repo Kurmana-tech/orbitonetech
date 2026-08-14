@@ -72,7 +72,7 @@ export default function Navbar() {
         left: 0,
         right: 0,
         zIndex: 1000,
-        padding: scrolled ? '4px 16px' : '6px 20px',
+        padding: scrolled ? '4px 12px' : '6px 16px',
         transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
         background: theme === 'dark' ? '#0b192c' : '#ffffff',
         borderBottom: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(11, 25, 44, 0.1)',
@@ -82,13 +82,13 @@ export default function Navbar() {
       <div
         style={{
           width: '100%',
-          maxWidth: '1280px',
+          maxWidth: '1360px',
           margin: '0 auto',
-          padding: '0 24px',
+          padding: '0 8px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '28px'
+          gap: '24px'
         }}
       >
         {/* Brand Logo */}
