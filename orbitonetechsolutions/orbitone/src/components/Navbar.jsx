@@ -82,9 +82,9 @@ export default function Navbar() {
       <div
         style={{
           width: '100%',
-          maxWidth: '100%',
-          margin: '0',
-          padding: '0 20px',
+          maxWidth: '1240px',
+          margin: '0 auto',
+          padding: '0 5%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -109,6 +109,12 @@ export default function Navbar() {
             src={theme === 'dark' ? '/assets/head2-transparent.png' : '/assets/head1-transparent.png'}
             alt="Orbitone Tech Solutions Logo"
             className="navbar-logo navbar-logo-desktop"
+            style={{
+              height: scrolled ? '110px' : '160px',
+              maxHeight: '180px',
+              width: 'auto',
+              objectFit: 'contain'
+            }}
           />
           {/* Mobile Phone View Nucleus Logo */}
           <div className="navbar-logo-mobile-wrapper">
@@ -130,9 +136,10 @@ export default function Navbar() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '30px',
+            gap: '26px',
             position: 'relative',
-            margin: '0 auto'
+            marginLeft: 'auto',
+            marginRight: '20px'
           }}
         >
           {navLinks.map((link) => {
