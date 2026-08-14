@@ -89,8 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       width: 270px; background: #040913; border-right: 1px solid rgba(255, 255, 255, 0.08);
       display: flex; flex-direction: column; padding: 24px 16px; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100;
     }
-    .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 0 8px 20px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 20px; }
-    .sidebar-brand img { height: 68px; object-fit: contain; }
+    .sidebar-brand { display: flex; align-items: center; justify-content: center; padding: 0 4px 18px 4px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 20px; overflow: hidden; }
+    .sidebar-brand img { height: 42px; max-width: 100%; object-fit: contain; }
     .nav-menu { display: flex; flex-direction: column; gap: 4px; list-style: none; flex: 1; overflow-y: auto; }
     .nav-item button {
       width: 100%; display: flex; align-items: center; gap: 12px; padding: 11px 14px;
