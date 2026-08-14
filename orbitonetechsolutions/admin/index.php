@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       box-shadow: 0 25px 60px rgba(11, 25, 44, 0.12); text-align: center; position: relative; z-index: 2;
     }
     .login-brand { display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; }
-    .login-brand img { height: 58px; object-fit: contain; }
+    .login-brand img { height: 48px; object-fit: contain; }
     .form-group { margin-bottom: 18px; text-align: left; }
     .form-group label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
     .input-control, .select-control {
@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       display: flex; flex-direction: column; padding: 24px 16px; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100;
     }
     .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 0 8px 20px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 20px; }
-    .sidebar-brand img { height: 60px; object-fit: contain; }
+    .sidebar-brand img { height: 44px; object-fit: contain; }
     .nav-menu { display: flex; flex-direction: column; gap: 4px; list-style: none; flex: 1; overflow-y: auto; }
     .nav-item button {
       width: 100%; display: flex; align-items: center; gap: 12px; padding: 11px 14px;
