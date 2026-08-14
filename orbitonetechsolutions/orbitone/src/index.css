@@ -619,7 +619,41 @@ section, [id] {
  * COMPREHENSIVE RESPONSIVE ALIGNMENT & ORIENTATION SYSTEM
  * ========================================================================== */
 
-@media (max-width: 768px) {
+/* Desktop PC View Alignment System for Min-Width 768px (including Desktop site mode on mobile) */
+@media (min-width: 768px) {
+  .section-container {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    text-align: left !important;
+  }
+  .section-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+    margin-bottom: 0 !important;
+  }
+  .section-title,
+  .section-description,
+  .section-badge {
+    text-align: left !important;
+    margin-left: 0 !important;
+  }
+  .btn-group,
+  .hero-buttons {
+    flex-direction: row !important;
+    align-items: center !important;
+    width: auto !important;
+  }
+  .btn-primary,
+  .btn-secondary {
+    width: auto !important;
+  }
+}
+
+@media (max-width: 767px) {
   /* Global Content Padding & Container Constraints */
   .content-wrapper {
     padding-left: 16px !important;
@@ -630,6 +664,7 @@ section, [id] {
     padding: 85px 16px 40px 16px !important;
     min-height: auto !important;
     text-align: center !important;
+    flex-direction: column !important;
   }
 
   .section-content {
