@@ -1,0 +1,17 @@
+# Node dependencies
+node_modules/
+orbitone/node_modules/
+
+# Production build outputs
+dist/
+orbitone/dist/
+
+# SQLite databases & temp uploads
+data/orbitone.sqlite
+data/uploads/
+
+# Environment files
+.env
+.env.local
+.DS_Store
+Thumbs.db

@@ -37,10 +37,35 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
+$resumeFileName = '';
+if (isset($_FILES['resume_file']) && $_FILES['resume_file']['error'] === UPLOAD_ERR_OK) {
+    $fileTmpPath = $_FILES['resume_file']['tmp_name'];
+    $fileName = $_FILES['resume_file']['name'];
+    $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+    $allowedExtensions = ['pdf', 'doc', 'docx', 'txt'];
+    if (in_array($fileExtension, $allowedExtensions)) {
+        $uploadDir = __DIR__ . '/../data/uploads/resumes/';
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        $newFileName = time() . '_' . preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $fileName);
+        $destPath = $uploadDir . $newFileName;
+
+        if (move_uploaded_file($fileTmpPath, $destPath)) {
+            $resumeFileName = $newFileName;
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Invalid file format. Please upload a PDF, DOC, or DOCX resume.']);
+        exit;
+    }
+}
+
 try {
     $db = getDB();
-    $stmt = $db->prepare("INSERT INTO job_applications (job_id, role, applicant_name, email, phone, experience, resume_note) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$jobId, $role, $applicantName, $email, $phone, $experience, $resumeNote]);
+    $stmt = $db->prepare("INSERT INTO job_applications (job_id, role, applicant_name, email, phone, experience, resume_note, resume_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$jobId, $role, $applicantName, $email, $phone, $experience, $resumeNote, $resumeFileName]);
 
     // Log Notification
     $stmtNotif = $db->prepare("INSERT INTO notifications (type, message) VALUES ('career', ?)");

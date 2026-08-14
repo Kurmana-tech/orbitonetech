@@ -17,8 +17,8 @@ $contactEmail  = trim($_POST['contact_email'] ?? '');
 $contactPhone  = trim($_POST['contact_phone'] ?? '');
 $company       = trim($_POST['company'] ?? '');
 
-if (empty($contactName) || empty($contactEmail)) {
-    echo json_encode(['success' => false, 'message' => 'Name and Email are required to submit a quote request.']);
+if (empty($contactName) || empty($contactEmail) || empty($contactPhone) || empty($company)) {
+    echo json_encode(['success' => false, 'message' => 'Full Name, Work Email, Phone Number, and Company Name are mandatory to submit a quote request.']);
     exit;
 }
 

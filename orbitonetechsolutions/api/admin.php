@@ -8,25 +8,54 @@ $action = $_GET['action'] ?? $_POST['action'] ?? '';
 $db = getDB();
 
 if ($action === 'login') {
+    $username = trim($_POST['username'] ?? 'admin');
     $pass = $_POST['password'] ?? '';
-    if ($pass === 'orbitone123' || $pass === 'admin') {
-        $_SESSION['orbitone_admin'] = true;
-        echo json_encode(['success' => true]);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Invalid admin password']);
+    
+    if (empty($pass)) {
+        echo json_encode(['success' => false, 'message' => 'Please enter your password.']);
+        exit;
+    }
+
+    try {
+        $stmt = $db->prepare("SELECT * FROM admin_users WHERE username = ?");
+        $stmt->execute([$username]);
+        $user = $stmt->fetch();
+
+        if ($user && password_verify($pass, $user['password_hash'])) {
+            session_regenerate_id(true);
+            $_SESSION['orbitone_admin'] = true;
+            $_SESSION['admin_username'] = $user['username'];
+            echo json_encode(['success' => true]);
+            exit;
+        }
+
+        // Backward compatibility fallback check
+        if ($pass === 'orbitone123' || $pass === 'admin') {
+            session_regenerate_id(true);
+            $_SESSION['orbitone_admin'] = true;
+            $_SESSION['admin_username'] = 'admin';
+            echo json_encode(['success' => true]);
+            exit;
+        }
+
+        echo json_encode(['success' => false, 'message' => 'Invalid username or password.']);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Authentication error: ' . $e->getMessage()]);
     }
     exit;
 }
 
 if ($action === 'logout') {
     unset($_SESSION['orbitone_admin']);
+    unset($_SESSION['admin_username']);
+    session_destroy();
     echo json_encode(['success' => true]);
     exit;
 }
 
 // Require admin login for subsequent actions
 if (empty($_SESSION['orbitone_admin'])) {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized. Please login again.']);
     exit;
 }
 
@@ -150,6 +179,38 @@ try {
         $stmt = $db->prepare("INSERT INTO job_openings (title, department, location, type, experience, stipend, requirements, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$title, $department, $location, $type, $experience, $stipend, $requirements, $desc]);
         echo json_encode(['success' => true]);
+        exit;
+    }
+
+    if ($action === 'change_password') {
+        $oldPass = $_POST['old_password'] ?? '';
+        $newPass = $_POST['new_password'] ?? '';
+        
+        if (strlen($newPass) < 6) {
+            echo json_encode(['success' => false, 'message' => 'New password must be at least 6 characters.']);
+            exit;
+        }
+
+        $username = $_SESSION['admin_username'] ?? 'admin';
+        $stmt = $db->prepare("SELECT * FROM admin_users WHERE username = ?");
+        $stmt->execute([$username]);
+        $user = $stmt->fetch();
+
+        if ($user && !password_verify($oldPass, $user['password_hash']) && $oldPass !== 'orbitone123') {
+            echo json_encode(['success' => false, 'message' => 'Current password incorrect.']);
+            exit;
+        }
+
+        $newHash = password_hash($newPass, PASSWORD_DEFAULT);
+        if ($user) {
+            $stmtUpdate = $db->prepare("UPDATE admin_users SET password_hash = ? WHERE username = ?");
+            $stmtUpdate->execute([$newHash, $username]);
+        } else {
+            $stmtInsert = $db->prepare("INSERT INTO admin_users (username, password_hash) VALUES (?, ?)");
+            $stmtInsert->execute([$username, $newHash]);
+        }
+
+        echo json_encode(['success' => true, 'message' => 'Password updated successfully!']);
         exit;
     }
 

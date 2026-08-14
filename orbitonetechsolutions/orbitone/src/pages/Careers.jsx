@@ -33,13 +33,14 @@ const getDeptColors = (dept) => {
 export default function Careers() {
   const [selectedJob, setSelectedJob] = useState(null);
   const [applied, setApplied] = useState(false);
+  const [applyError, setApplyError] = useState('');
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchJobs() {
       try {
-        const res = await fetch('../api/career.php');
+        const res = await fetch('/api/career.php');
         const result = await res.json();
         if (result.success && result.data) {
           setJobs(result.data);
@@ -55,29 +56,49 @@ export default function Careers() {
 
   const handleApply = async (e) => {
     e.preventDefault();
+    setApplyError('');
     try {
       const formEl = e.target;
-      const name = formEl.elements[0]?.value || '';
-      const email = formEl.elements[1]?.value || '';
-      const linkedin = formEl.elements[2]?.value || '';
-      const note = formEl.elements[3]?.value || '';
+      const name = formEl.elements['applicant_name']?.value || '';
+      const email = formEl.elements['email']?.value || '';
+      const linkedin = formEl.elements['linkedin']?.value || '';
+      const note = formEl.elements['resume_note']?.value || '';
+      const fileInput = formEl.elements['resume_file'];
+      const file = fileInput?.files?.[0];
+
+      if (!name.trim() || !email.trim()) {
+        setApplyError('Please enter your Name and Email address.');
+        return;
+      }
+
+      if (!file) {
+        setApplyError('Please select a resume file (PDF, DOC, or DOCX) to upload.');
+        return;
+      }
 
       const body = new FormData();
       body.append('job_id', selectedJob ? selectedJob.id : 1);
       body.append('role', selectedJob ? selectedJob.title : 'Software Engineer');
-      body.append('applicant_name', name);
-      body.append('email', email);
+      body.append('applicant_name', name.trim());
+      body.append('email', email.trim());
       body.append('phone', '');
-      body.append('experience', linkedin);
-      body.append('resume_note', note);
+      body.append('experience', linkedin.trim());
+      body.append('resume_note', note.trim());
+      body.append('resume_file', file);
 
-      await fetch('../api/career.php', {
+      const res = await fetch('/api/career.php', {
         method: 'POST',
         body: body
       });
-      setApplied(true);
+      const result = await res.json();
+      if (result.success) {
+        setApplied(true);
+        setApplyError('');
+      } else {
+        setApplyError(result.message || 'Failed to submit job application.');
+      }
     } catch (err) {
-      setApplied(true);
+      setApplyError('Network error while submitting application.');
     }
   };
 
@@ -208,15 +229,41 @@ export default function Careers() {
                     <h3 style={{ fontSize: '1.4rem', color: 'var(--text-primary)', marginBottom: '6px' }}>Apply for {selectedJob.title}</h3>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginBottom: '20px' }}>{selectedJob.location} • {selectedJob.type}</p>
                     
+                    {applyError && (
+                      <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5', padding: '10px 14px', borderRadius: '10px', fontSize: '0.85rem', marginBottom: '16px' }}>
+                        {applyError}
+                      </div>
+                    )}
+
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
-                      <input type="text" placeholder="Full Name *" required className="form-input" />
-                      <input type="email" placeholder="Email Address *" required className="form-input" />
-                      <input type="url" placeholder="LinkedIn / GitHub URL *" required className="form-input" />
-                      <textarea placeholder="Briefly introduce yourself & experience..." rows="3" className="form-textarea" />
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>Full Name *</label>
+                        <input type="text" name="applicant_name" placeholder="John Doe" required className="form-input" />
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>Email Address *</label>
+                        <input type="email" name="email" placeholder="john@example.com" required className="form-input" />
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>LinkedIn / GitHub / Portfolio URL</label>
+                        <input type="url" name="linkedin" placeholder="https://linkedin.com/in/username" className="form-input" />
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>Upload Resume (PDF, DOC, DOCX) *</label>
+                        <input type="file" name="resume_file" accept=".pdf,.doc,.docx" required className="form-input" style={{ padding: '8px 12px' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>Cover Note / Additional Details</label>
+                        <textarea name="resume_note" placeholder="Briefly introduce yourself & experience..." rows="3" className="form-textarea" />
+                      </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                      <button type="button" onClick={() => setSelectedJob(null)} className="btn-secondary" style={{ padding: '10px 20px' }}>Cancel</button>
+                      <button type="button" onClick={() => { setSelectedJob(null); setApplyError(''); }} className="btn-secondary" style={{ padding: '10px 20px' }}>Cancel</button>
                       <button type="submit" className="btn-primary" style={{ padding: '10px 20px' }}>Submit Application <Send size={16} /></button>
                     </div>
                   </form>

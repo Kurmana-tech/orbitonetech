@@ -208,6 +208,7 @@ export default function Footer() {
           <Link to="/contact" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ color: linkColor, textDecoration: 'none', transition: 'color 0.2s ease' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--orbit-orange)'} onMouseLeave={e => e.currentTarget.style.color = linkColor}>Privacy Policy</Link>
           <Link to="/contact" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ color: linkColor, textDecoration: 'none', transition: 'color 0.2s ease' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--orbit-orange)'} onMouseLeave={e => e.currentTarget.style.color = linkColor}>Terms of Service</Link>
           <Link to="/contact" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ color: linkColor, textDecoration: 'none', transition: 'color 0.2s ease' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--orbit-orange)'} onMouseLeave={e => e.currentTarget.style.color = linkColor}>Security</Link>
+          <a href="/admin/" target="_blank" rel="noopener noreferrer" style={{ color: linkColor, textDecoration: 'none', transition: 'color 0.2s ease' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--orbit-orange)'} onMouseLeave={e => e.currentTarget.style.color = linkColor}>Admin Portal</a>
         </div>
       </div>
     </footer>

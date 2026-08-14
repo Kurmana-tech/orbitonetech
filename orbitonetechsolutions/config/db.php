@@ -77,9 +77,14 @@ function initDatabaseSchema($db) {
             phone TEXT,
             experience TEXT,
             resume_note TEXT,
+            resume_file TEXT,
             status TEXT DEFAULT 'New',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )");
+
+        try {
+            $db->exec("ALTER TABLE job_applications ADD COLUMN resume_file TEXT");
+        } catch (Exception $e) {}
 
         $db->exec("CREATE TABLE IF NOT EXISTS projects (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -125,6 +130,20 @@ function initDatabaseSchema($db) {
             is_read INTEGER DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS admin_users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )");
+
+        $checkAdmin = $db->query("SELECT COUNT(*) FROM admin_users")->fetchColumn();
+        if ($checkAdmin == 0) {
+            $defaultHash = password_hash('orbitone123', PASSWORD_DEFAULT);
+            $stmtSeed = $db->prepare("INSERT INTO admin_users (username, password_hash) VALUES (?, ?)");
+            $stmtSeed->execute(['admin', $defaultHash]);
+        }
     } else {
         // MySQL Schema
         $db->exec("CREATE TABLE IF NOT EXISTS contact_leads (

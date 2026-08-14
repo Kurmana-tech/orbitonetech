@@ -15,6 +15,8 @@ export default function Quote() {
   const [selectedTimeline, setSelectedTimeline] = useState('Standard (1-3 Months)');
   const [selectedBudget, setSelectedBudget] = useState('Not Sure');
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', company: '' });
+  const [formError, setFormError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const capabilities = [
@@ -109,13 +111,13 @@ export default function Quote() {
     '+ Payment Gateway'
   ];
 
-  const toggleService = (id) => {
-    if (selectedServices.includes(id)) {
+  const toggleService = (sId) => {
+    if (selectedServices.includes(sId)) {
       if (selectedServices.length > 1) {
-        setSelectedServices(selectedServices.filter(s => s !== id));
+        setSelectedServices(selectedServices.filter(id => id !== sId));
       }
     } else {
-      setSelectedServices([...selectedServices, id]);
+      setSelectedServices([...selectedServices, sId]);
     }
   };
 
@@ -134,6 +136,34 @@ export default function Quote() {
 
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
+    setFormError('');
+
+    if (!formData.name || !formData.name.trim()) {
+      setFormError('Full Name is mandatory to submit a quote proposal (Step 4).');
+      return;
+    }
+
+    if (!formData.email || !formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) {
+      setFormError('A valid Work Email is mandatory to submit a quote proposal (Step 4).');
+      return;
+    }
+
+    if (!formData.phone || !formData.phone.trim()) {
+      setFormError('Phone / WhatsApp Number is mandatory to submit a quote proposal (Step 4).');
+      return;
+    }
+
+    if (!formData.company || !formData.company.trim()) {
+      setFormError('Company / Organization Name is mandatory to submit a quote proposal (Step 4).');
+      return;
+    }
+
+    if (selectedServices.length === 0) {
+      setFormError('Please select at least one service capability (Step 1).');
+      return;
+    }
+
+    setSubmitting(true);
     try {
       const body = new FormData();
       selectedServices.forEach(sId => {
@@ -141,19 +171,27 @@ export default function Quote() {
         if (found) body.append('services[]', found.title);
       });
       body.append('requirements', requirementsText);
-      body.append('budget', selectedBudgetTier || 'Not Sure');
-      body.append('contact_name', contactInfo.name);
-      body.append('contact_email', contactInfo.email);
-      body.append('contact_phone', contactInfo.phone);
-      body.append('company', contactInfo.company);
+      body.append('budget', selectedBudget || 'Not Sure');
+      body.append('contact_name', formData.name.trim());
+      body.append('contact_email', formData.email.trim());
+      body.append('contact_phone', formData.phone ? formData.phone.trim() : '');
+      body.append('company', formData.company ? formData.company.trim() : '');
 
-      await fetch('../api/quote.php', {
+      const res = await fetch('/api/quote.php', {
         method: 'POST',
         body: body
       });
-      setSubmitted(true);
+      const result = await res.json();
+      if (result.success) {
+        setSubmitted(true);
+        setFormError('');
+      } else {
+        setFormError(result.message || 'Failed to submit proposal request.');
+      }
     } catch (err) {
-      setSubmitted(true);
+      setFormError('Network error. Please try submitting again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -485,6 +523,11 @@ export default function Quote() {
 
                 {!submitted ? (
                   <form onSubmit={handleSubmit}>
+                    {formError && (
+                      <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5', padding: '12px 16px', borderRadius: '10px', fontSize: '0.88rem', fontWeight: 600, marginBottom: '20px' }}>
+                        {formError}
+                      </div>
+                    )}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '24px' }}>
                       <div>
                         <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
@@ -516,10 +559,11 @@ export default function Quote() {
 
                       <div>
                         <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
-                          Phone / WhatsApp Number
+                          Phone / WhatsApp Number *
                         </label>
                         <input
                           type="tel"
+                          required
                           placeholder="+91 98765 43210"
                           className="form-input"
                           value={formData.phone}
@@ -529,10 +573,11 @@ export default function Quote() {
 
                       <div>
                         <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
-                          Company / Organization
+                          Company / Organization *
                         </label>
                         <input
                           type="text"
+                          required
                           placeholder="Acme Technologies Inc."
                           className="form-input"
                           value={formData.company}
@@ -580,7 +625,7 @@ export default function Quote() {
             >
               <div>
                 {step > 1 && (
-                  <button onClick={() => setStep(step - 1)} className="btn-secondary" style={{ padding: '12px 24px', fontSize: '0.9rem' }}>
+                  <button onClick={() => { setFormError(''); setStep(step - 1); }} className="btn-secondary" style={{ padding: '12px 24px', fontSize: '0.9rem' }}>
                     <ArrowLeft size={16} /> Previous Step
                   </button>
                 )}
@@ -588,13 +633,13 @@ export default function Quote() {
 
               <div>
                 {step < 4 ? (
-                  <button onClick={() => setStep(step + 1)} className="btn-primary" style={{ padding: '12px 28px', fontSize: '0.9rem' }}>
+                  <button onClick={() => { setFormError(''); setStep(step + 1); }} className="btn-primary" style={{ padding: '12px 28px', fontSize: '0.9rem' }}>
                     Next Step <ArrowRight size={16} />
                   </button>
                 ) : (
                   !submitted && (
-                    <button onClick={handleSubmit} className="btn-primary" style={{ padding: '12px 32px', fontSize: '0.95rem' }}>
-                      Submit &amp; Generate Proposal <Send size={16} />
+                    <button onClick={handleSubmit} disabled={submitting} className="btn-primary" style={{ padding: '12px 32px', fontSize: '0.95rem' }}>
+                      {submitting ? 'Submitting Proposal...' : <>Submit &amp; Generate Proposal <Send size={16} /></>}
                     </button>
                   )
                 )}

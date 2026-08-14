@@ -7,6 +7,8 @@ import { Mail, Phone, MapPin, Send, CheckCircle2 } from 'lucide-react';
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -18,22 +20,46 @@ export default function Contact() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMsg('');
+
+    if (!formData.name.trim()) {
+      setErrorMsg('Please enter your full name.');
+      return;
+    }
+    if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) {
+      setErrorMsg('Please enter a valid email address.');
+      return;
+    }
+    if (!formData.message.trim()) {
+      setErrorMsg('Please describe your project or enquiry.');
+      return;
+    }
+
+    setSubmitting(true);
     try {
       const body = new FormData();
-      body.append('name', formData.name);
-      body.append('email', formData.email);
-      body.append('phone', formData.phone);
-      body.append('company', formData.company);
+      body.append('name', formData.name.trim());
+      body.append('email', formData.email.trim());
+      body.append('phone', formData.phone ? formData.phone.trim() : '');
+      body.append('company', formData.company ? formData.company.trim() : '');
       body.append('service', formData.service);
-      body.append('message', formData.message);
+      body.append('message', formData.message.trim());
 
-      await fetch('../api/contact.php', {
+      const res = await fetch('/api/contact.php', {
         method: 'POST',
         body: body
       });
-      setSubmitted(true);
+      const result = await res.json();
+      if (result.success) {
+        setSubmitted(true);
+        setErrorMsg('');
+      } else {
+        setErrorMsg(result.message || 'Failed to submit contact message.');
+      }
     } catch (err) {
-      setSubmitted(true);
+      setErrorMsg('Network error. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -66,6 +92,11 @@ export default function Contact() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {errorMsg && (
+                  <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5', padding: '12px 16px', borderRadius: '10px', fontSize: '0.88rem', fontWeight: 600 }}>
+                    {errorMsg}
+                  </div>
+                )}
                 <div>
                   <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>Your Name *</label>
                   <input
