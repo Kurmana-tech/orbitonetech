@@ -385,10 +385,10 @@ section, [id] {
 
 /* Navbar Logo responsiveness and transition */
 .navbar-logo {
-  height: 110px;
-  max-height: 120px;
+  height: 140px;
+  max-height: 150px;
   width: auto;
-  max-width: 460px;
+  max-width: 520px;
   display: block;
   object-fit: contain;
   margin: 0;
@@ -399,9 +399,9 @@ section, [id] {
 }
 
 .scrolled .navbar-logo {
-  height: 88px;
-  max-height: 96px;
-  max-width: 380px;
+  height: 105px;
+  max-height: 115px;
+  max-width: 440px;
 }
 
 .navbar-logo-mobile-wrapper {
@@ -472,9 +472,9 @@ section, [id] {
     gap: 10px !important;
   }
   .navbar-logo-mobile {
-    height: 68px !important;
-    width: 68px !important;
-    min-width: 68px !important;
+    height: 78px !important;
+    width: 78px !important;
+    min-width: 78px !important;
     object-fit: contain !important;
     filter: none !important;
     background: transparent !important;

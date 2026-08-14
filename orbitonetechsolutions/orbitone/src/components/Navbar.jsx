@@ -130,10 +130,9 @@ export default function Navbar() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '26px',
+            gap: '30px',
             position: 'relative',
-            marginLeft: '28px',
-            marginRight: 'auto'
+            margin: '0 auto'
           }}
         >
           {navLinks.map((link) => {

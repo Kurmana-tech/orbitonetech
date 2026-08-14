@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Allow direct access to admin, api, data, and static assets
+  RewriteCond %{REQUEST_URI} ^/(admin|api|data|assets) [NC]
+  RewriteRule ^ - [L]
+
+  # Fallback for single page React app routes
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
