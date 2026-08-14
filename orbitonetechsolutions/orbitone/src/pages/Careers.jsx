@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MainCanvas from '../3d/MainCanvas';
-import { Users, Briefcase, MapPin, Send, CheckCircle2, DollarSign, Award, Terminal, Brain, Rocket, Palette } from 'lucide-react';
+import { Users, Briefcase, MapPin, Send, CheckCircle2, DollarSign, Award, Terminal, Brain, Rocket, Palette, X, User, Mail, Link as LinkIcon, FileUp, FileText, AlertCircle } from 'lucide-react';
 
 const getDeptIcon = (dept) => {
   const d = (dept || '').toLowerCase();
@@ -36,6 +36,7 @@ export default function Careers() {
   const [applyError, setApplyError] = useState('');
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedFileName, setSelectedFileName] = useState('');
 
   useEffect(() => {
     async function fetchJobs() {
@@ -213,66 +214,264 @@ export default function Careers() {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                background: 'rgba(4, 15, 36, 0.9)',
-                backdropFilter: 'blur(16px)',
-                zIndex: 2000,
+                background: 'rgba(4, 12, 28, 0.82)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                zIndex: 2500,
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: 'flex-start',
                 justifyContent: 'center',
-                padding: '20px'
+                paddingTop: '105px',
+                paddingBottom: '40px',
+                paddingLeft: '20px',
+                paddingRight: '20px',
+                overflowY: 'auto'
               }}
-              onClick={() => setSelectedJob(null)}
+              onClick={() => { setSelectedJob(null); setSelectedFileName(''); setApplyError(''); }}
             >
-              <div className="glass-panel" style={{ maxWidth: '550px', width: '100%', padding: '36px' }} onClick={(e) => e.stopPropagation()}>
+              <div
+                className="glass-panel"
+                style={{
+                  maxWidth: '580px',
+                  width: '100%',
+                  padding: '36px',
+                  position: 'relative',
+                  borderRadius: '24px',
+                  boxShadow: '0 30px 80px rgba(0, 0, 0, 0.6), 0 0 50px rgba(247, 147, 0, 0.12)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  margin: 'auto 0'
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Close Button */}
+                <button
+                  type="button"
+                  onClick={() => { setSelectedJob(null); setSelectedFileName(''); setApplyError(''); }}
+                  style={{
+                    position: 'absolute',
+                    top: '20px',
+                    right: '20px',
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    color: 'var(--text-primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
+                >
+                  <X size={18} />
+                </button>
+
                 {!applied ? (
                   <form onSubmit={handleApply}>
-                    <h3 style={{ fontSize: '1.4rem', color: 'var(--text-primary)', marginBottom: '6px' }}>Apply for {selectedJob.title}</h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginBottom: '20px' }}>{selectedJob.location} • {selectedJob.type}</p>
-                    
+                    {/* Header */}
+                    <div style={{ marginBottom: '24px', paddingRight: '36px' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--orbit-orange)', background: 'rgba(247, 147, 0, 0.12)', padding: '4px 12px', borderRadius: '20px', marginBottom: '10px', border: '1px solid rgba(247, 147, 0, 0.25)' }}>
+                        <Briefcase size={12} /> {selectedJob.department}
+                      </div>
+                      <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '4px', letterSpacing: '-0.02em' }}>
+                        Apply for <span className="gradient-text-orange">{selectedJob.title}</span>
+                      </h2>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
+                        {selectedJob.location} • {selectedJob.type} {selectedJob.experience ? `• Exp: ${selectedJob.experience}` : ''}
+                      </p>
+                    </div>
+
                     {applyError && (
-                      <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5', padding: '10px 14px', borderRadius: '10px', fontSize: '0.85rem', marginBottom: '16px' }}>
-                        {applyError}
+                      <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.35)', color: '#fca5a5', padding: '12px 16px', borderRadius: '12px', fontSize: '0.86rem', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <AlertCircle size={16} flexShrink={0} />
+                        <span>{applyError}</span>
                       </div>
                     )}
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+                      {/* Full Name */}
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>Full Name *</label>
-                        <input type="text" name="applicant_name" placeholder="John Doe" required className="form-input" />
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                          <User size={14} color="var(--orbit-orange)" /> Full Name <span style={{ color: 'var(--orbit-orange)' }}>*</span>
+                        </label>
+                        <input
+                          type="text"
+                          name="applicant_name"
+                          placeholder="e.g. Alexander Wright"
+                          required
+                          className="form-input"
+                          style={{
+                            width: '100%',
+                            background: 'rgba(255, 255, 255, 0.04)',
+                            border: '1px solid var(--border-glass)',
+                            borderRadius: '10px',
+                            padding: '12px 16px',
+                            color: 'var(--text-primary)',
+                            fontSize: '0.92rem'
+                          }}
+                        />
                       </div>
 
+                      {/* Email Address */}
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>Email Address *</label>
-                        <input type="email" name="email" placeholder="john@example.com" required className="form-input" />
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                          <Mail size={14} color="var(--orbit-orange)" /> Email Address <span style={{ color: 'var(--orbit-orange)' }}>*</span>
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          placeholder="alexander@example.com"
+                          required
+                          className="form-input"
+                          style={{
+                            width: '100%',
+                            background: 'rgba(255, 255, 255, 0.04)',
+                            border: '1px solid var(--border-glass)',
+                            borderRadius: '10px',
+                            padding: '12px 16px',
+                            color: 'var(--text-primary)',
+                            fontSize: '0.92rem'
+                          }}
+                        />
                       </div>
 
+                      {/* LinkedIn / Portfolio */}
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>LinkedIn / GitHub / Portfolio URL</label>
-                        <input type="url" name="linkedin" placeholder="https://linkedin.com/in/username" className="form-input" />
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                          <LinkIcon size={14} color="var(--orbit-orange)" /> LinkedIn / Portfolio / GitHub Link
+                        </label>
+                        <input
+                          type="url"
+                          name="linkedin"
+                          placeholder="https://linkedin.com/in/yourprofile"
+                          className="form-input"
+                          style={{
+                            width: '100%',
+                            background: 'rgba(255, 255, 255, 0.04)',
+                            border: '1px solid var(--border-glass)',
+                            borderRadius: '10px',
+                            padding: '12px 16px',
+                            color: 'var(--text-primary)',
+                            fontSize: '0.92rem'
+                          }}
+                        />
                       </div>
 
+                      {/* File Upload Dropzone */}
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>Upload Resume (PDF, DOC, DOCX) *</label>
-                        <input type="file" name="resume_file" accept=".pdf,.doc,.docx" required className="form-input" style={{ padding: '8px 12px' }} />
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                          <FileUp size={14} color="var(--orbit-orange)" /> Upload Resume <span style={{ color: 'var(--orbit-orange)' }}>*</span>
+                        </label>
+                        <div
+                          style={{
+                            border: '2px dashed rgba(247, 147, 0, 0.4)',
+                            background: selectedFileName ? 'rgba(34, 197, 94, 0.08)' : 'rgba(247, 147, 0, 0.04)',
+                            borderRadius: '12px',
+                            padding: '18px',
+                            textAlign: 'center',
+                            position: 'relative',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease'
+                          }}
+                        >
+                          <input
+                            type="file"
+                            name="resume_file"
+                            accept=".pdf,.doc,.docx"
+                            required
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) setSelectedFileName(file.name);
+                            }}
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              opacity: 0,
+                              cursor: 'pointer'
+                            }}
+                          />
+                          <FileUp size={28} color={selectedFileName ? '#22c55e' : 'var(--orbit-orange)'} style={{ margin: '0 auto 8px auto' }} />
+                          {selectedFileName ? (
+                            <div>
+                              <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#4ade80', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                                <CheckCircle2 size={16} /> Selected: {selectedFileName}
+                              </span>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px', display: 'block' }}>Click to choose a different file</span>
+                            </div>
+                          ) : (
+                            <div>
+                              <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block' }}>Click or drop your resume here</span>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px', display: 'block' }}>Supports PDF, DOC, or DOCX formats (Max 10MB)</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
+                      {/* Cover Note / Additional Info */}
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>Cover Note / Additional Details</label>
-                        <textarea name="resume_note" placeholder="Briefly introduce yourself & experience..." rows="3" className="form-textarea" />
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                          <FileText size={14} color="var(--orbit-orange)" /> Cover Note / Brief Introduction
+                        </label>
+                        <textarea
+                          name="resume_note"
+                          placeholder="Tell us briefly about your experience, background, or availability..."
+                          rows="3"
+                          className="form-textarea"
+                          style={{
+                            width: '100%',
+                            background: 'rgba(255, 255, 255, 0.04)',
+                            border: '1px solid var(--border-glass)',
+                            borderRadius: '10px',
+                            padding: '12px 16px',
+                            color: 'var(--text-primary)',
+                            fontSize: '0.9rem',
+                            resize: 'vertical'
+                          }}
+                        />
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                      <button type="button" onClick={() => { setSelectedJob(null); setApplyError(''); }} className="btn-secondary" style={{ padding: '10px 20px' }}>Cancel</button>
-                      <button type="submit" className="btn-primary" style={{ padding: '10px 20px' }}>Submit Application <Send size={16} /></button>
+                    {/* Action Buttons */}
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                      <button
+                        type="button"
+                        onClick={() => { setSelectedJob(null); setSelectedFileName(''); setApplyError(''); }}
+                        className="btn-secondary"
+                        style={{ padding: '11px 22px', fontSize: '0.88rem' }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="btn-primary"
+                        style={{ padding: '11px 24px', fontSize: '0.88rem', gap: '8px' }}
+                      >
+                        Submit Application <Send size={16} />
+                      </button>
                     </div>
                   </form>
                 ) : (
-                  <div style={{ textAlign: 'center', padding: '20px' }}>
-                    <CheckCircle2 size={48} color="var(--orbit-orange)" style={{ margin: '0 auto 12px auto' }} />
-                    <h3 style={{ fontSize: '1.4rem', color: 'var(--text-primary)', marginBottom: '8px' }}>Application Submitted!</h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginBottom: '20px' }}>Our talent team will review your profile and reach out shortly.</p>
-                    <button onClick={() => setSelectedJob(null)} className="btn-primary">Close Window</button>
+                  <div style={{ textAlign: 'center', padding: '24px 12px' }}>
+                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
+                      <CheckCircle2 size={36} color="#22c55e" />
+                    </div>
+                    <h3 style={{ fontSize: '1.5rem', color: 'var(--text-primary)', fontWeight: 800, marginBottom: '8px' }}>Application Submitted!</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.94rem', maxWidth: '420px', margin: '0 auto 24px auto', lineHeight: '1.6' }}>
+                      Thank you for applying for the <strong style={{ color: 'var(--orbit-orange)' }}>{selectedJob.title}</strong> role. Our talent engineering team will review your resume and contact you soon.
+                    </p>
+                    <button
+                      onClick={() => { setSelectedJob(null); setSelectedFileName(''); setApplied(false); }}
+                      className="btn-primary"
+                      style={{ padding: '12px 28px' }}
+                    >
+                      Done / Close Window
+                    </button>
                   </div>
                 )}
               </div>
