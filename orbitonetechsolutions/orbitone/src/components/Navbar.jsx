@@ -114,7 +114,10 @@ export default function Navbar() {
               height: scrolled ? '64px' : '82px',
               maxHeight: '92px',
               width: 'auto',
-              objectFit: 'contain'
+              objectFit: 'contain',
+              transform: 'scale(1.3)',
+              transformOrigin: 'left center',
+              transition: 'all 0.3s ease'
             }}
           />
           {/* Mobile Phone View Nucleus Logo */}
