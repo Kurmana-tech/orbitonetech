@@ -19,19 +19,19 @@ export default function ServiceSection({ service }) {
     if (!sectionContentRef.current) return;
 
     const children = sectionContentRef.current.children;
-    gsap.set(children, { opacity: 0, y: 35 });
+    gsap.set(children, { opacity: 0, y: 25 });
 
     const anim = gsap.to(children, {
       opacity: 1,
       y: 0,
-      duration: 1,
-      stagger: 0.12,
-      ease: 'power3.out',
+      duration: 0.8,
+      stagger: 0.08,
+      ease: 'power2.out',
       scrollTrigger: {
         trigger: sectionContentRef.current,
-        start: 'top 80%',
-        end: 'bottom 20%',
-        toggleActions: 'play reverse play reverse'
+        start: 'top 85%',
+        once: true,
+        toggleActions: 'play none none none'
       }
     });
 

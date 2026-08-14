@@ -31,19 +31,19 @@ export default function Section3DVisual({ src, alt, glowColor = 'rgba(45, 140, 2
     const el = containerRef.current;
     const img = imageRef.current;
 
-    gsap.set(img, { opacity: 0.2, scale: 0.9, y: 40 });
+    gsap.set(img, { opacity: 0.4, scale: 0.95, y: 20 });
 
     const anim = gsap.to(img, {
       opacity: 1,
       scale: 1,
       y: 0,
-      duration: 1.2,
-      ease: 'power3.out',
+      duration: 0.8,
+      ease: 'power2.out',
       scrollTrigger: {
         trigger: el,
-        start: 'top 82%',
-        end: 'bottom 20%',
-        toggleActions: 'play reverse play reverse'
+        start: 'top 85%',
+        once: true,
+        toggleActions: 'play none none none'
       }
     });
 
