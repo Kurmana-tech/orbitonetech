@@ -182,6 +182,82 @@ try {
         exit;
     }
 
+    if ($action === 'update_quote_status') {
+        $id = intval($_POST['id'] ?? 0);
+        $status = $_POST['status'] ?? 'Pending';
+        $stmt = $db->prepare("UPDATE quote_requests SET status = ? WHERE id = ?");
+        $stmt->execute([$status, $id]);
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    if ($action === 'update_app_status') {
+        $id = intval($_POST['id'] ?? 0);
+        $status = $_POST['status'] ?? 'New';
+        $stmt = $db->prepare("UPDATE job_applications SET status = ? WHERE id = ?");
+        $stmt->execute([$status, $id]);
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    if ($action === 'update_lead_status') {
+        $id = intval($_POST['id'] ?? 0);
+        $status = $_POST['status'] ?? 'New';
+        $stmt = $db->prepare("UPDATE contact_leads SET status = ? WHERE id = ?");
+        $stmt->execute([$status, $id]);
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    if ($action === 'toggle_job_status') {
+        $id = intval($_POST['id'] ?? 0);
+        $status = $_POST['status'] ?? 'Active';
+        $stmt = $db->prepare("UPDATE job_openings SET status = ? WHERE id = ?");
+        $stmt->execute([$status, $id]);
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    if ($action === 'delete_quote') {
+        $id = intval($_POST['id'] ?? 0);
+        $stmt = $db->prepare("DELETE FROM quote_requests WHERE id = ?");
+        $stmt->execute([$id]);
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    if ($action === 'delete_application') {
+        $id = intval($_POST['id'] ?? 0);
+        $stmt = $db->prepare("DELETE FROM job_applications WHERE id = ?");
+        $stmt->execute([$id]);
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    if ($action === 'delete_lead') {
+        $id = intval($_POST['id'] ?? 0);
+        $stmt = $db->prepare("DELETE FROM contact_leads WHERE id = ?");
+        $stmt->execute([$id]);
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    if ($action === 'get_analytics') {
+        $serviceStats = $db->query("SELECT services, COUNT(*) as count FROM quote_requests GROUP BY services")->fetchAll();
+        $budgetStats = $db->query("SELECT budget, COUNT(*) as count FROM quote_requests GROUP BY budget")->fetchAll();
+        $statusStats = $db->query("SELECT status, COUNT(*) as count FROM quote_requests GROUP BY status")->fetchAll();
+
+        echo json_encode([
+            'success' => true,
+            'analytics' => [
+                'services' => $serviceStats,
+                'budgets' => $budgetStats,
+                'statuses' => $statusStats
+            ]
+        ]);
+        exit;
+    }
+
     if ($action === 'change_password') {
         $oldPass = $_POST['old_password'] ?? '';
         $newPass = $_POST['new_password'] ?? '';
