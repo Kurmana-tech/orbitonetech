@@ -1,6 +1,31 @@
 <?php
 header('Content-Type: application/json');
-session_start();
+
+if (isset($_SERVER['HTTP_ORIGIN'])) {
+    $allowed_origins = [
+        'https://manage1.orbitonetech.co.in',
+        'http://manage1.orbitonetech.co.in',
+        'https://orbitonetech.co.in',
+        'http://localhost:5173',
+        'http://localhost:8000',
+        'http://127.0.0.1:8000'
+    ];
+    if (in_array($_SERVER['HTTP_ORIGIN'], $allowed_origins)) {
+        header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN']);
+        header("Access-Control-Allow-Credentials: true");
+    }
+}
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+    header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+    exit(0);
+}
+
+if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.cookie_samesite', 'None');
+    ini_set('session.cookie_secure', '1');
+    session_start();
+}
 require_once __DIR__ . '/../config/db.php';
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
