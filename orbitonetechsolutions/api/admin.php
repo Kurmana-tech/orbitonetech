@@ -63,6 +63,18 @@ if (empty($_SESSION['orbitone_admin'])) {
 }
 
 try {
+    if ($action === 'clear_all_data') {
+        $db->exec("DELETE FROM contact_leads");
+        $db->exec("DELETE FROM quote_requests");
+        $db->exec("DELETE FROM job_applications");
+        $db->exec("DELETE FROM projects");
+        $db->exec("DELETE FROM blog_posts");
+        $db->exec("DELETE FROM job_openings");
+        $db->exec("DELETE FROM active_employees");
+        $db->exec("DELETE FROM notifications");
+        echo json_encode(['success' => true, 'message' => 'All default data cleared successfully.']);
+        exit;
+    }
     if ($action === 'get_overview') {
         $leadsCount = $db->query("SELECT COUNT(*) FROM contact_leads")->fetchColumn();
         $quotesCount = $db->query("SELECT COUNT(*) FROM quote_requests")->fetchColumn();
