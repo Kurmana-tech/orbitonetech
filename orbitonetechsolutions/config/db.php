@@ -131,6 +131,18 @@ function initDatabaseSchema($db) {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )");
 
+        $db->exec("CREATE TABLE IF NOT EXISTS active_employees (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            emp_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            phone TEXT,
+            department TEXT NOT NULL,
+            role TEXT NOT NULL,
+            joining_date DATE,
+            status TEXT DEFAULT 'Active'
+        )");
+
         $db->exec("CREATE TABLE IF NOT EXISTS admin_users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
@@ -219,6 +231,18 @@ function initDatabaseSchema($db) {
             stipend VARCHAR(255),
             requirements TEXT,
             description TEXT,
+            status VARCHAR(50) DEFAULT 'Active'
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS active_employees (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            emp_id VARCHAR(50) NOT NULL,
+            name VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL,
+            phone VARCHAR(50),
+            department VARCHAR(100) NOT NULL,
+            role VARCHAR(255) NOT NULL,
+            joining_date DATE,
             status VARCHAR(50) DEFAULT 'Active'
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
@@ -423,4 +447,22 @@ function seedInitialDataIfEmpty($db) {
             $ins->execute($j);
         }
     }
+
+    // Seed Active Employees
+    try {
+        $stmt = $db->query("SELECT COUNT(*) as cnt FROM active_employees");
+        $row = $stmt->fetch();
+        if ($row['cnt'] == 0) {
+            $employees = [
+                ['EMP-101', 'Alexander Wright', 'alex.wright@orbitonetech.co.in', '+91 98765 43210', 'Engineering', 'Lead Full Stack Architect', '2025-01-15', 'Active'],
+                ['EMP-102', 'Sophia Chen', 'sophia.chen@orbitonetech.co.in', '+91 98765 43211', 'AI & Machine Learning', 'Senior AI Engineer', '2025-03-01', 'Active'],
+                ['EMP-103', 'Rohan Verma', 'rohan.v@orbitonetech.co.in', '+91 98765 43212', 'Design & Creative', 'Principal UI/UX Designer', '2025-04-10', 'Active'],
+                ['EMP-104', 'Emily Davis', 'emily.d@orbitonetech.co.in', '+91 98765 43213', 'Marketing & Sales', 'Performance Marketing Lead', '2025-06-01', 'Active']
+            ];
+            $ins = $db->prepare("INSERT INTO active_employees (emp_id, name, email, phone, department, role, joining_date, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            foreach ($employees as $e) {
+                $ins->execute($e);
+            }
+        }
+    } catch (Exception $e) {}
 }

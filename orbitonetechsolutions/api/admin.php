@@ -42,9 +42,10 @@ try {
         $leadsCount = $db->query("SELECT COUNT(*) FROM contact_leads")->fetchColumn();
         $quotesCount = $db->query("SELECT COUNT(*) FROM quote_requests")->fetchColumn();
         $appsCount = $db->query("SELECT COUNT(*) FROM job_applications")->fetchColumn();
+        $jobsCount = $db->query("SELECT COUNT(*) FROM job_openings")->fetchColumn();
         $projectsCount = $db->query("SELECT COUNT(*) FROM projects")->fetchColumn();
         $blogsCount = $db->query("SELECT COUNT(*) FROM blog_posts")->fetchColumn();
-        $notifsCount = $db->query("SELECT COUNT(*) FROM notifications WHERE is_read = 0")->fetchColumn();
+        $empCount = $db->query("SELECT COUNT(*) FROM active_employees")->fetchColumn();
 
         echo json_encode([
             'success' => true,
@@ -52,11 +53,53 @@ try {
                 'leads' => $leadsCount,
                 'quotes' => $quotesCount,
                 'applications' => $appsCount,
+                'jobs' => $jobsCount,
                 'projects' => $projectsCount,
                 'blogs' => $blogsCount,
-                'notifications' => $notifsCount
+                'employees' => $empCount
             ]
         ]);
+        exit;
+    }
+
+    if ($action === 'get_projects') {
+        $stmt = $db->query("SELECT * FROM projects ORDER BY id DESC");
+        echo json_encode(['success' => true, 'data' => $stmt->fetchAll()]);
+        exit;
+    }
+
+    if ($action === 'get_blogs') {
+        $stmt = $db->query("SELECT * FROM blog_posts ORDER BY id DESC");
+        echo json_encode(['success' => true, 'data' => $stmt->fetchAll()]);
+        exit;
+    }
+
+    if ($action === 'get_employees') {
+        $stmt = $db->query("SELECT * FROM active_employees ORDER BY id DESC");
+        echo json_encode(['success' => true, 'data' => $stmt->fetchAll()]);
+        exit;
+    }
+
+    if ($action === 'add_employee') {
+        $name = $_POST['name'] ?? '';
+        $email = $_POST['email'] ?? '';
+        $phone = $_POST['phone'] ?? '';
+        $dept = $_POST['department'] ?? 'Engineering';
+        $role = $_POST['role'] ?? 'Developer';
+        $joining = $_POST['joining_date'] ?? date('Y-m-d');
+        $empId = 'EMP-' . rand(100, 999);
+
+        $stmt = $db->prepare("INSERT INTO active_employees (emp_id, name, email, phone, department, role, joining_date, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$empId, $name, $email, $phone, $dept, $role, $joining, 'Active']);
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    if ($action === 'delete_employee') {
+        $id = intval($_POST['id'] ?? 0);
+        $stmt = $db->prepare("DELETE FROM active_employees WHERE id = ?");
+        $stmt->execute([$id]);
+        echo json_encode(['success' => true]);
         exit;
     }
 
