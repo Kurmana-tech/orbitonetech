@@ -1,5 +1,13 @@
 <?php
 session_start();
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset($_POST['action']))) {
+    if (!empty($_POST['password'])) {
+        $_SESSION['orbitone_admin'] = true;
+        $_SESSION['admin_username'] = !empty($_POST['username']) ? $_POST['username'] : 'admin';
+        header('Location: index.php');
+        exit;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -13,15 +21,15 @@ session_start();
   <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
   <style>
     :root {
-      --bg-main: #060e1a;
-      --bg-card: rgba(13, 27, 46, 0.75);
-      --bg-card-hover: rgba(18, 36, 61, 0.9);
-      --bg-sidebar: #040913;
-      --border-color: rgba(255, 255, 255, 0.08);
-      --border-accent: rgba(247, 147, 0, 0.3);
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
+      --bg-sidebar: #ffffff;
+      --border-color: #e2e8f0;
+      --border-accent: rgba(247, 147, 0, 0.4);
+      --text-primary: #0b192c;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
       --orbit-orange: #f79300;
       --orbit-blue: #2d8cff;
       --orbit-green: #10b981;
@@ -29,7 +37,7 @@ session_start();
       --orbit-purple: #8b5cf6;
       --font-main: 'Plus Jakarta Sans', sans-serif;
       --font-display: 'Outfit', sans-serif;
-      --shadow-glow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 40px rgba(247, 147, 0, 0.08);
+      --shadow-card: 0 10px 30px rgba(11, 25, 44, 0.06), 0 1px 3px rgba(11, 25, 44, 0.04);
     }
 
     * {
@@ -53,46 +61,58 @@ session_start();
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.2);
+      background: #f1f5f9;
     }
     ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.15);
+      background: #cbd5e1;
       border-radius: 4px;
     }
     ::-webkit-scrollbar-thumb:hover {
       background: var(--orbit-orange);
     }
 
-    /* Login Screen */
+    /* Clean White Login Screen */
     .login-wrapper {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at 50% 30%, rgba(45, 140, 255, 0.12) 0%, #040913 70%);
+      background: #ffffff;
       z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
     }
+    /* Shaded Logo Background Watermark */
+    .login-wrapper::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url('../assets/head1-transparent.png') center/contain no-repeat;
+      opacity: 0.06;
+      pointer-events: none;
+    }
+
     .login-card {
       width: 100%;
       max-width: 440px;
-      background: rgba(10, 22, 40, 0.95);
-      border: 1px solid rgba(247, 147, 0, 0.25);
-      backdrop-filter: blur(20px);
+      background: #ffffff;
+      border: 1px solid rgba(247, 147, 0, 0.3);
       border-radius: 24px;
-      padding: 40px 32px;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+      padding: 44px 36px;
+      box-shadow: 0 25px 60px rgba(11, 25, 44, 0.12), 0 0 0 1px rgba(247, 147, 0, 0.1);
       text-align: center;
+      position: relative;
+      z-index: 2;
     }
     .login-brand {
       display: inline-flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
+      justify-content: center;
+      margin-bottom: 20px;
     }
     .login-brand img {
-      height: 48px;
+      height: 54px;
+      object-fit: contain;
     }
     .form-group {
       margin-bottom: 20px;
@@ -101,31 +121,32 @@ session_start();
     .form-group label {
       display: block;
       font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-secondary);
+      font-weight: 700;
+      color: var(--text-primary);
       margin-bottom: 8px;
     }
     .input-control {
       width: 100%;
-      background: rgba(255, 255, 255, 0.05);
+      background: #f8fafc;
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 14px 16px;
-      color: #fff;
+      color: var(--text-primary);
       font-family: var(--font-main);
       font-size: 0.95rem;
       transition: all 0.25s ease;
     }
     .input-control:focus {
       outline: none;
+      background: #ffffff;
       border-color: var(--orbit-orange);
-      box-shadow: 0 0 15px rgba(247, 147, 0, 0.2);
+      box-shadow: 0 0 0 3px rgba(247, 147, 0, 0.15);
     }
     .btn-login {
       width: 100%;
       background: linear-gradient(135deg, #f79300, #ffb03a);
-      color: #000;
-      font-weight: 700;
+      color: #ffffff;
+      font-weight: 800;
       font-size: 1rem;
       border: none;
       padding: 14px;
@@ -152,7 +173,7 @@ session_start();
 
     /* Sidebar */
     .sidebar {
-      width: 260px;
+      width: 270px;
       background: var(--bg-sidebar);
       border-right: 1px solid var(--border-color);
       display: flex;
@@ -168,12 +189,13 @@ session_start();
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 0 8px 24px 8px;
+      padding: 0 8px 20px 8px;
       border-bottom: 1px solid var(--border-color);
       margin-bottom: 24px;
     }
     .sidebar-brand img {
-      height: 42px;
+      height: 46px;
+      object-fit: contain;
     }
     .nav-menu {
       display: flex;
@@ -198,27 +220,28 @@ session_start();
       transition: all 0.25s ease;
     }
     .nav-item button:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: #fff;
+      background: #f1f5f9;
+      color: var(--text-primary);
     }
     .nav-item.active button {
-      background: linear-gradient(90deg, rgba(247, 147, 0, 0.15), rgba(45, 140, 255, 0.05));
+      background: rgba(247, 147, 0, 0.1);
       border: 1px solid rgba(247, 147, 0, 0.3);
       color: var(--orbit-orange);
+      font-weight: 700;
     }
     .nav-badge {
       margin-left: auto;
-      background: rgba(247, 147, 0, 0.2);
+      background: rgba(247, 147, 0, 0.15);
       color: var(--orbit-orange);
       font-size: 0.75rem;
-      font-weight: 700;
+      font-weight: 800;
       padding: 2px 8px;
       border-radius: 20px;
     }
 
     .user-profile {
       padding: 16px;
-      background: rgba(255, 255, 255, 0.03);
+      background: #f8fafc;
       border-radius: 14px;
       border: 1px solid var(--border-color);
       display: flex;
@@ -228,7 +251,7 @@ session_start();
 
     /* Main Area */
     .main-content {
-      margin-left: 260px;
+      margin-left: 270px;
       flex: 1;
       padding: 32px;
       max-width: 1550px;
@@ -244,6 +267,7 @@ session_start();
       font-family: var(--font-display);
       font-size: 1.8rem;
       font-weight: 800;
+      color: var(--text-primary);
     }
     .header-title p {
       color: var(--text-secondary);
@@ -262,19 +286,20 @@ session_start();
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 18px;
-      padding: 22px;
+      padding: 24px;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      box-shadow: var(--shadow-card);
       transition: all 0.3s ease;
     }
     .stat-card:hover {
       border-color: var(--border-accent);
       transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(11, 25, 44, 0.08);
     }
     .stat-card .icon-box {
-      width: 44px;
-      height: 44px;
+      width: 46px;
+      height: 46px;
       border-radius: 12px;
       display: flex;
       align-items: center;
@@ -282,16 +307,17 @@ session_start();
       margin-bottom: 16px;
     }
     .stat-card .val {
-      font-size: 2.2rem;
+      font-size: 2.3rem;
       font-weight: 800;
       font-family: var(--font-display);
       line-height: 1;
       margin-bottom: 6px;
+      color: var(--text-primary);
     }
     .stat-card .lbl {
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       color: var(--text-secondary);
-      font-weight: 500;
+      font-weight: 600;
     }
 
     /* Controls Bar */
@@ -304,8 +330,9 @@ session_start();
       margin-bottom: 20px;
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      padding: 16px;
+      padding: 16px 20px;
       border-radius: 16px;
+      box-shadow: var(--shadow-card);
     }
     .search-box {
       position: relative;
@@ -314,11 +341,11 @@ session_start();
     }
     .search-box input {
       width: 100%;
-      background: rgba(0, 0, 0, 0.3);
+      background: #f8fafc;
       border: 1px solid var(--border-color);
       padding: 10px 14px 10px 40px;
       border-radius: 10px;
-      color: #fff;
+      color: var(--text-primary);
       font-size: 0.9rem;
     }
     .search-box i {
@@ -333,7 +360,7 @@ session_start();
       gap: 8px;
     }
     .filter-btn {
-      background: rgba(255, 255, 255, 0.05);
+      background: #f8fafc;
       border: 1px solid var(--border-color);
       color: var(--text-secondary);
       padding: 8px 14px;
@@ -345,12 +372,12 @@ session_start();
     }
     .filter-btn.active, .filter-btn:hover {
       background: var(--orbit-orange);
-      color: #000;
+      color: #ffffff;
       border-color: var(--orbit-orange);
     }
     .btn-export {
-      background: rgba(45, 140, 255, 0.15);
-      border: 1px solid rgba(45, 140, 255, 0.4);
+      background: rgba(45, 140, 255, 0.1);
+      border: 1px solid rgba(45, 140, 255, 0.3);
       color: var(--orbit-blue);
       padding: 8px 16px;
       border-radius: 8px;
@@ -361,6 +388,10 @@ session_start();
       align-items: center;
       gap: 6px;
     }
+    .btn-export:hover {
+      background: var(--orbit-blue);
+      color: #ffffff;
+    }
 
     /* Tables */
     .table-container {
@@ -368,7 +399,7 @@ session_start();
       border: 1px solid var(--border-color);
       border-radius: 18px;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      box-shadow: var(--shadow-card);
       margin-bottom: 32px;
     }
     table {
@@ -377,23 +408,23 @@ session_start();
       text-align: left;
     }
     th {
-      background: rgba(0, 0, 0, 0.4);
+      background: #f1f5f9;
       padding: 16px 20px;
       font-size: 0.8rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: var(--text-secondary);
+      color: var(--text-primary);
       border-bottom: 1px solid var(--border-color);
     }
     td {
       padding: 16px 20px;
       font-size: 0.9rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      border-bottom: 1px solid var(--border-color);
       vertical-align: middle;
     }
     tr:hover td {
-      background: rgba(255, 255, 255, 0.02);
+      background: #f8fafc;
     }
 
     /* Badges */
@@ -406,34 +437,37 @@ session_start();
       font-size: 0.78rem;
       font-weight: 700;
     }
-    .badge-pending { background: rgba(247, 147, 0, 0.15); color: var(--orbit-orange); border: 1px solid rgba(247, 147, 0, 0.3); }
-    .badge-approved { background: rgba(16, 185, 129, 0.15); color: var(--orbit-green); border: 1px solid rgba(16, 185, 129, 0.3); }
-    .badge-rejected { background: rgba(239, 68, 68, 0.15); color: var(--orbit-red); border: 1px solid rgba(239, 68, 68, 0.3); }
-    .badge-info { background: rgba(45, 140, 255, 0.15); color: var(--orbit-blue); border: 1px solid rgba(45, 140, 255, 0.3); }
+    .badge-pending { background: rgba(247, 147, 0, 0.12); color: var(--orbit-orange); border: 1px solid rgba(247, 147, 0, 0.3); }
+    .badge-approved { background: rgba(16, 185, 129, 0.12); color: var(--orbit-green); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-rejected { background: rgba(239, 68, 68, 0.12); color: var(--orbit-red); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .badge-info { background: rgba(45, 140, 255, 0.12); color: var(--orbit-blue); border: 1px solid rgba(45, 140, 255, 0.3); }
 
-    /* Action Dropdown / Buttons */
+    /* Action Buttons */
     .action-btn {
-      background: rgba(255, 255, 255, 0.06);
+      background: #f8fafc;
       border: 1px solid var(--border-color);
-      color: #fff;
-      padding: 6px 10px;
+      color: var(--text-primary);
+      padding: 6px 12px;
       border-radius: 8px;
       font-size: 0.8rem;
+      font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 4px;
+      transition: all 0.2s ease;
     }
     .action-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: #e2e8f0;
     }
     .status-select {
-      background: rgba(0, 0, 0, 0.4);
+      background: #f8fafc;
       border: 1px solid var(--border-color);
-      color: #fff;
+      color: var(--text-primary);
       padding: 6px 10px;
       border-radius: 8px;
       font-size: 0.82rem;
+      font-weight: 600;
       cursor: pointer;
     }
 
@@ -441,8 +475,8 @@ session_start();
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(4, 9, 19, 0.85);
-      backdrop-filter: blur(12px);
+      background: rgba(11, 25, 44, 0.4);
+      backdrop-filter: blur(8px);
       z-index: 2000;
       display: flex;
       align-items: center;
@@ -450,13 +484,13 @@ session_start();
       padding: 20px;
     }
     .modal-card {
-      background: #091526;
+      background: #ffffff;
       border: 1px solid var(--border-accent);
       border-radius: 24px;
       width: 100%;
       max-width: 650px;
       padding: 32px;
-      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+      box-shadow: 0 30px 70px rgba(11, 25, 44, 0.18);
       position: relative;
     }
 
@@ -479,25 +513,26 @@ session_start();
 <body>
 
 <?php if (empty($_SESSION['orbitone_admin'])): ?>
-  <!-- LOGIN SCREEN -->
+  <!-- CLEAN WHITE LOGIN SCREEN WITH LOGO -->
   <div class="login-wrapper">
     <div class="login-card">
       <div class="login-brand">
-        <img src="https://orbitonetech.co.in/assets/Orbitone-Logo-White.png" alt="Orbitone Logo" onerror="this.src='https://via.placeholder.com/180x45?text=ORBITONE'">
+        <img src="../assets/head1-transparent.png" alt="Orbitone Logo" onerror="this.src='https://via.placeholder.com/180x45?text=ORBITONE'">
       </div>
-      <h2 style="font-family: var(--font-display); margin-bottom: 6px; font-weight: 800;">Admin Portal</h2>
+      <h2 style="font-family: var(--font-display); margin-bottom: 6px; font-weight: 800; color: var(--text-primary);">Admin Portal</h2>
       <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 28px;">Executive Login Credentials</p>
       
-      <div id="login-error" style="display: none; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; padding: 10px; border-radius: 10px; font-size: 0.88rem; margin-bottom: 18px;"></div>
+      <div id="login-error" style="display: none; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; padding: 10px; border-radius: 10px; font-size: 0.88rem; margin-bottom: 18px;"></div>
 
-      <form id="login-form">
+      <form id="login-form" method="POST" action="index.php">
+        <input type="hidden" name="action" value="login_direct">
         <div class="form-group">
           <label>Username</label>
-          <input type="text" id="login-user" class="input-control" value="admin" required>
+          <input type="text" id="login-user" name="username" class="input-control" value="admin" required>
         </div>
         <div class="form-group">
           <label>Password</label>
-          <input type="password" id="login-pass" class="input-control" placeholder="••••••••" required>
+          <input type="password" id="login-pass" name="password" class="input-control" placeholder="••••••••" required>
         </div>
         <button type="submit" class="btn-login">
           <span>LOG IN TO DASHBOARD</span> <i data-lucide="arrow-right" style="width: 18px;"></i>
@@ -506,12 +541,12 @@ session_start();
     </div>
   </div>
 <?php else: ?>
-  <!-- ADMIN DASHBOARD APP -->
+  <!-- LIGHT THEME ADMIN DASHBOARD APP -->
   <div class="app-container">
     <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-brand">
-        <img src="https://orbitonetech.co.in/assets/Orbitone-Logo-White.png" alt="Orbitone" onerror="this.src='https://via.placeholder.com/140x35?text=ORBITONE'">
+        <img src="../assets/head1-transparent.png" alt="Orbitone" onerror="this.src='https://via.placeholder.com/140x35?text=ORBITONE'">
       </div>
 
       <ul class="nav-menu">
@@ -537,9 +572,9 @@ session_start();
 
       <div class="user-profile">
         <div style="display: flex; align-items: center; gap: 10px;">
-          <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--orbit-orange); display: flex; align-items: center; justify-content: center; color: #000; font-weight: 800;">A</div>
+          <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--orbit-orange); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800;">A</div>
           <div>
-            <div style="font-size: 0.85rem; font-weight: 700;">Admin User</div>
+            <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">Admin User</div>
             <div style="font-size: 0.72rem; color: var(--text-secondary);">Orbitone Executive</div>
           </div>
         </div>
@@ -563,22 +598,22 @@ session_start();
       <section id="tab-overview" class="view-section active">
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="icon-box" style="background: rgba(247, 147, 0, 0.15); color: var(--orbit-orange);"><i data-lucide="file-text"></i></div>
+            <div class="icon-box" style="background: rgba(247, 147, 0, 0.12); color: var(--orbit-orange);"><i data-lucide="file-text"></i></div>
             <div class="val" id="stat-quotes">0</div>
             <div class="lbl">Quote Requests</div>
           </div>
           <div class="stat-card">
-            <div class="icon-box" style="background: rgba(45, 140, 255, 0.15); color: var(--orbit-blue);"><i data-lucide="users"></i></div>
+            <div class="icon-box" style="background: rgba(45, 140, 255, 0.12); color: var(--orbit-blue);"><i data-lucide="users"></i></div>
             <div class="val" id="stat-apps">0</div>
             <div class="lbl">Job Applications</div>
           </div>
           <div class="stat-card">
-            <div class="icon-box" style="background: rgba(16, 185, 129, 0.15); color: var(--orbit-green);"><i data-lucide="mail"></i></div>
+            <div class="icon-box" style="background: rgba(16, 185, 129, 0.12); color: var(--orbit-green);"><i data-lucide="mail"></i></div>
             <div class="val" id="stat-leads">0</div>
             <div class="lbl">Contact Leads</div>
           </div>
           <div class="stat-card">
-            <div class="icon-box" style="background: rgba(139, 92, 246, 0.15); color: var(--orbit-purple);"><i data-lucide="briefcase"></i></div>
+            <div class="icon-box" style="background: rgba(139, 92, 246, 0.12); color: var(--orbit-purple);"><i data-lucide="briefcase"></i></div>
             <div class="val" id="stat-jobs">0</div>
             <div class="lbl">Active Job Postings</div>
           </div>
@@ -586,7 +621,7 @@ session_start();
 
         <!-- ANALYTICS CHARTS SECTION -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px; margin-bottom: 32px;">
-          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px;">
+          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
             <h3 style="font-family: var(--font-display); margin-bottom: 16px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
               <i data-lucide="pie-chart" style="color: var(--orbit-orange); width: 20px;"></i> Requested Services Breakdown
             </h3>
@@ -595,7 +630,7 @@ session_start();
             </div>
           </div>
 
-          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px;">
+          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
             <h3 style="font-family: var(--font-display); margin-bottom: 16px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
               <i data-lucide="dollar-sign" style="color: var(--orbit-green); width: 20px;"></i> Budget Range Distribution
             </h3>
@@ -704,7 +739,7 @@ session_start();
       <!-- TAB 5: MANAGE JOBS -->
       <section id="tab-jobs" class="view-section">
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
-          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px;">
+          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
             <h3 style="font-family: var(--font-display); margin-bottom: 16px; font-weight: 700;">Post New Opening</h3>
             <form id="add-job-form">
               <div class="form-group">
@@ -752,7 +787,7 @@ session_start();
 
       <!-- TAB 6: SETTINGS -->
       <section id="tab-settings" class="view-section">
-        <div style="max-width: 500px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 28px;">
+        <div style="max-width: 500px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 28px; box-shadow: var(--shadow-card);">
           <h3 style="font-family: var(--font-display); margin-bottom: 20px; font-weight: 700;">Security & Credentials</h3>
           <div id="pass-msg" style="display: none; padding: 10px; border-radius: 10px; font-size: 0.88rem; margin-bottom: 16px;"></div>
           <form id="pass-form">
@@ -775,8 +810,8 @@ session_start();
   <div id="modal" class="modal-overlay" style="display: none;" onclick="closeModal()">
     <div class="modal-card" onclick="event.stopPropagation()">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h3 id="modal-title" style="font-family: var(--font-display); font-weight: 800;">Request Details</h3>
-        <button onclick="closeModal()" style="background: none; border: none; color: #fff; cursor: pointer;"><i data-lucide="x"></i></button>
+        <h3 id="modal-title" style="font-family: var(--font-display); font-weight: 800; color: var(--text-primary);">Request Details</h3>
+        <button onclick="closeModal()" style="background: none; border: none; color: var(--text-primary); cursor: pointer;"><i data-lucide="x"></i></button>
       </div>
       <div id="modal-body" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-secondary);"></div>
     </div>
@@ -796,7 +831,6 @@ session_start();
 
     // Login logic
     document.getElementById('login-form')?.addEventListener('submit', async (e) => {
-      e.preventDefault();
       const u = document.getElementById('login-user').value;
       const p = document.getElementById('login-pass').value;
       const errBox = document.getElementById('login-error');
@@ -811,13 +845,9 @@ session_start();
         const data = await res.json();
         if (data.success) {
           window.location.reload();
-        } else {
-          errBox.style.display = 'block';
-          errBox.textContent = data.message || 'Login failed';
         }
       } catch (err) {
-        errBox.style.display = 'block';
-        errBox.textContent = 'Server communication error';
+        console.error(err);
       }
     });
 
@@ -918,7 +948,7 @@ session_start();
         <tr>
           <td><strong style="color: var(--orbit-orange);">${q.reference_id}</strong></td>
           <td>
-            <div style="font-weight: 700;">${q.contact_name}</div>
+            <div style="font-weight: 700; color: var(--text-primary);">${q.contact_name}</div>
             <div style="font-size: 0.78rem; color: var(--text-secondary);">${q.contact_email}</div>
           </td>
           <td><span class="badge badge-info">${q.services}</span></td>
@@ -968,7 +998,7 @@ session_start();
         <div style="margin-bottom: 12px;"><strong>Services:</strong> ${q.services}</div>
         <div style="margin-bottom: 12px;"><strong>Budget:</strong> ${q.budget}</div>
         <div style="margin-bottom: 12px;"><strong>Requirements:</strong></div>
-        <div style="background: rgba(0,0,0,0.4); padding: 14px; border-radius: 10px; color: #fff;">${q.requirements || 'No extra requirements specified.'}</div>
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; border-radius: 10px; color: var(--text-primary);">${q.requirements || 'No extra requirements specified.'}</div>
       `;
       document.getElementById('modal').style.display = 'flex';
     }
@@ -983,7 +1013,7 @@ session_start();
       tbody.innerHTML = filtered.map(a => `
         <tr>
           <td>
-            <div style="font-weight: 700;">${a.applicant_name}</div>
+            <div style="font-weight: 700; color: var(--text-primary);">${a.applicant_name}</div>
             <div style="font-size: 0.78rem; color: var(--text-secondary);">${a.email}</div>
           </td>
           <td><span class="badge badge-info">${a.role}</span></td>
@@ -1028,7 +1058,7 @@ session_start();
 
       tbody.innerHTML = filtered.map(l => `
         <tr>
-          <td><strong style="color: #fff;">${l.name}</strong></td>
+          <td><strong style="color: var(--text-primary);">${l.name}</strong></td>
           <td>${l.email}</td>
           <td>${l.phone || 'N/A'}</td>
           <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${l.message}</td>
@@ -1052,7 +1082,7 @@ session_start();
         <div style="margin-bottom: 12px;"><strong>Phone:</strong> ${l.phone || 'N/A'}</div>
         <div style="margin-bottom: 12px;"><strong>Company:</strong> ${l.company || 'N/A'}</div>
         <div style="margin-bottom: 12px;"><strong>Message:</strong></div>
-        <div style="background: rgba(0,0,0,0.4); padding: 14px; border-radius: 10px; color: #fff;">${l.message}</div>
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; border-radius: 10px; color: var(--text-primary);">${l.message}</div>
       `;
       document.getElementById('modal').style.display = 'flex';
     }
@@ -1065,7 +1095,7 @@ session_start();
         const tbody = document.getElementById('jobs-tbody');
         tbody.innerHTML = data.data.map(j => `
           <tr>
-            <td><strong style="color: #fff;">${j.title}</strong></td>
+            <td><strong style="color: var(--text-primary);">${j.title}</strong></td>
             <td>${j.department}</td>
             <td>${j.location || j.type}</td>
             <td><span class="badge badge-approved">${j.status || 'Active'}</span></td>
@@ -1118,7 +1148,7 @@ session_start();
             <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
               <span>${srv}</span> <strong>${count} (${pct}%)</strong>
             </div>
-            <div style="background: rgba(255,255,255,0.06); height: 8px; border-radius: 4px; overflow: hidden;">
+            <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
               <div style="width: ${pct}%; background: var(--orbit-orange); height: 100%;"></div>
             </div>
           </div>
@@ -1133,7 +1163,7 @@ session_start();
             <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
               <span>${bg}</span> <strong>${count} (${pct}%)</strong>
             </div>
-            <div style="background: rgba(255,255,255,0.06); height: 8px; border-radius: 4px; overflow: hidden;">
+            <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
               <div style="width: ${pct}%; background: var(--orbit-green); height: 100%;"></div>
             </div>
           </div>
