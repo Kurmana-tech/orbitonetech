@@ -2,9 +2,11 @@
 node_modules/
 orbitone/node_modules/
 
-# Production build outputs
+# Production build & staging outputs
 dist/
 orbitone/dist/
+deploy_staging/
+deploystaging_*.zip
 
 # SQLite databases & temp uploads
 data/orbitone.sqlite
