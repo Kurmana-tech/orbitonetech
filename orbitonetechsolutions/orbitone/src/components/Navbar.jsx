@@ -110,8 +110,8 @@ export default function Navbar() {
             alt="Orbitone Tech Solutions Logo"
             className="navbar-logo navbar-logo-desktop"
             style={{
-              height: scrolled ? '46px' : '60px',
-              maxHeight: '64px',
+              height: scrolled ? '58px' : '78px',
+              maxHeight: '84px',
               width: 'auto',
               objectFit: 'contain'
             }}

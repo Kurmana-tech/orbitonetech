@@ -385,10 +385,10 @@ section, [id] {
 
 /* Navbar Logo responsiveness and transition */
 .navbar-logo {
-  height: 60px;
-  max-height: 64px;
+  height: 78px;
+  max-height: 84px;
   width: auto;
-  max-width: 320px;
+  max-width: 380px;
   display: block;
   object-fit: contain;
   margin: 0;
@@ -399,9 +399,9 @@ section, [id] {
 }
 
 .scrolled .navbar-logo {
-  height: 46px;
-  max-height: 50px;
-  max-width: 280px;
+  height: 58px;
+  max-height: 62px;
+  max-width: 320px;
   transform: none;
 }
 
@@ -491,8 +491,8 @@ section, [id] {
   }
   .navbar-logo-desktop {
     display: block !important;
-    height: 60px !important;
-    max-height: 64px !important;
+    height: 78px !important;
+    max-height: 84px !important;
   }
   .navbar-logo-mobile-wrapper {
     display: none !important;
