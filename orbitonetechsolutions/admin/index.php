@@ -126,7 +126,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
     .header-title p { color: var(--text-secondary); font-size: 0.9rem; margin-top: 4px; }
 
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 28px; }
-    .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 22px; position: relative; overflow: hidden; box-shadow: var(--shadow-card); transition: all 0.3s ease; }
+    
+    /* Left Orange Accent Strip on Admin Cards (with 2px inner space) */
+    .stat-card,
+    .table-controls,
+    .table-container,
+    .card-box,
+    .modal-card {
+      position: relative;
+      border-left: 4px solid var(--orbit-orange) !important;
+    }
+    .stat-card::before,
+    .table-controls::before,
+    .table-container::before,
+    .card-box::before {
+      content: '';
+      position: absolute;
+      left: 2px;
+      top: 10px;
+      bottom: 10px;
+      width: 3px;
+      background: linear-gradient(180deg, #f79300, #ffb03a);
+      border-radius: 4px;
+      z-index: 2;
+    }
+
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 22px; overflow: hidden; box-shadow: var(--shadow-card); transition: all 0.3s ease; }
     .stat-card:hover { border-color: var(--border-accent); transform: translateY(-3px); box-shadow: 0 15px 35px rgba(11, 25, 44, 0.08); }
     .stat-card .icon-box { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
     .stat-card .val { font-size: 2.2rem; font-weight: 800; font-family: var(--font-display); line-height: 1; margin-bottom: 6px; color: var(--text-primary); }
@@ -284,14 +309,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px; margin-bottom: 32px;">
-          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
+          <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
             <h3 style="font-family: var(--font-display); margin-bottom: 16px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
               <i data-lucide="pie-chart" style="color: var(--orbit-orange); width: 20px;"></i> Requested Services Breakdown
             </h3>
             <div id="service-analytics-bars" style="display: flex; flex-direction: column; gap: 14px;"></div>
           </div>
 
-          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
+          <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
             <h3 style="font-family: var(--font-display); margin-bottom: 16px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
               <i data-lucide="dollar-sign" style="color: var(--orbit-green); width: 20px;"></i> Budget Range Distribution
             </h3>
@@ -337,7 +362,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       <!-- TAB 3: MANAGE JOB POSTINGS -->
       <section id="tab-jobs" class="view-section">
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
-          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
+          <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
             <h3 style="font-family: var(--font-display); margin-bottom: 16px; font-weight: 700;">Post New Job Opening</h3>
             <form id="add-job-form">
               <div class="form-group">
@@ -433,7 +458,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       <!-- TAB 5: ACTIVE EMPLOYEES -->
       <section id="tab-employees" class="view-section">
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
-          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
+          <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
             <h3 style="font-family: var(--font-display); margin-bottom: 16px; font-weight: 700;">Add Employee Record</h3>
             <form id="add-emp-form">
               <div class="form-group">
@@ -488,7 +513,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       <!-- TAB 6: PROJECTS PORTFOLIO -->
       <section id="tab-projects" class="view-section">
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
-          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
+          <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
             <h3 style="font-family: var(--font-display); margin-bottom: 16px; font-weight: 700;">Add Project Case Study</h3>
             <form id="add-proj-form">
               <div class="form-group">
@@ -529,7 +554,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       <!-- TAB 7: BLOG POSTS -->
       <section id="tab-blogs" class="view-section">
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
-          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
+          <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
             <h3 style="font-family: var(--font-display); margin-bottom: 16px; font-weight: 700;">Publish Blog Post</h3>
             <form id="add-blog-form">
               <div class="form-group">
@@ -592,7 +617,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
 
       <!-- TAB 9: SETTINGS -->
       <section id="tab-settings" class="view-section">
-        <div style="max-width: 500px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 28px; box-shadow: var(--shadow-card);">
+        <div class="card-box" style="max-width: 500px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 28px; box-shadow: var(--shadow-card);">
           <h3 style="font-family: var(--font-display); margin-bottom: 20px; font-weight: 700;">Security & Credentials</h3>
           <div id="pass-msg" style="display: none; padding: 10px; border-radius: 10px; font-size: 0.88rem; margin-bottom: 16px;"></div>
           <form id="pass-form">
