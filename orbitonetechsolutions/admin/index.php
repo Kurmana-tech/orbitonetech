@@ -700,29 +700,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
         return matchesSearch && matchesFilter;
       });
 
-      tbody.innerHTML = filtered.map(q => `
-        <tr>
-          <td><strong style="color: var(--orbit-orange);">${q.reference_id}</strong></td>
-          <td>
-            <div style="font-weight: 700; color: var(--text-primary);">${q.contact_name}</div>
-            <div style="font-size: 0.78rem; color: var(--text-secondary);">${q.contact_email}</div>
-          </td>
-          <td><span class="badge badge-info">${q.services}</span></td>
-          <td><strong>${q.budget || 'N/A'}</strong></td>
-          <td>
-            <select class="status-select" onchange="updateQuoteStatus(${q.id}, this.value)">
-              <option value="Pending" ${q.status === 'Pending' ? 'selected' : ''}>Pending</option>
-              <option value="Approved" ${q.status === 'Approved' ? 'selected' : ''}>Approved</option>
-              <option value="Rejected" ${q.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
-            </select>
-          </td>
-          <td style="font-size: 0.8rem; color: var(--text-secondary);">${q.created_at ? q.created_at.substring(0,10) : ''}</td>
-          <td>
-            <button class="action-btn" onclick='viewQuoteModal(${JSON.stringify(q)})'><i data-lucide="eye" style="width: 14px;"></i> View</button>
-            <button class="action-btn" style="color: var(--orbit-red);" onclick="deleteItem('delete_quote', ${q.id})"><i data-lucide="trash" style="width: 14px;"></i></button>
-          </td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = filtered.map(q => {
+        const sList = (q.services || '').split(',').map(s => s.trim()).filter(Boolean);
+        const sHtml = sList.length > 2
+          ? `<div style="display: flex; flex-wrap: wrap; gap: 4px; max-width: 260px;"><span class="badge badge-info">${sList[0]}</span><span class="badge badge-info">${sList[1]}</span><span class="badge badge-pending" title="${sList.slice(2).join(', ')}">+${sList.length - 2} more</span></div>`
+          : `<div style="display: flex; flex-wrap: wrap; gap: 4px; max-width: 260px;">${sList.map(s => `<span class="badge badge-info">${s}</span>`).join('')}</div>`;
+
+        return `
+          <tr>
+            <td style="white-space: nowrap;"><strong style="color: var(--orbit-orange);">${q.reference_id}</strong></td>
+            <td>
+              <div style="font-weight: 700; color: var(--text-primary); white-space: nowrap;">${q.contact_name}</div>
+              <div style="font-size: 0.78rem; color: var(--text-secondary);">${q.contact_email}</div>
+            </td>
+            <td>${sHtml}</td>
+            <td style="white-space: nowrap;"><strong>${q.budget || 'N/A'}</strong></td>
+            <td style="white-space: nowrap;">
+              <select class="status-select" onchange="updateQuoteStatus(${q.id}, this.value)">
+                <option value="Pending" ${q.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                <option value="Approved" ${q.status === 'Approved' ? 'selected' : ''}>Approved</option>
+                <option value="Rejected" ${q.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+              </select>
+            </td>
+            <td style="font-size: 0.82rem; color: var(--text-secondary); white-space: nowrap; font-weight: 600;">${q.created_at ? q.created_at.substring(0,10) : ''}</td>
+            <td style="white-space: nowrap;">
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <button class="action-btn" onclick='viewQuoteModal(${JSON.stringify(q)})'><i data-lucide="eye" style="width: 14px;"></i> View</button>
+                <button class="action-btn" style="color: var(--orbit-red);" onclick="deleteItem('delete_quote', ${q.id})"><i data-lucide="trash" style="width: 14px;"></i></button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
       lucide.createIcons();
     }
 
@@ -996,42 +1005,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
     function renderAnalytics() {
       const serviceCounts = {};
       const budgetCounts = {};
+      let totalServiceHits = 0;
 
       globalQuotes.forEach(q => {
-        serviceCounts[q.services] = (serviceCounts[q.services] || 0) + 1;
-        budgetCounts[q.budget] = (budgetCounts[q.budget] || 0) + 1;
+        if (q.services) {
+          const parts = q.services.split(',').map(s => s.trim()).filter(Boolean);
+          parts.forEach(s => {
+            serviceCounts[s] = (serviceCounts[s] || 0) + 1;
+            totalServiceHits++;
+          });
+        }
+        if (q.budget) {
+          budgetCounts[q.budget] = (budgetCounts[q.budget] || 0) + 1;
+        }
       });
 
       const sContainer = document.getElementById('service-analytics-bars');
-      const totalQ = globalQuotes.length || 1;
-      sContainer.innerHTML = Object.entries(serviceCounts).map(([srv, count]) => {
-        const pct = Math.round((count / totalQ) * 100);
-        return `
-          <div>
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
-              <span>${srv}</span> <strong>${count} (${pct}%)</strong>
+      const totalS = totalServiceHits || 1;
+      sContainer.innerHTML = Object.entries(serviceCounts)
+        .sort((a, b) => b[1] - a[1])
+        .map(([srv, count]) => {
+          const pct = Math.round((count / totalS) * 100);
+          return `
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; margin-bottom: 8px;">
+                <span style="font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+                  <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--orbit-orange);"></span>
+                  ${srv}
+                </span>
+                <span class="badge badge-pending" style="font-size: 0.78rem;">${count} ${count === 1 ? 'Request' : 'Requests'} (${pct}%)</span>
+              </div>
+              <div style="background: #e2e8f0; height: 10px; border-radius: 6px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
+                <div style="width: ${pct}%; background: linear-gradient(90deg, #f79300, #ffb03a); height: 100%; border-radius: 6px; transition: width 0.6s ease;"></div>
+              </div>
             </div>
-            <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
-              <div style="width: ${pct}%; background: var(--orbit-orange); height: 100%;"></div>
-            </div>
-          </div>
-        `;
-      }).join('') || '<div style="color: var(--text-secondary);">No quotes data available.</div>';
+          `;
+        }).join('') || '<div style="color: var(--text-secondary);">No quotes data available.</div>';
 
       const bContainer = document.getElementById('budget-analytics-bars');
-      bContainer.innerHTML = Object.entries(budgetCounts).map(([bg, count]) => {
-        const pct = Math.round((count / totalQ) * 100);
-        return `
-          <div>
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
-              <span>${bg}</span> <strong>${count} (${pct}%)</strong>
+      const totalQ = globalQuotes.length || 1;
+      bContainer.innerHTML = Object.entries(budgetCounts)
+        .sort((a, b) => b[1] - a[1])
+        .map(([bg, count]) => {
+          const pct = Math.round((count / totalQ) * 100);
+          return `
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; margin-bottom: 8px;">
+                <span style="font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+                  <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--orbit-green);"></span>
+                  ${bg}
+                </span>
+                <span class="badge badge-approved" style="font-size: 0.78rem;">${count} ${count === 1 ? 'Request' : 'Requests'} (${pct}%)</span>
+              </div>
+              <div style="background: #e2e8f0; height: 10px; border-radius: 6px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
+                <div style="width: ${pct}%; background: linear-gradient(90deg, #10b981, #34d399); height: 100%; border-radius: 6px; transition: width 0.6s ease;"></div>
+              </div>
             </div>
-            <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
-              <div style="width: ${pct}%; background: var(--orbit-green); height: 100%;"></div>
-            </div>
-          </div>
-        `;
-      }).join('') || '<div style="color: var(--text-secondary);">No budget data available.</div>';
+          `;
+        }).join('') || '<div style="color: var(--text-secondary);">No budget data available.</div>';
     }
 
     async function deleteItem(action, id) {
