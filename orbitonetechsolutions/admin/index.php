@@ -127,28 +127,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
 
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 28px; }
     
-    /* Left Orange Accent Strip on Admin Cards (with 2px inner space) */
+    /* Single Solid Seamless Left Orange Accent Bar on Admin Cards */
     .stat-card,
     .table-controls,
     .table-container,
     .card-box,
     .modal-card {
       position: relative;
-      border-left: 4px solid var(--orbit-orange) !important;
-    }
-    .stat-card::before,
-    .table-controls::before,
-    .table-container::before,
-    .card-box::before {
-      content: '';
-      position: absolute;
-      left: 2px;
-      top: 10px;
-      bottom: 10px;
-      width: 3px;
-      background: linear-gradient(180deg, #f79300, #ffb03a);
-      border-radius: 4px;
-      z-index: 2;
+      border-left: 5px solid var(--orbit-orange) !important;
     }
 
     .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 22px; overflow: hidden; box-shadow: var(--shadow-card); transition: all 0.3s ease; }
