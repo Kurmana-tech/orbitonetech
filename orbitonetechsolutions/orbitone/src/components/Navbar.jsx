@@ -82,13 +82,13 @@ export default function Navbar() {
       <div
         style={{
           width: '100%',
-          maxWidth: '1240px',
+          maxWidth: '1280px',
           margin: '0 auto',
-          padding: '0 5%',
+          padding: '0 24px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '24px'
+          gap: '28px'
         }}
       >
         {/* Brand Logo */}
@@ -101,7 +101,6 @@ export default function Navbar() {
             flexShrink: 0,
             padding: 0,
             margin: 0,
-            marginLeft: '-20px',
             lineHeight: 0
           }}
         >
@@ -111,13 +110,10 @@ export default function Navbar() {
             alt="Orbitone Tech Solutions Logo"
             className="navbar-logo navbar-logo-desktop"
             style={{
-              height: scrolled ? '64px' : '82px',
-              maxHeight: '92px',
+              height: scrolled ? '56px' : '72px',
+              maxHeight: '78px',
               width: 'auto',
-              objectFit: 'contain',
-              transform: 'scale(1.3)',
-              transformOrigin: 'left center',
-              transition: 'all 0.3s ease'
+              objectFit: 'contain'
             }}
           />
           {/* Mobile Phone View Nucleus Logo */}
@@ -140,7 +136,7 @@ export default function Navbar() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '26px',
+            gap: '22px',
             position: 'relative',
             marginLeft: 'auto',
             marginRight: '20px'
