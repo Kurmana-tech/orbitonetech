@@ -86,22 +86,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
 
     .app-container { display: flex; width: 100vw; min-height: 100vh; }
     .sidebar {
-      width: 270px; background: var(--bg-sidebar); border-right: 1px solid var(--border-color);
+      width: 270px; background: #040913; border-right: 1px solid rgba(255, 255, 255, 0.08);
       display: flex; flex-direction: column; padding: 24px 16px; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100;
     }
-    .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 0 8px 20px 8px; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
-    .sidebar-brand img { height: 46px; object-fit: contain; }
+    .sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 0 8px 20px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 20px; }
+    .sidebar-brand img { height: 48px; object-fit: contain; }
     .nav-menu { display: flex; flex-direction: column; gap: 4px; list-style: none; flex: 1; overflow-y: auto; }
     .nav-item button {
       width: 100%; display: flex; align-items: center; gap: 12px; padding: 11px 14px;
-      border-radius: 12px; background: transparent; border: none; color: var(--text-secondary);
+      border-radius: 12px; background: transparent; border: 1px solid transparent; color: #94a3b8;
       font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.25s ease;
     }
-    .nav-item button:hover { background: #f1f5f9; color: var(--text-primary); }
-    .nav-item.active button { background: rgba(247, 147, 0, 0.1); border: 1px solid rgba(247, 147, 0, 0.3); color: var(--orbit-orange); font-weight: 700; }
-    .nav-badge { margin-left: auto; background: rgba(247, 147, 0, 0.15); color: var(--orbit-orange); font-size: 0.75rem; font-weight: 800; padding: 2px 8px; border-radius: 20px; }
+    .nav-item button:hover { background: rgba(255, 255, 255, 0.06); color: #ffffff; }
+    .nav-item.active button { background: linear-gradient(135deg, rgba(247, 147, 0, 0.2), rgba(247, 147, 0, 0.08)); border: 1px solid rgba(247, 147, 0, 0.4); color: #f79300; font-weight: 700; box-shadow: 0 4px 12px rgba(247, 147, 0, 0.15); }
+    .nav-badge { margin-left: auto; background: rgba(247, 147, 0, 0.2); color: #ffb03a; border: 1px solid rgba(247, 147, 0, 0.3); font-size: 0.75rem; font-weight: 800; padding: 2px 8px; border-radius: 20px; }
 
-    .user-profile { padding: 14px; background: #f8fafc; border-radius: 14px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+    .user-profile { padding: 14px; background: rgba(255, 255, 255, 0.04); border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+    .user-profile .user-name { color: #ffffff !important; font-weight: 700; font-size: 0.85rem; }
+    .user-profile .user-role { color: #94a3b8 !important; font-size: 0.72rem; }
     .main-content { margin-left: 270px; flex: 1; padding: 32px; max-width: 1550px; position: relative; min-height: 100vh; }
     .main-content::before {
       content: '';
@@ -199,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
     <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-brand">
-        <img src="../assets/head1-transparent.png" alt="Orbitone" onerror="this.src='https://via.placeholder.com/140x35?text=ORBITONE'">
+        <img src="../assets/head2-transparent.png" alt="Orbitone" onerror="this.src='https://via.placeholder.com/140x35?text=ORBITONE'">
       </div>
 
       <ul class="nav-menu">
@@ -236,11 +238,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
         <div style="display: flex; align-items: center; gap: 10px;">
           <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--orbit-orange); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800;">A</div>
           <div>
-            <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">Admin User</div>
-            <div style="font-size: 0.72rem; color: var(--text-secondary);">Orbitone Executive</div>
+            <div class="user-name">Admin User</div>
+            <div class="user-role">Orbitone Executive</div>
           </div>
         </div>
-        <button id="btn-logout" style="background: none; border: none; color: var(--text-secondary); cursor: pointer;"><i data-lucide="log-out" style="width: 18px;"></i></button>
+        <button id="btn-logout" style="background: none; border: none; color: #94a3b8; cursor: pointer;"><i data-lucide="log-out" style="width: 18px;"></i></button>
       </div>
     </aside>
 
