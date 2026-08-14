@@ -102,7 +102,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
     .nav-badge { margin-left: auto; background: rgba(247, 147, 0, 0.15); color: var(--orbit-orange); font-size: 0.75rem; font-weight: 800; padding: 2px 8px; border-radius: 20px; }
 
     .user-profile { padding: 14px; background: #f8fafc; border-radius: 14px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
-    .main-content { margin-left: 270px; flex: 1; padding: 32px; max-width: 1550px; }
+    .main-content { margin-left: 270px; flex: 1; padding: 32px; max-width: 1550px; position: relative; min-height: 100vh; }
+    .main-content::before {
+      content: '';
+      position: fixed;
+      top: 52%;
+      left: calc(50% + 135px);
+      transform: translate(-50%, -50%);
+      width: 70%;
+      height: 70%;
+      max-width: 850px;
+      max-height: 650px;
+      background: url('../assets/head1-transparent.png') center/contain no-repeat;
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .top-header, .stats-grid, .table-controls, .table-container, .view-section { position: relative; z-index: 1; }
     .top-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
     .header-title h1 { font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; color: var(--text-primary); }
     .header-title p { color: var(--text-secondary); font-size: 0.9rem; margin-top: 4px; }
