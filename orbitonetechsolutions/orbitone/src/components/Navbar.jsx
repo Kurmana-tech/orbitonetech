@@ -72,7 +72,7 @@ export default function Navbar() {
         left: 0,
         right: 0,
         zIndex: 1000,
-        padding: scrolled ? '6px 16px' : '10px 24px',
+        padding: scrolled ? '4px 16px' : '6px 20px',
         transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
         background: theme === 'dark' ? '#0b192c' : '#ffffff',
         borderBottom: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(11, 25, 44, 0.1)',
@@ -110,8 +110,8 @@ export default function Navbar() {
             alt="Orbitone Tech Solutions Logo"
             className="navbar-logo navbar-logo-desktop"
             style={{
-              height: scrolled ? '44px' : '56px',
-              maxHeight: '62px',
+              height: scrolled ? '52px' : '68px',
+              maxHeight: '74px',
               width: 'auto',
               objectFit: 'contain'
             }}
