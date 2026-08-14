@@ -70,7 +70,8 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-html, body {
+html,
+body {
   background-color: var(--bg-deep);
   color: var(--text-primary);
   overflow-x: hidden;
@@ -83,13 +84,16 @@ html, body {
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--bg-deep);
 }
+
 ::-webkit-scrollbar-thumb {
   background: #152B52;
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--orbit-orange);
 }
@@ -338,14 +342,24 @@ html, body {
 
 /* Animations */
 @keyframes pulseGlow {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.05); }
+
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
 }
 
 @keyframes pulseSphere {
   0% {
     opacity: 0.3;
   }
+
   100% {
     opacity: 0.65;
   }
@@ -364,10 +378,12 @@ html, body {
     text-align: center;
     padding-top: 105px;
   }
+
   .section-content {
     max-width: 100%;
     margin-bottom: 40px;
   }
+
   .feature-list {
     text-align: left;
     justify-content: center;
@@ -379,29 +395,30 @@ html {
   scroll-padding-top: 85px;
 }
 
-section, [id] {
+section,
+[id] {
   scroll-margin-top: 85px;
 }
 
 /* Navbar Logo responsiveness and transition */
 .navbar-logo {
-  height: 78px;
-  max-height: 84px;
+  height: 50px;
+  max-height: 60px;
   width: auto;
-  max-width: 380px;
+  max-width: 300px;
   display: block;
   object-fit: contain;
   margin: 0;
   padding: 0;
   transform: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.12));
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.12));
 }
 
 .scrolled .navbar-logo {
-  height: 58px;
-  max-height: 62px;
-  max-width: 320px;
+  height: 48px;
+  max-height: 52px;
+  max-width: 300px;
   transform: none;
 }
 
@@ -416,6 +433,7 @@ section, [id] {
 .desktop-nav::-webkit-scrollbar {
   height: 3px;
 }
+
 .desktop-nav::-webkit-scrollbar-thumb {
   background: rgba(247, 147, 0, 0.4);
   border-radius: 3px;
@@ -426,20 +444,25 @@ section, [id] {
   .desktop-nav {
     display: none !important;
   }
+
   .mobile-menu-btn {
     display: flex !important;
   }
+
   .header-theme-toggle {
     display: none !important;
   }
+
   .navbar-logo-desktop {
     display: none !important;
   }
+
   .navbar-logo-mobile-wrapper {
     display: flex !important;
     align-items: center !important;
     gap: 10px !important;
   }
+
   .navbar-logo-mobile {
     height: 64px !important;
     width: 64px !important;
@@ -448,26 +471,31 @@ section, [id] {
     filter: none !important;
     background: transparent !important;
   }
+
   .navbar-mobile-brand-text {
     font-weight: 900 !important;
     font-size: 1.4rem !important;
     letter-spacing: 0.08em !important;
   }
+
   .header-quote-btn {
     padding: 6px 10px !important;
     font-size: 0.75rem !important;
     border-radius: 6px !important;
   }
+
   .mobile-menu-btn {
     width: 38px !important;
     height: 38px !important;
     min-width: 38px !important;
   }
+
   .floating-hero-artwork img {
     max-height: 45vh !important;
     max-width: 85% !important;
     margin: 0 auto;
   }
+
   .floating-section-artwork img {
     max-height: 30vh !important;
     max-width: 80% !important;
@@ -481,22 +509,27 @@ section, [id] {
     display: flex !important;
     gap: 12px !important;
   }
+
   .desktop-nav a,
   .desktop-nav button {
     font-size: 0.82rem !important;
     padding: 4px 2px !important;
   }
+
   .mobile-menu-btn {
     display: none !important;
   }
+
   .navbar-logo-desktop {
     display: block !important;
-    height: 78px !important;
-    max-height: 84px !important;
+    height: 68px !important;
+    max-height: 74px !important;
   }
+
   .navbar-logo-mobile-wrapper {
     display: none !important;
   }
+
   .header-theme-toggle {
     display: flex !important;
   }
@@ -506,6 +539,7 @@ section, [id] {
 .mobile-drawer-panel::-webkit-scrollbar {
   width: 5px;
 }
+
 .mobile-drawer-panel::-webkit-scrollbar-thumb {
   background: rgba(247, 147, 0, 0.4);
   border-radius: 4px;
@@ -515,6 +549,7 @@ section, [id] {
 .floating-hero-artwork {
   max-width: 100%;
 }
+
 .floating-hero-artwork img {
   max-height: 68vh !important;
   transition: max-height 0.3s ease;
@@ -524,11 +559,13 @@ section, [id] {
   .navbar-fixed {
     padding: 6px 10px !important;
   }
+
   .navbar-logo {
     height: 38px !important;
     width: auto !important;
     max-width: 155px !important;
   }
+
   .header-quote-btn {
     display: none !important;
   }
@@ -553,14 +590,17 @@ section, [id] {
   .footer-container {
     padding: 40px 5% 24px 5% !important;
   }
+
   .footer-grid {
     grid-template-columns: 1fr !important;
     gap: 32px !important;
   }
+
   .footer-logo-img {
     height: 56px !important;
     max-width: 220px !important;
   }
+
   .footer-bottom-bar {
     flex-direction: column !important;
     text-align: center !important;
@@ -601,19 +641,23 @@ section, [id] {
   .final-cta-section {
     padding: 36px 14px !important;
   }
+
   .final-cta-card {
     padding: 28px 18px !important;
     border-radius: 20px !important;
   }
+
   .final-cta-card h2 {
     font-size: 1.65rem !important;
     margin-bottom: 12px !important;
   }
+
   .final-cta-card p {
     font-size: 0.92rem !important;
     margin-bottom: 22px !important;
     line-height: 1.55 !important;
   }
+
   .final-cta-card .btn-primary,
   .final-cta-card .btn-secondary {
     padding: 12px 20px !important;
@@ -659,6 +703,7 @@ section, [id] {
     padding-bottom: 60px !important;
     min-height: auto !important;
   }
+
   .final-cta-section.section-container {
     display: flex !important;
     flex-direction: column !important;
@@ -666,11 +711,13 @@ section, [id] {
     justify-content: center !important;
     text-align: center !important;
   }
+
   #hero-section.section-container {
     padding-top: 100px !important;
     padding-bottom: 50px !important;
     min-height: auto !important;
   }
+
   .section-content {
     display: flex !important;
     flex-direction: column !important;
@@ -678,18 +725,21 @@ section, [id] {
     text-align: left !important;
     margin-bottom: 0 !important;
   }
+
   .section-title,
   .section-description,
   .section-badge {
     text-align: left !important;
     margin-left: 0 !important;
   }
+
   .btn-group,
   .hero-buttons {
     flex-direction: row !important;
     align-items: center !important;
     width: auto !important;
   }
+
   .btn-primary,
   .btn-secondary {
     width: auto !important;
@@ -697,6 +747,7 @@ section, [id] {
 }
 
 @media (max-width: 767px) {
+
   /* Global Content Padding & Container Constraints */
   .content-wrapper {
     padding-left: 16px !important;
@@ -789,6 +840,7 @@ section, [id] {
 }
 
 @media (max-width: 480px) {
+
   /* Extra Small Phone Viewports */
   .section-title {
     font-size: 1.65rem !important;
@@ -813,5 +865,3 @@ section, [id] {
     font-size: 1.25rem !important;
   }
 }
-
-
