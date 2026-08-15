@@ -57,7 +57,9 @@ function syncHostingerIMAP($db) {
                     if (empty($bodyHtml)) {
                         $bodyHtml = @imap_fetchbody($inbox, $emailNumber, 1);
                     }
-                    $bodyText = strip_tags($bodyHtml);
+                    $noStyleHtml = preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $bodyHtml);
+                    $noStyleHtml = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $noStyleHtml);
+                    $bodyText = trim(strip_tags($noStyleHtml));
                     $snippet = substr(trim(preg_replace('/\s+/', ' ', $bodyText)), 0, 120);
 
                     // Check if already in DB

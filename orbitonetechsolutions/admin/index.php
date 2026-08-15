@@ -164,6 +164,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
     @keyframes spin { 100% { transform: rotate(360deg); } }
     .spin-anim { animation: spin 1s linear infinite; }
 
+    #read-body { overflow-x: auto !important; max-width: 100% !important; word-break: break-word !important; }
+    #read-body img { max-width: 100% !important; height: auto !important; }
+    #read-body table { width: 100% !important; max-width: 100% !important; border-collapse: collapse !important; display: block !important; overflow-x: auto !important; }
+    #read-body pre, #read-body code { white-space: pre-wrap !important; word-break: break-word !important; }
+
     .user-profile { padding: 14px; background: rgba(255, 255, 255, 0.04); border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
     .user-profile .user-name { color: #ffffff !important; font-weight: 700; font-size: 0.85rem; }
     .user-profile .user-role { color: #94a3b8 !important; font-size: 0.72rem; }
@@ -987,26 +992,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       <!-- TAB: HOSTINGER WEBMAIL & SUPPORT DESK -->
       <section id="tab-webmail" class="view-section">
         <!-- Top Toolbar Controls -->
-        <div class="table-controls" style="margin-bottom: 16px;">
-          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; flex: 1;">
-            <button class="btn-login" style="width: auto; padding: 10px 20px; font-size: 0.9rem;" onclick="openComposeModal()">
-              <i data-lucide="edit-3"></i> Compose New Mail
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <button class="btn-login" style="width: auto; padding: 9px 18px; font-size: 0.88rem; box-shadow: 0 4px 12px rgba(247, 147, 0, 0.25);" onclick="openComposeModal()">
+              <i data-lucide="edit-3" style="width: 16px;"></i> Compose New Mail
             </button>
-            <button class="btn-export" onclick="syncMailbox()" style="background: rgba(247, 147, 0, 0.12); color: var(--orbit-orange); border-color: rgba(247, 147, 0, 0.3);">
-              <i data-lucide="refresh-cw" id="icon-sync-mail"></i> Sync Hostinger IMAP
+            <button class="btn-export" onclick="syncMailbox()" style="background: rgba(247, 147, 0, 0.1); color: var(--orbit-orange); border-color: rgba(247, 147, 0, 0.3); padding: 9px 16px; font-size: 0.88rem;">
+              <i data-lucide="refresh-cw" id="icon-sync-mail" style="width: 16px;"></i> Sync Hostinger IMAP
             </button>
-            <button class="btn-export" onclick="openMailConfigModal()" style="background: #f1f5f9; color: var(--text-primary); border-color: var(--border-color);">
-              <i data-lucide="key"></i> Mail Server Config
+            <button class="btn-export" onclick="openMailConfigModal()" style="background: #ffffff; color: var(--text-primary); border-color: var(--border-color); padding: 9px 16px; font-size: 0.88rem;">
+              <i data-lucide="key" style="width: 16px;"></i> Mail Server Config
             </button>
           </div>
-          <div class="search-box" style="max-width: 320px;">
-            <i data-lucide="search"></i>
-            <input type="text" id="search-mail" placeholder="Search sender, subject, body..." onkeyup="filterWebmail()">
+          <div class="search-box" style="width: 280px; max-width: 100%;">
+            <i data-lucide="search" style="width: 16px;"></i>
+            <input type="text" id="search-mail" placeholder="Search mail..." onkeyup="filterWebmail()">
           </div>
         </div>
 
         <!-- Main 3-Column Webmail Layout -->
-        <div style="display: grid; grid-template-columns: 220px 380px 1fr; gap: 16px; min-height: 680px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-card);">
+        <div style="display: grid; grid-template-columns: 200px 300px 1fr; gap: 0; height: calc(100vh - 210px); min-height: 600px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-card); max-width: 100%;">
           
           <!-- Column 1: Mail Folders Navigation -->
           <div style="background: #f8fafc; border-right: 1px solid var(--border-color); padding: 20px 14px; display: flex; flex-direction: column; justify-content: space-between;">
@@ -2567,6 +2572,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
 
       container.innerHTML = globalEmails.map(m => {
         const isSelected = currentMailDetail && currentMailDetail.id === m.id;
+        let cleanSnippet = (m.snippet || '').replace(/[\{\}\/\*]|reset|margin-\w+|padding-\w+|font-\w+|border-\w+/gi, ' ').replace(/\s+/g, ' ').trim();
         return `
           <div class="mail-item ${m.is_read == 0 ? 'unread' : ''} ${isSelected ? 'selected' : ''}" onclick="openMailDetail(${m.id})" style="padding: 14px 16px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s; background: ${isSelected ? 'rgba(247, 147, 0, 0.08)' : (m.is_read == 0 ? '#f8fafc' : '#ffffff')}; border-left: ${m.is_read == 0 ? '4px solid var(--orbit-orange)' : 'none'};">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
@@ -2579,7 +2585,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
               ${m.is_starred == 1 ? '⭐ ' : ''}${m.subject || 'No Subject'}
             </div>
             <div style="font-size: 0.78rem; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-              ${m.snippet || ''}
+              ${cleanSnippet || ''}
             </div>
           </div>
         `;
