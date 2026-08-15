@@ -172,6 +172,26 @@ function sendHostingerSMTP($db, $to, $subject, $bodyText, $bodyHtml = '', $inRep
     $stmtIns = $db->prepare("INSERT INTO email_messages (msg_uid, folder, sender_name, sender_email, recipient_email, subject, snippet, body_html, body_text, is_read, received_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $stmtIns->execute([$msgUid, 'sent', $fromName, $fromEmail, $to, $subject, $snippet, $finalHtml, $bodyText, 1, date('Y-m-d H:i:s')]);
 
+    // Append copy to Hostinger IMAP Sent mailbox if password set
+    if (function_exists('imap_open') && !empty($smtpPass)) {
+        try {
+            $imapHost = $settings['imap_host'] ?: 'imap.hostinger.com';
+            $imapPort = intval($settings['imap_port'] ?: 993);
+            $mailbox = "{" . $imapHost . ":" . $imapPort . "/imap/ssl/novalidate-cert}INBOX.Sent";
+            $imapConn = @imap_open($mailbox, $smtpUser, $smtpPass);
+            if (!$imapConn) {
+                $mailbox = "{" . $imapHost . ":" . $imapPort . "/imap/ssl/novalidate-cert}Sent";
+                $imapConn = @imap_open($mailbox, $smtpUser, $smtpPass);
+            }
+            if ($imapConn) {
+                $rawHeaders = implode("\r\n", $headers);
+                $rawMsg = "To: <$to>\r\nSubject: $subject\r\n" . $rawHeaders . "\r\n\r\n" . $finalHtml;
+                @imap_append($imapConn, $mailbox, $rawMsg, "\\Seen");
+                @imap_close($imapConn);
+            }
+        } catch (Exception $e) {}
+    }
+
     return [
         'success' => $sentSuccess || true, // Logged locally and sent
         'message_id' => $msgUid,

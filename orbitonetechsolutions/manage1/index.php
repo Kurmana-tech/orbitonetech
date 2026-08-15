@@ -2483,6 +2483,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
     setInterval(pollNotifications, 4000);
     pollNotifications();
 
+    async function syncMailboxSilent() {
+      try {
+        const res = await fetch(API_BASE + '?action=sync_emails');
+        const data = await res.json();
+        if (data.success && data.new_count > 0) {
+          loadWebmail();
+        }
+      } catch (e) {}
+    }
+    setInterval(syncMailboxSilent, 20000);
+
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
     function exportToCSV(type) {
