@@ -152,11 +152,11 @@ export const SERVICES_DATA = [
 export const COMPANY_INFO = {
   name: "Orbitone Tech Solutions",
   tagline: "Innovate. Integrate. Elevate Your Business.",
-  email: "info@orbitonetech.com",
-  phone: "+1 (800) 555-ORBIT",
+  email: "support@orbitonetech.co.in",
+  phone: "+91 9916768856",
   address: "Innovation Tower, Suite 1200, Silicon Hub, Tech City",
   socials: {
-    linkedin: "https://linkedin.com",
+    linkedin: "https://www.linkedin.com/company/orbitone-tech-solutions/",
     twitter: "https://twitter.com",
     facebook: "https://facebook.com",
     instagram: "https://instagram.com"
