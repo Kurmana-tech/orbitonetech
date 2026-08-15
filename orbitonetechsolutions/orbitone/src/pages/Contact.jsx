@@ -3,7 +3,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MainCanvas from '../3d/MainCanvas';
 import { COMPANY_INFO } from '../data/services';
-import { Mail, Phone, MapPin, Send, CheckCircle2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle2, Edit3, Lock } from 'lucide-react';
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
@@ -17,6 +17,27 @@ export default function Contact() {
     service: 'Web Development',
     message: ''
   });
+
+  const [submittedLeadId, setSubmittedLeadId] = useState(0);
+  const [editTimeLeft, setEditTimeLeft] = useState(15);
+
+  useEffect(() => {
+    let timer;
+    if (submitted && editTimeLeft > 0) {
+      timer = setInterval(() => {
+        setEditTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [submitted, editTimeLeft]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,6 +65,9 @@ export default function Contact() {
       body.append('company', formData.company ? formData.company.trim() : '');
       body.append('service', formData.service);
       body.append('message', formData.message.trim());
+      if (submittedLeadId > 0) {
+        body.append('lead_id', submittedLeadId);
+      }
 
       const res = await fetch('/api/contact.php', {
         method: 'POST',
@@ -52,6 +76,8 @@ export default function Contact() {
       const result = await res.json();
       if (result.success) {
         setSubmitted(true);
+        if (result.lead_id) setSubmittedLeadId(result.lead_id);
+        setEditTimeLeft(15);
         setErrorMsg('');
       } else {
         setErrorMsg(result.message || 'Failed to submit contact message.');
@@ -61,6 +87,10 @@ export default function Contact() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleEditSubmission = () => {
+    setSubmitted(false);
   };
 
   return (
@@ -86,9 +116,45 @@ export default function Contact() {
               <div style={{ textAlign: 'center', padding: '40px 20px' }}>
                 <CheckCircle2 size={60} color="var(--orbit-orange)" style={{ marginBottom: '20px' }} />
                 <h3 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '12px' }}>Enquiry Received!</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', marginBottom: '24px', lineHeight: 1.6 }}>
                   Thank you for reaching out to Orbitone Tech Solutions. Our technical team will review your message and contact you shortly.
                 </p>
+
+                {/* 15-Second Edit Window Option */}
+                <div style={{ background: 'var(--bg-surface-elevated)', border: '1px solid var(--border-glass)', padding: '20px', borderRadius: '16px', maxWidth: '440px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                  {editTimeLeft > 0 ? (
+                    <>
+                      <div style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                        Need to change something? Edit within <strong>{editTimeLeft}s</strong>:
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleEditSubmission}
+                        style={{
+                          padding: '10px 24px',
+                          borderRadius: '12px',
+                          background: 'linear-gradient(135deg, var(--orbit-orange), #ffb03a)',
+                          border: 'none',
+                          color: '#ffffff',
+                          fontWeight: 800,
+                          fontSize: '0.92rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          boxShadow: '0 6px 20px rgba(247, 147, 0, 0.3)',
+                          transition: 'all 0.3s'
+                        }}
+                      >
+                        <Edit3 size={16} /> Edit My Submission ({editTimeLeft}s)
+                      </button>
+                    </>
+                  ) : (
+                    <div style={{ fontSize: '0.84rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Lock size={14} /> Edit window closed (15s limit). Your enquiry is recorded.
+                    </div>
+                  )}
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

@@ -37,10 +37,52 @@ if (!filter_var($contactEmail, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
-$referenceId = 'OTS-' . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8));
+$existingRefId = trim($_POST['reference_id'] ?? '');
 
 try {
     $db = getDB();
+
+    if (!empty($existingRefId)) {
+        $stmtCheck = $db->prepare("SELECT id FROM quote_requests WHERE reference_id = ?");
+        $stmtCheck->execute([$existingRefId]);
+        $foundId = $stmtCheck->fetchColumn();
+
+        if ($foundId) {
+            $referenceId = $existingRefId;
+            $stmtUpd = $db->prepare("UPDATE quote_requests SET services = ?, requirements = ?, budget = ?, contact_name = ?, contact_email = ?, contact_phone = ?, company = ? WHERE reference_id = ?");
+            $stmtUpd->execute([$serviceStr, $requirements, $budget, $contactName, $contactEmail, $contactPhone, $company, $referenceId]);
+
+            $stmtNotif = $db->prepare("INSERT INTO notifications (type, message) VALUES ('quote', ?)");
+            $stmtNotif->execute(["Quote request ($referenceId) updated by client $contactName"]);
+
+            $subText = "[CLIENT EDITED] Quote Proposal Request [$referenceId]: $company";
+            $snippet = substr("EDITED: Services: $serviceStr | Budget: $budget | Scope: $requirements", 0, 120);
+            $htmlBody = "<p style='color:#f79300;font-weight:700;'>✏️ [CLIENT EDITED PROPOSAL]</p>" .
+                        "<p><strong>Reference ID:</strong> " . htmlspecialchars($referenceId) . "</p>" .
+                        "<p><strong>Name:</strong> " . htmlspecialchars($contactName) . "</p>" .
+                        "<p><strong>Email:</strong> " . htmlspecialchars($contactEmail) . "</p>" .
+                        "<p><strong>Phone:</strong> " . htmlspecialchars($contactPhone) . "</p>" .
+                        "<p><strong>Company:</strong> " . htmlspecialchars($company) . "</p>" .
+                        "<p><strong>Requested Services:</strong> " . htmlspecialchars($serviceStr) . "</p>" .
+                        "<p><strong>Planned Budget:</strong> " . htmlspecialchars($budget) . "</p>" .
+                        "<hr><p><strong>Updated Requirements / Scope:</strong><br>" . nl2br(htmlspecialchars($requirements)) . "</p>";
+
+            $db->prepare("DELETE FROM email_messages WHERE subject LIKE ?")->execute(["%$referenceId%"]);
+            $msgUid = 'QUOTE-UPD-' . time() . '-' . rand(100, 999);
+            $stmtMail = $db->prepare("INSERT INTO email_messages (msg_uid, folder, sender_name, sender_email, recipient_email, subject, snippet, body_html, body_text, is_read, received_at) VALUES (?, 'inbox', ?, ?, 'support@orbitonetech.co.in', ?, ?, ?, ?, 0, ?)");
+            $stmtMail->execute([$msgUid, $contactName, $contactEmail, $subText, $snippet, $htmlBody, $requirements, date('Y-m-d H:i:s')]);
+
+            echo json_encode([
+                'success' => true,
+                'reference_id' => $referenceId,
+                'updated' => true,
+                'message' => 'Quote proposal updated in-place successfully.'
+            ]);
+            exit;
+        }
+    }
+
+    $referenceId = 'OTS-' . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8));
     $stmt = $db->prepare("INSERT INTO quote_requests (reference_id, services, requirements, budget, contact_name, contact_email, contact_phone, company) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([$referenceId, $serviceStr, $requirements, $budget, $contactName, $contactEmail, $contactPhone, $company]);
 
@@ -67,6 +109,7 @@ try {
     echo json_encode([
         'success' => true,
         'reference_id' => $referenceId,
+        'updated' => false,
         'message' => 'Quote request saved successfully.'
     ]);
 } catch (Exception $e) {

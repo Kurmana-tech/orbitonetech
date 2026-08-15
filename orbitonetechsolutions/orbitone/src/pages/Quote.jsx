@@ -5,7 +5,7 @@ import MainCanvas from '../3d/MainCanvas';
 import { 
   Calculator, CheckCircle2, ArrowRight, ArrowLeft, Send, 
   Globe, Terminal, Smartphone, Bot, PieChart, Rocket, 
-  Zap, Calendar, Building2, Repeat, ShieldCheck, User, Mail, Phone, Building 
+  Zap, Calendar, Building2, Repeat, ShieldCheck, User, Mail, Phone, Building, Edit3, Lock 
 } from 'lucide-react';
 
 export default function Quote() {
@@ -18,6 +18,26 @@ export default function Quote() {
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submittedRefId, setSubmittedRefId] = useState('');
+  const [editTimeLeft, setEditTimeLeft] = useState(15);
+
+  useEffect(() => {
+    let timer;
+    if (submitted && editTimeLeft > 0) {
+      timer = setInterval(() => {
+        setEditTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [submitted, editTimeLeft]);
 
   const capabilities = [
     {
@@ -177,6 +197,10 @@ export default function Quote() {
       body.append('contact_phone', formData.phone ? formData.phone.trim() : '');
       body.append('company', formData.company ? formData.company.trim() : '');
 
+      if (submittedRefId) {
+        body.append('reference_id', submittedRefId);
+      }
+
       const res = await fetch('/api/quote.php', {
         method: 'POST',
         body: body
@@ -184,6 +208,8 @@ export default function Quote() {
       const result = await res.json();
       if (result.success) {
         setSubmitted(true);
+        if (result.reference_id) setSubmittedRefId(result.reference_id);
+        setEditTimeLeft(15);
         setFormError('');
       } else {
         setFormError(result.message || 'Failed to submit proposal request.');
@@ -193,6 +219,11 @@ export default function Quote() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleEditSubmission = () => {
+    setSubmitted(false);
+    setStep(1);
   };
 
   const stepsList = [
@@ -598,12 +629,53 @@ export default function Quote() {
                 ) : (
                   <div style={{ textAlign: 'center', padding: '40px 20px' }}>
                     <CheckCircle2 size={56} color="var(--orbit-orange)" style={{ margin: '0 auto 16px auto' }} />
-                    <h3 style={{ fontSize: '1.6rem', color: 'var(--text-primary)', marginBottom: '12px' }}>
+                    <h3 style={{ fontSize: '1.6rem', color: 'var(--text-primary)', marginBottom: '6px', fontWeight: 800 }}>
                       Proposal Request Submitted!
                     </h3>
-                    <p style={{ color: 'var(--text-secondary)', maxWidth: '520px', margin: '0 auto' }}>
-                      Thank you, {formData.name}. Our solutions architect will analyze your project scope (${totalBaseCost.toLocaleString()} USD Est.) and contact you at {formData.email} within 24 hours.
+                    {submittedRefId && (
+                      <div style={{ fontSize: '0.85rem', color: 'var(--orbit-orange)', fontWeight: 800, marginBottom: '16px', letterSpacing: '0.05em' }}>
+                        REFERENCE ID: {submittedRefId}
+                      </div>
+                    )}
+                    <p style={{ color: 'var(--text-secondary)', maxWidth: '520px', margin: '0 auto 24px auto', lineHeight: 1.6 }}>
+                      Thank you, <strong>{formData.name}</strong>. Our solutions architect will analyze your project scope (${totalBaseCost.toLocaleString()} USD Est.) and contact you at <strong>{formData.email}</strong> within 24 hours.
                     </p>
+
+                    {/* 15-Second Edit Window Option */}
+                    <div style={{ background: 'var(--bg-surface-elevated)', border: '1px solid var(--border-glass)', padding: '20px', borderRadius: '16px', maxWidth: '480px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                      {editTimeLeft > 0 ? (
+                        <>
+                          <div style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                            Made a mistake? You can edit your proposal within <strong>{editTimeLeft}s</strong>:
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleEditSubmission}
+                            style={{
+                              padding: '10px 24px',
+                              borderRadius: '12px',
+                              background: 'linear-gradient(135deg, var(--orbit-orange), #ffb03a)',
+                              border: 'none',
+                              color: '#ffffff',
+                              fontWeight: 800,
+                              fontSize: '0.92rem',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              boxShadow: '0 6px 20px rgba(247, 147, 0, 0.3)',
+                              transition: 'all 0.3s'
+                            }}
+                          >
+                            <Edit3 size={16} /> Edit My Submission ({editTimeLeft}s)
+                          </button>
+                        </>
+                      ) : (
+                        <div style={{ fontSize: '0.84rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <Lock size={14} /> Edit window closed (15s limit). Your request is locked &amp; assigned to an architect.
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

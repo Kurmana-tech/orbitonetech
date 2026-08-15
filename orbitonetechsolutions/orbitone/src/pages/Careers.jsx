@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MainCanvas from '../3d/MainCanvas';
-import { Users, Briefcase, MapPin, Send, CheckCircle2, DollarSign, Award, Terminal, Brain, Rocket, Palette, X, User, Mail, Link as LinkIcon, FileUp, FileText, AlertCircle } from 'lucide-react';
+import { Users, Briefcase, MapPin, Send, CheckCircle2, DollarSign, Award, Terminal, Brain, Rocket, Palette, X, User, Mail, Link as LinkIcon, FileUp, FileText, AlertCircle, Clock, Banknote } from 'lucide-react';
 
 const getDeptIcon = (dept) => {
   const d = (dept || '').toLowerCase();
@@ -166,11 +166,11 @@ export default function Careers() {
                         }}>
                           {job.department}
                         </span>
-                        <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>📍 {job.location} ({job.type})</span>
-                        <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>⏱️ {job.experience}</span>
+                        <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}><MapPin size={13} color="var(--orbit-orange)" /> {job.location} ({job.type})</span>
+                        <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}><Clock size={13} /> {job.experience}</span>
                         {job.stipend && (
-                          <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--orbit-orange)' }}>
-                            💼 {job.stipend}
+                          <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--orbit-orange)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <Banknote size={13} /> {job.stipend}
                           </span>
                         )}
                       </div>
@@ -295,10 +295,10 @@ export default function Careers() {
                     {viewingJob.title}
                   </h2>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-                    <span>📍 {viewingJob.location}</span>
-                    <span>💼 {viewingJob.type}</span>
-                    <span>⏱️ Duration / Exp: {viewingJob.experience}</span>
-                    {viewingJob.stipend && <span style={{ color: 'var(--orbit-orange)', fontWeight: 700 }}>💰 {viewingJob.stipend}</span>}
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><MapPin size={14} color="var(--orbit-orange)" /> {viewingJob.location}</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><Briefcase size={14} /> {viewingJob.type}</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><Clock size={14} /> Duration / Exp: {viewingJob.experience}</span>
+                    {viewingJob.stipend && <span style={{ color: 'var(--orbit-orange)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}><Banknote size={14} /> {viewingJob.stipend}</span>}
                   </div>
                 </div>
 

@@ -1052,13 +1052,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
               </div>
               <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; font-size: 0.82rem;">
                 <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 2px;" id="disp-mail-user">support@orbitonetech.co.in</div>
-                <div style="color: var(--orbit-green); font-weight: 600; font-size: 0.75rem;" id="disp-mail-status">✓ Hostinger IMAP Connected</div>
+                <div style="color: var(--orbit-green); font-weight: 600; font-size: 0.75rem;" id="disp-mail-status">Hostinger IMAP Connected</div>
               </div>
             </div>
 
             <!-- Quick Template Hint -->
             <div style="background: rgba(247, 147, 0, 0.08); border: 1px dashed var(--border-accent); padding: 12px; border-radius: 12px;">
-              <div style="font-weight: 700; font-size: 0.8rem; color: var(--orbit-orange); margin-bottom: 4px;">⚡ Quick Responses</div>
+              <div style="font-weight: 700; font-size: 0.8rem; color: var(--orbit-orange); margin-bottom: 4px;">Quick Responses</div>
               <div style="font-size: 0.75rem; color: var(--text-secondary);">Use pre-saved templates when replying to client inquiries.</div>
             </div>
           </div>
@@ -1817,14 +1817,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
             <td>
               <div style="font-weight: 700; color: var(--text-primary);">${j.title}</div>
               <div style="display: flex; gap: 6px; align-items: center; margin-top: 4px; flex-wrap: wrap;">
-                ${j.stipend ? `<span class="badge badge-pending">💼 ${j.stipend}</span>` : ''}
-                ${Number(j.requires_demo_file) === 1 ? `<span class="badge badge-info" style="font-size: 0.72rem;">🎥 Demo Required</span>` : ''}
+                ${j.stipend ? `<span class="badge badge-pending">${j.stipend}</span>` : ''}
+                ${Number(j.requires_demo_file) === 1 ? `<span class="badge badge-info" style="font-size: 0.72rem;">Demo Required</span>` : ''}
               </div>
             </td>
             <td><span class="badge badge-info">${j.department}</span></td>
             <td>
-              <div style="font-size: 0.88rem; color: var(--text-primary); font-weight: 600;">📍 ${j.location || 'Vijayawada'} (${j.type || 'Full-time'})</div>
-              <div style="font-size: 0.78rem; color: var(--text-secondary);">⏱️ ${j.experience || '1–3 Years'}</div>
+              <div style="font-size: 0.88rem; color: var(--text-primary); font-weight: 600;">${j.location || 'Vijayawada'} (${j.type || 'Full-time'})</div>
+              <div style="font-size: 0.78rem; color: var(--text-secondary);">${j.experience || '1–3 Years'}</div>
             </td>
             <td>
               <select class="status-select" onchange="toggleJobStatus(${j.id}, this.value)" style="border-color: ${j.status === 'Active' ? 'var(--orbit-green)' : 'var(--border-color)'};">
@@ -1886,9 +1886,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       document.getElementById('modal-body').innerHTML = `
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;">
           <span class="badge badge-info">${j.department}</span>
-          <span class="badge badge-pending">📍 ${j.location} (${j.type})</span>
-          <span class="badge badge-approved">⏱️ ${j.experience}</span>
-          ${j.stipend ? `<span class="badge badge-pending">💼 ${j.stipend}</span>` : ''}
+          <span class="badge badge-pending">${j.location} (${j.type})</span>
+          <span class="badge badge-approved">${j.experience}</span>
+          ${j.stipend ? `<span class="badge badge-pending">${j.stipend}</span>` : ''}
           <span class="badge ${j.status === 'Active' ? 'badge-approved' : 'badge-rejected'}">Status: ${j.status}</span>
         </div>
 
@@ -1984,13 +1984,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
             <td><span class="badge badge-info">${e.department}</span></td>
             <td>
               <div style="font-weight: 700; color: var(--text-primary);">${e.role}</div>
-              <div style="font-size: 0.76rem; color: var(--orbit-blue); font-weight: 600;">👤 ${e.username || 'N/A'}</div>
+              <div style="font-size: 0.76rem; color: var(--orbit-blue); font-weight: 600;">User: ${e.username || 'N/A'}</div>
             </td>
             <td>
               <div style="font-family: monospace; background: #f1f5f9; padding: 4px 8px; border-radius: 6px; font-size: 0.82rem; color: var(--text-primary); display: inline-block;">
-                🔑 ${e.raw_password || 'orbitone@123'}
+                Pass: ${e.raw_password || 'orbitone@123'}
               </div>
-              <div style="font-size: 0.72rem; color: var(--orbit-green); font-weight: 700; margin-top: 2px;">✓ Admin Login Granted</div>
+              <div style="font-size: 0.72rem; color: var(--orbit-green); font-weight: 700; margin-top: 2px;">Admin Access Active</div>
             </td>
             <td>
               <button class="action-btn" style="color: var(--orbit-red);" onclick="deleteItem('delete_employee', ${e.id})" title="Delete Team Member & Revoke Login Access"><i data-lucide="trash" style="width: 14px;"></i> Delete</button>
@@ -2442,7 +2442,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
 
           if (count > lastUnreadCount && data.notifications && data.notifications.length > 0) {
             const latest = data.notifications[0];
-            showNotificationToast(`🔔 ${latest.message}`);
+            showNotificationToast(latest.message);
             loadAllData();
           }
           lastUnreadCount = count;
@@ -2532,7 +2532,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
         if (data.success) {
           if (data.new_count > 0) {
             playEmailChime();
-            showRealtimeToast(`📩 REAL-TIME MAIL: ${data.new_count} new email(s) received!`);
+            showRealtimeToast(`REAL-TIME MAIL: ${data.new_count} new email(s) received!`);
             loadWebmail();
           } else {
             const resCount = await fetch(API_BASE + `?action=get_emails&folder=${currentMailFolder}`);
@@ -2541,7 +2541,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
               const currUnread = countData.counts?.unread_inbox || 0;
               if (lastUnreadEmailCount !== -1 && currUnread > lastUnreadEmailCount) {
                 playEmailChime();
-                showRealtimeToast('📩 REAL-TIME MAIL: New message detected!');
+                showRealtimeToast('REAL-TIME MAIL: New message detected!');
                 loadWebmail();
               } else if (document.getElementById('tab-webmail')?.classList.contains('active')) {
                 globalEmails = countData.emails || [];
