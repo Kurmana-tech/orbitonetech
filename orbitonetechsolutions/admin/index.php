@@ -685,14 +685,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
               </div>
               <div class="form-group">
                 <label>Department</label>
-                <select id="job-dept" class="select-control" required>
-                  <option value="Engineering">Engineering</option>
-                  <option value="AI & Machine Learning">AI & Machine Learning</option>
-                  <option value="Design & Creative">Design & Creative</option>
-                  <option value="Marketing & Sales">Marketing & Sales</option>
-                  <option value="Data Analytics">Data Analytics</option>
-                  <option value="Operations & PM">Operations & PM</option>
-                </select>
+                <input type="text" id="job-dept" class="input-control" required placeholder="e.g. Marketing & Sales">
               </div>
               <div class="form-group">
                 <label>Location</label>
@@ -804,14 +797,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
               </div>
               <div class="form-group">
                 <label>Department</label>
-                <select id="emp-dept" class="select-control" required>
-                  <option value="Engineering">Engineering</option>
-                  <option value="AI & Machine Learning">AI & Machine Learning</option>
-                  <option value="Design & Creative">Design & Creative</option>
-                  <option value="Marketing & Sales">Marketing & Sales</option>
-                  <option value="Data Analytics">Data Analytics</option>
-                  <option value="Operations & PM">Operations & PM</option>
-                </select>
+                <input type="text" id="emp-dept" class="input-control" required placeholder="e.g. Engineering">
               </div>
               <div class="form-group">
                 <label>Designation / Role</label>
@@ -1000,14 +986,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
           <div class="form-group">
             <label>Department</label>
-            <select id="edit-job-dept" class="select-control" required>
-              <option value="Engineering">Engineering</option>
-              <option value="AI & Machine Learning">AI & Machine Learning</option>
-              <option value="Design & Creative">Design & Creative</option>
-              <option value="Marketing & Sales">Marketing & Sales</option>
-              <option value="Data Analytics">Data Analytics</option>
-              <option value="Operations & PM">Operations & PM</option>
-            </select>
+            <input type="text" id="edit-job-dept" class="input-control" required placeholder="e.g. Design & Creative">
           </div>
           <div class="form-group">
             <label>Location</label>
