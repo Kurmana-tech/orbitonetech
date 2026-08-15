@@ -154,7 +154,7 @@ export const COMPANY_INFO = {
   tagline: "Innovate. Integrate. Elevate Your Business.",
   email: "support@orbitonetech.co.in",
   phone: "+91 9916768856",
-  address: "Vijayawada, Andhra Pradesh, India",
+  address: "Sri Sai Towers, Kanuru, Vijayawada, Andhra Pradesh - 520007, India",
   socials: {
     linkedin: "https://www.linkedin.com/company/orbitone-tech-solutions/",
     twitter: "https://twitter.com",
