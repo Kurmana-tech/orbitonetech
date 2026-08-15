@@ -281,7 +281,7 @@ export default function Contact() {
 
             <div style={{ padding: '20px', background: 'var(--bg-surface-elevated)', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
               <div style={{ color: 'var(--orbit-orange)', fontWeight: 700, fontSize: '0.9rem', marginBottom: '4px' }}>Business Hours</div>
-              <div style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>Monday – Friday: 9:00 AM – 6:00 PM EST</div>
+              <div style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>Monday – Friday: 9:00 AM – 6:00 PM IST</div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>24/7 Priority Support for Enterprise Clients</div>
             </div>
           </div>
