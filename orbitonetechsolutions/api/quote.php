@@ -48,6 +48,22 @@ try {
     $stmtNotif = $db->prepare("INSERT INTO notifications (type, message) VALUES ('quote', ?)");
     $stmtNotif->execute(["New quote request ($referenceId) from $contactName"]);
 
+    // Log Webmail Inbox Message
+    $msgUid = 'QUOTE-' . time() . '-' . rand(100, 999);
+    $subText = "New Quote Proposal Request [$referenceId]: $company";
+    $snippet = substr("Services: $serviceStr | Budget: $budget | Scope: $requirements", 0, 120);
+    $htmlBody = "<p><strong>Reference ID:</strong> " . htmlspecialchars($referenceId) . "</p>" .
+                "<p><strong>Name:</strong> " . htmlspecialchars($contactName) . "</p>" .
+                "<p><strong>Email:</strong> " . htmlspecialchars($contactEmail) . "</p>" .
+                "<p><strong>Phone:</strong> " . htmlspecialchars($contactPhone) . "</p>" .
+                "<p><strong>Company:</strong> " . htmlspecialchars($company) . "</p>" .
+                "<p><strong>Requested Services:</strong> " . htmlspecialchars($serviceStr) . "</p>" .
+                "<p><strong>Planned Budget:</strong> " . htmlspecialchars($budget) . "</p>" .
+                "<hr><p><strong>Requirements / Scope:</strong><br>" . nl2br(htmlspecialchars($requirements)) . "</p>";
+
+    $stmtMail = $db->prepare("INSERT INTO email_messages (msg_uid, folder, sender_name, sender_email, recipient_email, subject, snippet, body_html, body_text, is_read, received_at) VALUES (?, 'inbox', ?, ?, 'support@orbitonetech.co.in', ?, ?, ?, ?, 0, ?)");
+    $stmtMail->execute([$msgUid, $contactName, $contactEmail, $subText, $snippet, $htmlBody, $requirements, date('Y-m-d H:i:s')]);
+
     echo json_encode([
         'success' => true,
         'reference_id' => $referenceId,

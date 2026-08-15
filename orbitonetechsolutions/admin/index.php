@@ -2488,16 +2488,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
     setInterval(pollNotifications, 4000);
     pollNotifications();
 
+    function playEmailChime() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.35);
+      } catch (e) {}
+    }
+
+    function showRealtimeToast(msg) {
+      let toast = document.getElementById('realtime-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'realtime-toast';
+        toast.style.cssText = 'position: fixed; top: 24px; right: 24px; background: linear-gradient(135deg, #f79300, #ffb03a); color: #ffffff; padding: 14px 20px; border-radius: 14px; font-weight: 700; font-size: 0.9rem; box-shadow: 0 10px 30px rgba(247, 147, 0, 0.4); z-index: 9999; display: flex; align-items: center; gap: 10px; transition: all 0.4s ease; transform: translateY(-20px); opacity: 0;';
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML = `<i data-lucide="bell" style="width: 18px;"></i> <span>${msg}</span>`;
+      lucide.createIcons();
+      toast.style.transform = 'translateY(0)';
+      toast.style.opacity = '1';
+      setTimeout(() => {
+        toast.style.transform = 'translateY(-20px)';
+        toast.style.opacity = '0';
+      }, 4500);
+    }
+
+    let lastUnreadEmailCount = -1;
+
     async function syncMailboxSilent() {
       try {
         const res = await fetch(API_BASE + '?action=sync_emails');
         const data = await res.json();
-        if (data.success && data.new_count > 0) {
-          loadWebmail();
+        if (data.success) {
+          if (data.new_count > 0) {
+            playEmailChime();
+            showRealtimeToast(`📩 REAL-TIME MAIL: ${data.new_count} new email(s) received!`);
+            loadWebmail();
+          } else {
+            const resCount = await fetch(API_BASE + `?action=get_emails&folder=${currentMailFolder}`);
+            const countData = await resCount.json();
+            if (countData.success) {
+              const currUnread = countData.counts?.unread_inbox || 0;
+              if (lastUnreadEmailCount !== -1 && currUnread > lastUnreadEmailCount) {
+                playEmailChime();
+                showRealtimeToast('📩 REAL-TIME MAIL: New message detected!');
+                loadWebmail();
+              } else if (document.getElementById('tab-webmail')?.classList.contains('active')) {
+                globalEmails = countData.emails || [];
+                renderMailList();
+              }
+              lastUnreadEmailCount = currUnread;
+              if (document.getElementById('badge-webmail')) {
+                document.getElementById('badge-webmail').textContent = currUnread;
+              }
+              if (document.getElementById('folder-count-inbox')) {
+                document.getElementById('folder-count-inbox').textContent = currUnread;
+              }
+            }
+          }
         }
       } catch (e) {}
     }
-    setInterval(syncMailboxSilent, 20000);
+    setInterval(syncMailboxSilent, 5000);
 
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
 

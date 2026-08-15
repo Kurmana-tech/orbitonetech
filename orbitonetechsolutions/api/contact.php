@@ -44,6 +44,21 @@ try {
     $stmtNotif = $db->prepare("INSERT INTO notifications (type, message) VALUES ('contact', ?)");
     $stmtNotif->execute(["New contact lead from $name for $service"]);
 
+    // Log Webmail Inbox Message
+    $msgUid = 'LEAD-' . time() . '-' . rand(100, 999);
+    $subText = "Contact Inquiry: " . ($service ?: "General Technical Inquiry");
+    $snippet = substr($message, 0, 120);
+    $htmlBody = "<p><strong>Name:</strong> " . htmlspecialchars($name) . "</p>" .
+                "<p><strong>Email:</strong> " . htmlspecialchars($email) . "</p>" .
+                "<p><strong>Phone:</strong> " . htmlspecialchars($phone) . "</p>" .
+                "<p><strong>Company:</strong> " . htmlspecialchars($company) . "</p>" .
+                "<p><strong>Service Requested:</strong> " . htmlspecialchars($service) . "</p>" .
+                "<p><strong>Budget:</strong> " . htmlspecialchars($budget) . "</p>" .
+                "<hr><p><strong>Message:</strong><br>" . nl2br(htmlspecialchars($message)) . "</p>";
+
+    $stmtMail = $db->prepare("INSERT INTO email_messages (msg_uid, folder, sender_name, sender_email, recipient_email, subject, snippet, body_html, body_text, is_read, received_at) VALUES (?, 'inbox', ?, ?, 'support@orbitonetech.co.in', ?, ?, ?, ?, 0, ?)");
+    $stmtMail->execute([$msgUid, $name, $email, $subText, $snippet, $htmlBody, $message, date('Y-m-d H:i:s')]);
+
     echo json_encode([
         'success' => true,
         'message' => 'Thank you! Your contact message has been recorded.'
