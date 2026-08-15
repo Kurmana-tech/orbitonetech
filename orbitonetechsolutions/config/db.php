@@ -152,8 +152,15 @@ function initDatabaseSchema($db) {
             department TEXT NOT NULL,
             role TEXT NOT NULL,
             joining_date DATE,
+            username TEXT,
+            password_hash TEXT,
+            raw_password TEXT,
             status TEXT DEFAULT 'Active'
         )");
+
+        try { $db->exec("ALTER TABLE active_employees ADD COLUMN username TEXT"); } catch (Exception $e) {}
+        try { $db->exec("ALTER TABLE active_employees ADD COLUMN password_hash TEXT"); } catch (Exception $e) {}
+        try { $db->exec("ALTER TABLE active_employees ADD COLUMN raw_password TEXT"); } catch (Exception $e) {}
 
         $db->exec("CREATE TABLE IF NOT EXISTS website_analytics (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -298,8 +305,15 @@ function initDatabaseSchema($db) {
             department VARCHAR(100) NOT NULL,
             role VARCHAR(255) NOT NULL,
             joining_date DATE,
+            username VARCHAR(100),
+            password_hash VARCHAR(255),
+            raw_password VARCHAR(255),
             status VARCHAR(50) DEFAULT 'Active'
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        try { $db->exec("ALTER TABLE active_employees ADD COLUMN username VARCHAR(100)"); } catch (Exception $e) {}
+        try { $db->exec("ALTER TABLE active_employees ADD COLUMN password_hash VARCHAR(255)"); } catch (Exception $e) {}
+        try { $db->exec("ALTER TABLE active_employees ADD COLUMN raw_password VARCHAR(255)"); } catch (Exception $e) {}
 
         $db->exec("CREATE TABLE IF NOT EXISTS notifications (
             id INT AUTO_INCREMENT PRIMARY KEY,

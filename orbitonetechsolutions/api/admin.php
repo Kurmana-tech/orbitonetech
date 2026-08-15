@@ -469,28 +469,56 @@ try {
     }
 
     if ($action === 'add_employee') {
-        $name = $_POST['name'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $phone = $_POST['phone'] ?? '';
-        $dept = $_POST['department'] ?? 'Engineering';
-        $role = $_POST['role'] ?? 'Developer';
+        $name = trim($_POST['name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $phone = trim($_POST['phone'] ?? '');
+        $dept = trim($_POST['department'] ?? 'Engineering');
+        $role = trim($_POST['role'] ?? 'Developer');
         $joining = $_POST['joining_date'] ?? date('Y-m-d');
+        
+        $username = trim($_POST['username'] ?? '');
+        if (empty($username)) {
+            $parts = explode('@', $email);
+            $username = !empty($parts[0]) ? strtolower(preg_replace('/[^a-zA-Z0-9_\.]/', '', $parts[0])) : strtolower(str_replace(' ', '.', $name));
+        }
+
+        $rawPassword = trim($_POST['password'] ?? '');
+        if (empty($rawPassword)) {
+            $rawPassword = 'orbitone@' . rand(100, 999);
+        }
+        $passHash = password_hash($rawPassword, PASSWORD_DEFAULT);
+
         $maxId = $db->query("SELECT MAX(id) FROM active_employees")->fetchColumn();
         $nextNum = intval($maxId) + 1;
         $empId = 'EMP-' . str_pad($nextNum + 100, 3, '0', STR_PAD_LEFT);
 
-        $stmt = $db->prepare("INSERT INTO active_employees (emp_id, name, email, phone, department, role, joining_date, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$empId, $name, $email, $phone, $dept, $role, $joining, 'Active']);
-        logAudit($db, 'ADD_EMPLOYEE', 'Active Team', "Added team member '$name'");
-        echo json_encode(['success' => true, 'emp_id' => $empId]);
+        $stmt = $db->prepare("INSERT INTO active_employees (emp_id, name, email, phone, department, role, joining_date, username, password_hash, raw_password, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$empId, $name, $email, $phone, $dept, $role, $joining, $username, $passHash, $rawPassword, 'Active']);
+
+        try {
+            $stmtUser = $db->prepare("INSERT INTO admin_users (username, password_hash) VALUES (?, ?)");
+            $stmtUser->execute([$username, $passHash]);
+        } catch (Exception $e) {
+            $stmtUser = $db->prepare("UPDATE admin_users SET password_hash = ? WHERE username = ?");
+            $stmtUser->execute([$passHash, $username]);
+        }
+
+        logAudit($db, 'ADD_EMPLOYEE', 'Active Team', "Added team member '$name' ($username)");
+        echo json_encode(['success' => true, 'emp_id' => $empId, 'username' => $username, 'password' => $rawPassword]);
         exit;
     }
 
     if ($action === 'delete_employee') {
         $id = intval($_POST['id'] ?? 0);
-        $stmt = $db->prepare("DELETE FROM active_employees WHERE id = ?");
-        $stmt->execute([$id]);
-        logAudit($db, 'DELETE_EMPLOYEE', 'Active Team', "Deleted team member ID #$id");
+        $emp = $db->query("SELECT * FROM active_employees WHERE id = $id")->fetch();
+        if ($emp) {
+            if (!empty($emp['username'])) {
+                $db->prepare("DELETE FROM admin_users WHERE username = ?")->execute([$emp['username']]);
+            }
+            $stmt = $db->prepare("DELETE FROM active_employees WHERE id = ?");
+            $stmt->execute([$id]);
+            logAudit($db, 'DELETE_EMPLOYEE', 'Active Team', "Deleted team member '{$emp['name']}'");
+        }
         echo json_encode(['success' => true]);
         exit;
     }
