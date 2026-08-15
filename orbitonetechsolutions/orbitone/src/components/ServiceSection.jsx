@@ -62,18 +62,6 @@ export default function ServiceSection({ service }) {
     >
       {/* Left Side: Text Content with ScrollTrigger Entrance */}
       <div ref={sectionContentRef} className="section-content" style={{ flex: '1 1 45%', maxWidth: '560px', zIndex: 3 }}>
-        {/* Section Number */}
-        <div
-          style={{
-            fontSize: '1.5rem',
-            fontWeight: '800',
-            color: 'var(--orbit-orange)',
-            marginBottom: '8px',
-            fontFamily: 'var(--font-display)'
-          }}
-        >
-          {sectionNumber}
-        </div>
 
         {/* Title */}
         <h2 className="section-title" style={{ fontSize: 'clamp(2.5rem, 4.5vw, 3.8rem)', marginBottom: '20px' }}>
