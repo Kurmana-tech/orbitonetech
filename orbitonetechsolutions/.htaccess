@@ -1,5 +1,18 @@
+DirectoryIndex index.html index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    
+    # Allow existing files and folders (e.g. /admin, /manage1, /api, /data)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+    
+    # Rewrite SPA routes to index.html
+    RewriteRule ^ index.html [L]
+</IfModule>
+
 <IfModule mod_headers.c>
-    Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
-    Header set Pragma "no-cache"
-    Header set Expires "0"
+    Header set Access-Control-Allow-Origin "*"
 </IfModule>
