@@ -378,7 +378,7 @@ export default function Quote() {
             {step === 2 && (
               <div>
                 <div style={{ marginBottom: '28px' }}>
-                  <span style={{ fontSize: '0.78rem', fontWeight: 700, padding: '4px 12px', borderRadius: '12px', background: 'rgba(45, 140, 255, 0.15)', color: 'var(--electric-blue)', border: '1px solid rgba(45, 140, 255, 0.3)' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, padding: '4px 12px', borderRadius: '12px', background: 'rgba(247, 147, 0, 0.15)', color: 'var(--orbit-orange)', border: '1px solid rgba(247, 147, 0, 0.3)' }}>
                     STEP 2 OF 4
                   </span>
                   <h3 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '12px', marginBottom: '6px' }}>
@@ -443,14 +443,15 @@ export default function Quote() {
                           style={{
                             padding: '20px',
                             borderRadius: '14px',
-                            border: isSelected ? '2px solid var(--electric-blue)' : '1px solid var(--border-glass)',
-                            background: isSelected ? 'rgba(45, 140, 255, 0.08)' : 'var(--bg-surface-elevated)',
+                            border: isSelected ? '2px solid var(--orbit-orange)' : '1px solid var(--border-glass)',
+                            background: isSelected ? 'rgba(247, 147, 0, 0.08)' : 'var(--bg-surface-elevated)',
                             cursor: 'pointer',
                             textAlign: 'center',
-                            transition: 'all 0.3s'
+                            transition: 'all 0.3s',
+                            boxShadow: isSelected ? '0 8px 25px rgba(247, 147, 0, 0.15)' : 'none'
                           }}
                         >
-                          <IconComp size={24} color={isSelected ? 'var(--electric-blue)' : 'var(--text-secondary)'} style={{ margin: '0 auto 8px auto' }} />
+                          <IconComp size={24} color={isSelected ? 'var(--orbit-orange)' : 'var(--text-secondary)'} style={{ margin: '0 auto 8px auto' }} />
                           <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.98rem' }}>{tl.title}</div>
                           <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '4px' }}>{tl.desc}</div>
                         </div>
