@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import MainCanvas from '../3d/MainCanvas';
@@ -8,87 +8,38 @@ import { Link } from 'react-router-dom';
 export default function Projects() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedProject, setSelectedProject] = useState(null);
+  const [projectsData, setProjectsData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const projectsData = [
-    {
-      id: 1,
-      title: "Neural Analytics Engine for FinTech",
-      category: "AI",
-      filterCategory: "AI Solutions",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
-      description: "Real-time fraud detection and predictive credit risk modeling system powered by deep neural networks.",
-      challenge: "Legacy batch data processing caused delayed transaction risk scoring and high false-positive fraud alerts.",
-      solution: "Architected a stream-processing ML pipeline using Python, PyTorch, and Apache Kafka delivering sub-50ms inference.",
-      techStack: "Python, PyTorch, Kafka, React, FastAPI, PostgreSQL",
-      results: "99.4% fraud detection accuracy, 85% reduction in manual review workload, and $4.2M saved in prevented fraud losses.",
-      featured: true
-    },
-    {
-      id: 2,
-      title: "Omnichannel E-Commerce Cloud Platform",
-      category: "Web",
-      filterCategory: "Web Development",
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
-      description: "High-performance progressive web app with microservices backend designed for 100K+ concurrent shoppers.",
-      challenge: "Slow monolithic website crashed during flash sales, resulting in lost revenue and low customer retention.",
-      solution: "Rebuilt the platform using headless Next.js frontend, Node.js microservices, and Redis caching layers.",
-      techStack: "React, Next.js, Node.js, MongoDB, Redis, AWS",
-      results: "3.2x faster page load speed, 45% increase in conversion rates, zero downtime during Peak Black Friday sales.",
-      featured: true
-    },
-    {
-      id: 3,
-      title: "Predictive Patient Care Assistant",
-      category: "AI",
-      filterCategory: "AI Solutions",
-      image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80",
-      description: "AI-driven hospital operational dashboard predicting patient readmissions and optimizing bed allocation.",
-      challenge: "Hospitals struggled with emergency room overcrowding and inefficient patient scheduling.",
-      solution: "Created NLP clinical documentation extraction + XGBoost predictive algorithms for risk stratification.",
-      techStack: "Python, TensorFlow, Scikit-learn, Healthcare API, React",
-      results: "38% reduction in patient wait times and 22% decrease in 30-day hospital readmission rates.",
-      featured: true
-    },
-    {
-      id: 4,
-      title: "Logistics Fleet Intelligence Dashboard",
-      category: "Analytics",
-      filterCategory: "Data Analytics",
-      image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80",
-      description: "Real-time telemetry and route optimization analytics suite for a fleet of 5,000+ commercial trucks.",
-      challenge: "High fuel consumption and delayed deliveries caused by un-optimized logistics routing and manual dispatcher tracking.",
-      solution: "Built an integrated geospatial analytics engine with automated telemetry ingestion and Power BI dashboards.",
-      techStack: "SQL, Power BI, Python, GIS Analytics, PostgreSQL",
-      results: "14% reduction in annual fleet fuel costs and 98.7% on-time delivery metric.",
-      featured: false
-    },
-    {
-      id: 5,
-      title: "SaaS Growth Marketing & Conversion Funnel Optimization",
-      category: "Digital Marketing",
-      filterCategory: "Digital Marketing",
-      image: "https://images.unsplash.com/photo-1533750349088-cd871a92f312?auto=format&fit=crop&w=800&q=80",
-      description: "Full-funnel digital marketing campaign combining hyper-targeted LinkedIn Ads, Google Search, and CRO.",
-      challenge: "Low lead quality and high Customer Acquisition Cost (CAC) for an enterprise B2B SaaS platform.",
-      solution: "Implemented intent-data keyword targeting, customized landing pages, and lead scoring marketing analytics.",
-      techStack: "Google Ads, LinkedIn Ads, Marketing Analytics, Google Analytics 4, Hotjar",
-      results: "240% increase in qualified sales pipeline leads and 35% decrease in CAC over 6 months.",
-      featured: false
-    },
-    {
-      id: 6,
-      title: "Cross-Platform Field Service Mobile App",
-      category: "Applications",
-      filterCategory: "Applications",
-      image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=800&q=80",
-      description: "Offline-first iOS and Android mobile app for field service engineers to manage work orders and inventory.",
-      challenge: "Field technicians lost data in low-connectivity remote locations, leading to delayed billing.",
-      solution: "Engineered a React Native cross-platform application with SQLite local sync and background sync queues.",
-      techStack: "React Native, Node.js, SQLite, REST API, Firebase",
-      results: "100% data reliability in offline zones and 50% faster invoice dispatch.",
-      featured: false
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const res = await fetch('/api/projects.php');
+        const result = await res.json();
+        if (result.success && Array.isArray(result.data)) {
+          const formatted = result.data.map(p => ({
+            id: p.id,
+            title: p.title,
+            category: p.category,
+            filterCategory: p.category || 'Web Development',
+            image: p.image_url || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
+            description: p.description || '',
+            challenge: p.challenge || 'Challenge details provided upon project discovery.',
+            solution: p.solution || 'Custom architecture engineered by Orbitone Tech Solutions.',
+            techStack: p.tech_stack || 'React, Node.js, Python, Cloud',
+            results: p.results || 'Optimal performance and scalability achieved.',
+            featured: Boolean(p.featured)
+          }));
+          setProjectsData(formatted);
+        }
+      } catch (err) {
+        console.error('Error fetching projects:', err);
+      } finally {
+        setLoading(false);
+      }
     }
-  ];
+    fetchProjects();
+  }, []);
 
   const filterTabs = [
     { id: 'all', label: 'All Projects' },
@@ -152,8 +103,17 @@ export default function Projects() {
           </div>
 
           {/* Portfolio Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '32px', marginBottom: '80px' }}>
-            {filteredProjects.map((p) => (
+          {loading ? (
+            <div className="glass-panel" style={{ padding: '36px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+              Loading portfolio case studies...
+            </div>
+          ) : filteredProjects.length === 0 ? (
+            <div className="glass-panel" style={{ padding: '36px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+              No portfolio projects currently published. Check back soon!
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '32px', marginBottom: '80px' }}>
+              {filteredProjects.map((p) => (
               <div key={p.id} className="glass-panel" style={{ padding: '0', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '20px' }}>
                 
                 {/* Project Image */}
@@ -204,6 +164,7 @@ export default function Projects() {
               </div>
             ))}
           </div>
+          )}
 
           {/* Detailed Case Study Modal Popup */}
           {selectedProject && (

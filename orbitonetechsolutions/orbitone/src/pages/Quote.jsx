@@ -257,7 +257,7 @@ export default function Quote() {
                           borderRadius: '50%',
                           background: isActive ? 'var(--orbit-orange)' : (isCompleted ? 'var(--electric-blue)' : 'var(--bg-surface-elevated)'),
                           border: isActive ? '3px solid rgba(247, 147, 0, 0.4)' : '2px solid var(--border-glass)',
-                          color: '#FFFFFF',
+                          color: (isActive || isCompleted) ? '#FFFFFF' : 'var(--text-primary)',
                           fontWeight: 800,
                           display: 'flex',
                           alignItems: 'center',

@@ -21,12 +21,20 @@ function getDB() {
             PDO::ATTR_EMULATE_PREPARES => false,
         ]);
     } catch (PDOException $e) {
-        // Fallback to SQLite in the workspace root for zero-config operation
+        // Fallback to SQLite with shared path resolution for manage1 & main site
         $sqliteDir = __DIR__ . '/../data';
-        if (!file_exists($sqliteDir)) {
-            mkdir($sqliteDir, 0777, true);
+        $possibleParentData = dirname(__DIR__, 2) . '/data';
+        if (file_exists($possibleParentData . '/orbitone.sqlite')) {
+            $dbPath = $possibleParentData . '/orbitone.sqlite';
+        } elseif (file_exists('/home/u879376989/domains/orbitonetech.co.in/public_html/data/orbitone.sqlite')) {
+            $dbPath = '/home/u879376989/domains/orbitonetech.co.in/public_html/data/orbitone.sqlite';
+        } else {
+            if (!file_exists($sqliteDir)) {
+                @mkdir($sqliteDir, 0777, true);
+            }
+            $dbPath = $sqliteDir . '/orbitone.sqlite';
         }
-        $dbPath = $sqliteDir . '/orbitone.sqlite';
+
         $db = new PDO('sqlite:' . $dbPath, null, null, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
@@ -78,12 +86,16 @@ function initDatabaseSchema($db) {
             experience TEXT,
             resume_note TEXT,
             resume_file TEXT,
+            demo_file TEXT,
             status TEXT DEFAULT 'New',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )");
 
         try {
             $db->exec("ALTER TABLE job_applications ADD COLUMN resume_file TEXT");
+        } catch (Exception $e) {}
+        try {
+            $db->exec("ALTER TABLE job_applications ADD COLUMN demo_file TEXT");
         } catch (Exception $e) {}
 
         $db->exec("CREATE TABLE IF NOT EXISTS projects (
@@ -253,6 +265,46 @@ function initDatabaseSchema($db) {
             is_read TINYINT(1) DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS website_analytics (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT,
+            visitor_id TEXT,
+            page_url TEXT NOT NULL,
+            page_title TEXT,
+            referrer TEXT,
+            traffic_source TEXT,
+            device_type TEXT,
+            browser TEXT,
+            country TEXT DEFAULT 'India',
+            ip_hash TEXT,
+            utm_source TEXT,
+            utm_medium TEXT,
+            utm_campaign TEXT,
+            event_type TEXT DEFAULT 'page_view',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS financial_records (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            type TEXT NOT NULL,
+            category TEXT NOT NULL,
+            title TEXT NOT NULL,
+            amount REAL NOT NULL,
+            record_date DATE NOT NULL,
+            notes TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS audit_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            admin_username TEXT NOT NULL,
+            action TEXT NOT NULL,
+            resource TEXT NOT NULL,
+            details TEXT,
+            ip_address TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )");
     }
 
     // Add columns dynamically if they do not exist
@@ -262,11 +314,96 @@ function initDatabaseSchema($db) {
     try {
         $db->exec("ALTER TABLE job_openings ADD COLUMN requirements TEXT");
     } catch (Exception $e) {}
+    try {
+        $db->exec("ALTER TABLE job_openings ADD COLUMN requires_demo_file INTEGER DEFAULT 0");
+    } catch (Exception $e) {}
+    try {
+        $db->exec("ALTER TABLE job_openings ADD COLUMN demo_file_label TEXT");
+    } catch (Exception $e) {}
+    try {
+        $db->exec("ALTER TABLE job_applications ADD COLUMN demo_file TEXT");
+    } catch (Exception $e) {}
+    try {
+        $db->exec("ALTER TABLE contact_leads ADD COLUMN lead_status TEXT DEFAULT 'New'");
+    } catch (Exception $e) {}
+    try {
+        $db->exec("ALTER TABLE contact_leads ADD COLUMN estimated_value REAL DEFAULT 0");
+    } catch (Exception $e) {}
+    try {
+        $db->exec("ALTER TABLE contact_leads ADD COLUMN assigned_to TEXT");
+    } catch (Exception $e) {}
+    try {
+        $db->exec("ALTER TABLE contact_leads ADD COLUMN notes TEXT");
+    } catch (Exception $e) {}
+    try {
+        $db->exec("ALTER TABLE quote_requests ADD COLUMN lead_status TEXT DEFAULT 'New'");
+    } catch (Exception $e) {}
+    try {
+        $db->exec("ALTER TABLE quote_requests ADD COLUMN estimated_value REAL DEFAULT 0");
+    } catch (Exception $e) {}
+    try {
+        $db->exec("ALTER TABLE quote_requests ADD COLUMN assigned_to TEXT");
+    } catch (Exception $e) {}
+    try {
+        $db->exec("ALTER TABLE quote_requests ADD COLUMN notes TEXT");
+    } catch (Exception $e) {}
 
-    // seedInitialDataIfEmpty disabled to keep database clean for admin entries
+    seedJobsIfEmpty($db);
 }
 
-function seedInitialDataIfEmpty($db) {
-    // No automatic dummy seeding - Admin enters all data from scratch
-    return;
+function seedJobsIfEmpty($db) {
+    try {
+        $count = $db->query("SELECT COUNT(*) FROM job_openings")->fetchColumn();
+        if ($count == 0) {
+            $stmt = $db->prepare("INSERT INTO job_openings (title, department, location, type, experience, stipend, requirements, description, requires_demo_file, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active')");
+
+            $stmt->execute([
+                'Social Media Marketing Intern',
+                'Marketing & Sales',
+                'Vijayawada',
+                'Internship',
+                '3–6 Months',
+                '₹5,000 - ₹10,000 / month',
+                "Assist in creating, scheduling, and posting content across social media platforms (Instagram, LinkedIn, Facebook, Twitter/X, YouTube)\nSupport brainstorming content ideas and creative concepts\nHelp monitor social media channels and community engagement\nTrack basic performance metrics (likes, shares, comments, follower growth)\nResearch current social media trends, hashtags, and competitor activity",
+                "We're looking for an enthusiastic and creative Social Media Marketing Intern to support our digital presence and learn hands-on how brands grow online in Vijayawada.",
+                0
+            ]);
+
+            $stmt->execute([
+                'Photo & Video Editor',
+                'Design & Creative',
+                'Vijayawada',
+                'Full-time',
+                '1–3 Years',
+                '₹15,000 - ₹25,000 / month',
+                "Proficiency in Adobe Premiere Pro, After Effects, Photoshop, Lightroom, or DaVinci Resolve\nExperience in video editing, color grading, audio cleaning, and motion graphics\nAbility to edit short-form reels (Instagram/YouTube Shorts) and long-form video content\nPortfolio/Demo reel mandatory for submission",
+                "We are seeking a talented Photo & Video Editor in Vijayawada to create high-quality visual content, promotional reels, and brand videos.",
+                1
+            ]);
+
+            $stmt->execute([
+                'Social Media Marketing Executive/Manager',
+                'Marketing & Sales',
+                'Vijayawada',
+                'Full-time',
+                '2–5 Years',
+                'Competitive Package',
+                "Proven track record in social media management, brand strategy, and content planning\nAbility to run paid social campaigns (Meta Ads, LinkedIn Ads)\nStrong analytical skills with proficiency in Google Analytics & Social Insights\nTeam leadership and client communication skills",
+                "OrbitOne Tech Solutions is hiring a Social Media Marketing Executive/Manager in Vijayawada to lead digital brand growth, campaign strategies, and audience engagement.",
+                0
+            ]);
+
+            $stmt->execute([
+                'Digital Marketer',
+                'Marketing & Sales',
+                'Vijayawada',
+                'Full-time',
+                '1–4 Years',
+                'Competitive Package',
+                "Hands-on expertise in SEO, SEM, PPC campaigns, email marketing, and funnel optimization\nExperience with Google Ads, Meta Ads Manager, and SEO tools (Ahrefs, SEMrush)\nStrong conversion copywriting and data analysis capability",
+                "Join OrbitOne as a Digital Marketer in Vijayawada to drive performance marketing, search engine rankings, and qualified lead generation.",
+                0
+            ]);
+        }
+    } catch (Exception $e) {}
 }

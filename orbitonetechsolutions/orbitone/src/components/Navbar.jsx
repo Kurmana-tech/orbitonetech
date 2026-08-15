@@ -33,8 +33,7 @@ export default function Navbar() {
       hasDropdown: true,
       subLinks: [
         { name: 'About Us', path: '/about', desc: 'Who we are & our mission' },
-        { name: 'Our Process', path: '/process', desc: '7-step software lifecycle' },
-        { name: 'Careers', path: '/careers', desc: 'Join our engineering team' }
+        { name: 'Our Process', path: '/process', desc: '7-step software lifecycle' }
       ]
     },
     {
@@ -52,6 +51,7 @@ export default function Navbar() {
     },
     { name: 'Industries', path: '/industries' },
     { name: 'Projects', path: '/projects' },
+    { name: 'Careers', path: '/careers' },
     { name: 'Insights', path: '/blog' },
     { name: 'Contact', path: '/contact' }
   ];

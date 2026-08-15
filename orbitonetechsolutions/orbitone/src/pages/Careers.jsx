@@ -32,11 +32,13 @@ const getDeptColors = (dept) => {
 
 export default function Careers() {
   const [selectedJob, setSelectedJob] = useState(null);
+  const [viewingJob, setViewingJob] = useState(null);
   const [applied, setApplied] = useState(false);
   const [applyError, setApplyError] = useState('');
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedFileName, setSelectedFileName] = useState('');
+  const [selectedDemoFileName, setSelectedDemoFileName] = useState('');
 
   useEffect(() => {
     async function fetchJobs() {
@@ -66,6 +68,8 @@ export default function Careers() {
       const note = formEl.elements['resume_note']?.value || '';
       const fileInput = formEl.elements['resume_file'];
       const file = fileInput?.files?.[0];
+      const demoFileInput = formEl.elements['demo_file'];
+      const demoFile = demoFileInput?.files?.[0];
 
       if (!name.trim() || !email.trim()) {
         setApplyError('Please enter your Name and Email address.');
@@ -74,6 +78,12 @@ export default function Careers() {
 
       if (!file) {
         setApplyError('Please select a resume file (PDF, DOC, or DOCX) to upload.');
+        return;
+      }
+
+      const requiresDemo = Boolean(selectedJob && Number(selectedJob.requires_demo_file) === 1);
+      if (requiresDemo && !demoFile) {
+        setApplyError('Please upload your Portfolio Demo Reel / Video / Image file required for this position.');
         return;
       }
 
@@ -86,6 +96,9 @@ export default function Careers() {
       body.append('experience', linkedin.trim());
       body.append('resume_note', note.trim());
       body.append('resume_file', file);
+      if (demoFile) {
+        body.append('demo_file', demoFile);
+      }
 
       const res = await fetch('/api/career.php', {
         method: 'POST',
@@ -137,73 +150,211 @@ export default function Careers() {
               jobs.map((job) => {
                 const colors = getDeptColors(job.department);
                 return (
-                  <div key={job.id} className="glass-panel" style={{ padding: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '24px' }}>
-                    <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', flex: '1 1 65%', flexWrap: 'wrap' }}>
-                      <div style={{
-                        background: colors.bg,
-                        color: colors.text,
-                        border: `1px solid ${colors.border}`,
-                        width: '52px',
-                        height: '52px',
-                        borderRadius: '12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0
-                      }}>
-                        {getDeptIcon(job.department)}
-                      </div>
-                      <div style={{ flex: 1, minWidth: '240px' }}>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', marginBottom: '8px' }}>
-                          <span style={{
-                            fontSize: '0.7rem',
-                            fontWeight: 700,
-                            color: colors.text,
-                            background: colors.bg,
-                            border: `1px solid ${colors.border}`,
-                            padding: '3px 10px',
-                            borderRadius: '20px',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em'
-                          }}>
-                            {job.department}
+                  <div key={job.id} className="glass-panel" style={{ padding: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+                    <div style={{ flex: '1 1 60%', minWidth: '280px' }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
+                        <span style={{
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          color: colors.text,
+                          background: colors.bg,
+                          border: `1px solid ${colors.border}`,
+                          padding: '3px 12px',
+                          borderRadius: '20px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em'
+                        }}>
+                          {job.department}
+                        </span>
+                        <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>📍 {job.location} ({job.type})</span>
+                        <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>⏱️ {job.experience}</span>
+                        {job.stipend && (
+                          <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--orbit-orange)' }}>
+                            💼 {job.stipend}
                           </span>
-                          <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>• {job.location} ({job.type})</span>
-                          <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>• Exp: {job.experience}</span>
-                          {job.stipend && (
-                            <>
-                              <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>•</span>
-                              <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--orbit-orange)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                                <DollarSign size={13} /> Stipend: {job.stipend}
-                              </span>
-                            </>
-                          )}
-                        </div>
-                        <h3 style={{ fontSize: '1.3rem', color: 'var(--text-primary)', fontWeight: 800, marginBottom: '8px' }}>{job.title}</h3>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', maxWidth: '650px', lineHeight: '1.6', marginBottom: job.requirements ? '12px' : '0' }}>{job.description}</p>
-                        {job.requirements && (
-                          <div style={{ marginTop: '16px', background: 'rgba(255, 255, 255, 0.02)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
-                            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <Award size={14} color="var(--orbit-orange)" />
-                              <span>Key Requirements & Skills:</span>
-                            </div>
-                            <ul style={{ paddingLeft: '18px', margin: 0, fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                              {job.requirements.split('\n').map((req, index) => req.trim() && (
-                                <li key={index} style={{ marginBottom: '3px' }}>{req.trim()}</li>
-                              ))}
-                            </ul>
-                          </div>
                         )}
                       </div>
+                      <h3 style={{ fontSize: '1.35rem', color: 'var(--text-primary)', fontWeight: 800, marginBottom: '8px' }}>{job.title}</h3>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', maxWidth: '700px', lineHeight: '1.6', margin: 0 }}>
+                        {job.description && job.description.length > 140 ? job.description.substring(0, 140) + '...' : job.description}
+                      </p>
                     </div>
-                    <button onClick={() => { setSelectedJob(job); setApplied(false); }} className="btn-primary" style={{ padding: '10px 20px', fontSize: '0.88rem', alignSelf: 'center' }}>
-                      Apply Now <Briefcase size={16} />
-                    </button>
+
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <button 
+                        onClick={() => setViewingJob(job)} 
+                        style={{
+                          padding: '10px 18px',
+                          fontSize: '0.88rem',
+                          fontWeight: 700,
+                          borderRadius: '12px',
+                          background: 'rgba(255, 255, 255, 0.05)',
+                          border: '1px solid rgba(255, 255, 255, 0.15)',
+                          color: 'var(--text-primary)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
+                      >
+                        View Details
+                      </button>
+                      <button 
+                        onClick={() => { setSelectedJob(job); setApplied(false); }} 
+                        className="btn-primary" 
+                        style={{ padding: '10px 22px', fontSize: '0.88rem' }}
+                      >
+                        Apply Now
+                      </button>
+                    </div>
                   </div>
                 );
               })
             )}
           </div>
+
+          {/* View Job Details Modal Popup */}
+          {viewingJob && (
+            <div
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'rgba(4, 12, 28, 0.85)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                zIndex: 2400,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '20px',
+                overflowY: 'auto'
+              }}
+              onClick={() => setViewingJob(null)}
+            >
+              <div
+                className="glass-panel"
+                style={{
+                  maxWidth: '680px',
+                  width: '100%',
+                  maxHeight: '85vh',
+                  padding: '36px',
+                  position: 'relative',
+                  borderRadius: '24px',
+                  boxShadow: '0 30px 80px rgba(0, 0, 0, 0.6), 0 0 50px rgba(247, 147, 0, 0.12)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  overflowY: 'auto'
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Close Button */}
+                <button
+                  type="button"
+                  onClick={() => setViewingJob(null)}
+                  style={{
+                    position: 'absolute',
+                    top: '20px',
+                    right: '20px',
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    color: 'var(--text-primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
+                >
+                  <X size={18} />
+                </button>
+
+                <div style={{ marginBottom: '20px', paddingRight: '40px' }}>
+                  <span style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    color: 'var(--orbit-orange)',
+                    background: 'rgba(247, 147, 0, 0.12)',
+                    border: '1px solid rgba(247, 147, 0, 0.25)',
+                    padding: '4px 12px',
+                    borderRadius: '20px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    display: 'inline-block',
+                    marginBottom: '10px'
+                  }}>
+                    {viewingJob.department}
+                  </span>
+                  <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '8px' }}>
+                    {viewingJob.title}
+                  </h2>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+                    <span>📍 {viewingJob.location}</span>
+                    <span>💼 {viewingJob.type}</span>
+                    <span>⏱️ Duration / Exp: {viewingJob.experience}</span>
+                    {viewingJob.stipend && <span style={{ color: 'var(--orbit-orange)', fontWeight: 700 }}>💰 {viewingJob.stipend}</span>}
+                  </div>
+                </div>
+
+                <hr style={{ border: 'none', height: '1px', background: 'rgba(255, 255, 255, 0.1)', margin: '20px 0' }} />
+
+                {/* Full Description & Roles */}
+                <div style={{ marginBottom: '24px' }}>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px' }}>Job Overview & Responsibilities</h3>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: '1.7', whiteSpace: 'pre-line' }}>
+                    {viewingJob.description}
+                  </p>
+                </div>
+
+                {/* Key Requirements & Skills */}
+                {viewingJob.requirements && (
+                  <div style={{ marginBottom: '28px', background: 'rgba(255, 255, 255, 0.02)', padding: '20px', borderRadius: '14px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                    <h3 style={{ fontSize: '0.98rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '12px' }}>Key Requirements & Qualifications</h3>
+                    <ul style={{ paddingLeft: '20px', margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.7' }}>
+                      {viewingJob.requirements.split('\n').map((req, idx) => req.trim() && (
+                        <li key={idx} style={{ marginBottom: '6px' }}>{req.trim()}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                  <button 
+                    onClick={() => setViewingJob(null)}
+                    style={{
+                      padding: '12px 24px',
+                      fontSize: '0.9rem',
+                      fontWeight: 700,
+                      borderRadius: '12px',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      color: 'var(--text-primary)',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Close
+                  </button>
+                  <button 
+                    onClick={() => { 
+                      setSelectedJob(viewingJob); 
+                      setViewingJob(null); 
+                      setApplied(false); 
+                    }} 
+                    className="btn-primary" 
+                    style={{ padding: '12px 28px', fontSize: '0.9rem' }}
+                  >
+                    Apply Now
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Application Modal Popup */}
           {selectedJob && (
@@ -412,6 +563,61 @@ export default function Careers() {
                           )}
                         </div>
                       </div>
+
+                      {/* Optional or Mandatory Demo Reel / Portfolio Upload */}
+                      {selectedJob && Number(selectedJob.requires_demo_file) === 1 && (
+                        <div>
+                          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', fontWeight: 700, color: '#a855f7', marginBottom: '6px' }}>
+                            <FileUp size={14} color="#a855f7" /> {selectedJob.demo_file_label || 'Upload Demo Reel / Portfolio Video/Image'} <span style={{ color: '#a855f7' }}>*</span>
+                          </label>
+                          <div
+                            style={{
+                              border: '2px dashed rgba(168, 85, 247, 0.4)',
+                              background: selectedDemoFileName ? 'rgba(34, 197, 94, 0.08)' : 'rgba(168, 85, 247, 0.04)',
+                              borderRadius: '12px',
+                              padding: '18px',
+                              textAlign: 'center',
+                              position: 'relative',
+                              cursor: 'pointer',
+                              transition: 'all 0.3s ease'
+                            }}
+                          >
+                            <input
+                              type="file"
+                              name="demo_file"
+                              accept=".mp4,.mov,.avi,.mkv,.png,.jpg,.jpeg,.webp,.pdf,.zip,.rar"
+                              required
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) setSelectedDemoFileName(file.name);
+                              }}
+                              style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                opacity: 0,
+                                cursor: 'pointer'
+                              }}
+                            />
+                            <FileUp size={28} color={selectedDemoFileName ? '#22c55e' : '#a855f7'} style={{ margin: '0 auto 8px auto' }} />
+                            {selectedDemoFileName ? (
+                              <div>
+                                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#4ade80', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                                  <CheckCircle2 size={16} /> Selected Demo File: {selectedDemoFileName}
+                                </span>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px', display: 'block' }}>Click to choose a different file</span>
+                              </div>
+                            ) : (
+                              <div>
+                                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', display: 'block' }}>Upload Portfolio Demo Reel / Video / Image / Zip *</span>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px', display: 'block' }}>Supports MP4, MOV, PNG, JPG, WEBP, PDF, ZIP (Max 50MB)</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Cover Note / Additional Info */}
                       <div>

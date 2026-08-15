@@ -38,11 +38,55 @@ function ScrollToTop() {
   return null;
 }
 
+function RouteTracker() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    try {
+      let visitorId = localStorage.getItem('orbit_visitor_id');
+      if (!visitorId) {
+        visitorId = 'v_' + Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
+        localStorage.setItem('orbit_visitor_id', visitorId);
+      }
+
+      let sessionId = sessionStorage.getItem('orbit_session_id');
+      if (!sessionId) {
+        sessionId = 's_' + Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
+        sessionStorage.setItem('orbit_session_id', sessionId);
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const payload = {
+        page_url: pathname || '/',
+        page_title: document.title || 'OrbitOne Tech Solutions',
+        visitor_id: visitorId,
+        session_id: sessionId,
+        referrer: document.referrer || '',
+        utm_source: urlParams.get('utm_source') || '',
+        utm_medium: urlParams.get('utm_medium') || '',
+        utm_campaign: urlParams.get('utm_campaign') || '',
+        event_type: 'page_view'
+      };
+
+      fetch('/api/track.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(() => {});
+    } catch (e) {
+      // Non-blocking fail-safe
+    }
+  }, [pathname]);
+
+  return null;
+}
+
 export default function App() {
   return (
     <ThemeProvider>
       <Router>
         <ScrollToTop />
+        <RouteTracker />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />

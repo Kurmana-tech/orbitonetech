@@ -216,11 +216,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       </div>
 
       <ul class="nav-menu">
+        <li class="nav-section-label" style="padding: 12px 16px 4px 16px; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #64748b;">Executive</li>
         <li class="nav-item active" data-tab="overview">
           <button><i data-lucide="layout-dashboard"></i> <span>Overview</span></button>
         </li>
+        <li class="nav-item" data-tab="insights">
+          <button><i data-lucide="sparkles" style="color: var(--orbit-orange);"></i> <span>BI Insights</span></button>
+        </li>
+        <li class="nav-item" data-tab="realtime">
+          <button><i data-lucide="radio" style="color: #22c55e;"></i> <span>Real-Time Monitor</span> <span class="nav-badge" id="badge-realtime" style="background: #22c55e; color: #fff;">LIVE</span></button>
+        </li>
+
+        <li class="nav-section-label" style="padding: 14px 16px 4px 16px; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #64748b;">Website</li>
+        <li class="nav-item" data-tab="traffic">
+          <button><i data-lucide="bar-chart-3"></i> <span>Traffic & Sources</span></button>
+        </li>
+
+        <li class="nav-section-label" style="padding: 14px 16px 4px 16px; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #64748b;">Business</li>
+        <li class="nav-item" data-tab="leads">
+          <button><i data-lucide="mail"></i> <span>Contact Leads</span> <span class="nav-badge" id="badge-leads">0</span></button>
+        </li>
         <li class="nav-item" data-tab="quotes">
-          <button><i data-lucide="file-text"></i> <span>Quotes</span> <span class="nav-badge" id="badge-quotes">0</span></button>
+          <button><i data-lucide="file-text"></i> <span>Quote Requests</span> <span class="nav-badge" id="badge-quotes">0</span></button>
+        </li>
+        <li class="nav-item" data-tab="finance">
+          <button><i data-lucide="dollar-sign" style="color: var(--orbit-green);"></i> <span>Financial Ledger</span></button>
+        </li>
+
+        <li class="nav-section-label" style="padding: 14px 16px 4px 16px; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #64748b;">Operations</li>
+        <li class="nav-item" data-tab="projects">
+          <button><i data-lucide="folder"></i> <span>Projects Portfolio</span></button>
+        </li>
+        <li class="nav-item" data-tab="employees">
+          <button><i data-lucide="users"></i> <span>Active Team</span> <span class="nav-badge" id="badge-employees">0</span></button>
         </li>
         <li class="nav-item" data-tab="jobs">
           <button><i data-lucide="plus-circle"></i> <span>Job Postings</span> <span class="nav-badge" id="badge-jobs">0</span></button>
@@ -228,17 +256,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
         <li class="nav-item" data-tab="careers">
           <button><i data-lucide="briefcase"></i> <span>Applications Recv</span> <span class="nav-badge" id="badge-apps">0</span></button>
         </li>
-        <li class="nav-item" data-tab="employees">
-          <button><i data-lucide="users"></i> <span>Active Employees</span> <span class="nav-badge" id="badge-employees">0</span></button>
+
+        <li class="nav-section-label" style="padding: 14px 16px 4px 16px; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #64748b;">Management</li>
+        <li class="nav-item" data-tab="reports">
+          <button><i data-lucide="download"></i> <span>Reports & Export</span></button>
         </li>
-        <li class="nav-item" data-tab="projects">
-          <button><i data-lucide="folder"></i> <span>Projects Portfolio</span></button>
-        </li>
-        <li class="nav-item" data-tab="blogs">
-          <button><i data-lucide="newspaper"></i> <span>Blog Posts</span></button>
-        </li>
-        <li class="nav-item" data-tab="leads">
-          <button><i data-lucide="mail"></i> <span>Contact Leads</span> <span class="nav-badge" id="badge-leads">0</span></button>
+        <li class="nav-item" data-tab="audit">
+          <button><i data-lucide="shield-check"></i> <span>Audit Logs</span></button>
         </li>
         <li class="nav-item" data-tab="settings">
           <button><i data-lucide="settings"></i> <span>Settings</span></button>
@@ -250,7 +274,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
           <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--orbit-orange); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800;">A</div>
           <div>
             <div class="user-name">Admin User</div>
-            <div class="user-role">Orbitone Executive</div>
+            <div class="user-role">Executive Command</div>
           </div>
         </div>
         <button id="btn-logout" style="background: none; border: none; color: #94a3b8; cursor: pointer;"><i data-lucide="log-out" style="width: 18px;"></i></button>
@@ -259,38 +283,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
 
     <!-- MAIN CONTENT AREA -->
     <main class="main-content">
-      <div class="top-header">
+      <!-- Live Toast Container -->
+      <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;"></div>
+
+      <div class="top-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
         <div class="header-title">
-          <h1 id="page-title">Executive Overview</h1>
-          <p id="page-subtitle">Real-time statistics & business pipeline monitoring</p>
+          <h1 id="page-title">Executive Command Center</h1>
+          <p id="page-subtitle">Real-time business intelligence & website traffic monitor</p>
         </div>
-        <div>
-          <button onclick="loadAllData()" class="action-btn" style="padding: 10px 16px;"><i data-lucide="refresh-cw" style="width: 16px;"></i> Refresh Data</button>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <!-- Notification Bell Dropdown -->
+          <div style="position: relative;">
+            <button id="btn-notif-bell" onclick="toggleNotifDropdown()" class="action-btn" style="position: relative; padding: 9px 14px;">
+              <i data-lucide="bell" style="width: 18px;"></i>
+              <span id="notif-badge-count" style="display: none; position: absolute; top: -5px; right: -5px; background: #ef4444; color: #fff; font-size: 0.7rem; font-weight: 800; padding: 2px 6px; border-radius: 10px;">0</span>
+            </button>
+            <div id="notif-dropdown" style="display: none; position: absolute; right: 0; top: 45px; width: 340px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; box-shadow: var(--shadow-card); z-index: 1000; padding: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">Live Activity Notifications</h4>
+                <button onclick="markNotificationsRead()" style="background: none; border: none; font-size: 0.78rem; color: var(--orbit-orange); cursor: pointer; font-weight: 700;">Mark all read</button>
+              </div>
+              <div id="notif-list-container" style="max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+          </div>
+
+          <!-- Date Range Selector -->
+          <select id="date-range-select" class="select-control" style="width: 150px; padding: 8px 12px; font-size: 0.85rem;" onchange="loadAllData()">
+            <option value="7">Last 7 Days</option>
+            <option value="30" selected>Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+            <option value="365">This Year</option>
+          </select>
+          <!-- Refresh Button -->
+          <button onclick="loadAllData()" class="action-btn" style="padding: 9px 16px; font-size: 0.85rem;"><i data-lucide="refresh-cw" style="width: 15px;"></i> Refresh</button>
         </div>
       </div>
 
       <!-- TAB 1: OVERVIEW & ANALYTICS -->
       <section id="tab-overview" class="view-section active">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="icon-box" style="background: rgba(247, 147, 0, 0.12); color: var(--orbit-orange);"><i data-lucide="file-text"></i></div>
-            <div class="val" id="stat-quotes">0</div>
+        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+          <div class="stat-card" style="cursor: pointer;" onclick="switchTab('traffic')">
+            <div class="icon-box" style="background: rgba(45, 140, 255, 0.12); color: var(--orbit-blue);"><i data-lucide="globe"></i></div>
+            <div class="val" id="stat-visitors">0</div>
+            <div class="lbl">Unique Visitors (30d)</div>
+          </div>
+          <div class="stat-card" style="cursor: pointer;" onclick="switchTab('realtime')">
+            <div class="icon-box" style="background: rgba(34, 197, 94, 0.12); color: #22c55e;"><i data-lucide="radio"></i></div>
+            <div class="val" id="stat-online">0</div>
+            <div class="lbl">Users Online Now</div>
+          </div>
+          <div class="stat-card" style="cursor: pointer;" onclick="switchTab('leads')">
+            <div class="icon-box" style="background: rgba(247, 147, 0, 0.12); color: var(--orbit-orange);"><i data-lucide="mail"></i></div>
+            <div class="val" id="stat-leads-val">0</div>
+            <div class="lbl">Contact Leads</div>
+          </div>
+          <div class="stat-card" style="cursor: pointer;" onclick="switchTab('quotes')">
+            <div class="icon-box" style="background: rgba(168, 85, 247, 0.12); color: var(--orbit-purple);"><i data-lucide="file-text"></i></div>
+            <div class="val" id="stat-quotes-val">0</div>
             <div class="lbl">Quote Requests</div>
           </div>
-          <div class="stat-card">
-            <div class="icon-box" style="background: rgba(45, 140, 255, 0.12); color: var(--orbit-blue);"><i data-lucide="briefcase"></i></div>
-            <div class="val" id="stat-apps">0</div>
-            <div class="lbl">Applications Received</div>
+          <div class="stat-card" style="cursor: pointer;" onclick="switchTab('finance')">
+            <div class="icon-box" style="background: rgba(16, 185, 129, 0.12); color: var(--orbit-green);"><i data-lucide="dollar-sign"></i></div>
+            <div class="val" id="stat-revenue">₹0</div>
+            <div class="lbl">Revenue Ledger</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card" style="cursor: pointer;" onclick="switchTab('finance')">
+            <div class="icon-box" style="background: rgba(239, 68, 68, 0.12); color: #ef4444;"><i data-lucide="trending-down"></i></div>
+            <div class="val" id="stat-expenses">₹0</div>
+            <div class="lbl">Expenses Ledger</div>
+          </div>
+          <div class="stat-card" style="cursor: pointer;" onclick="switchTab('employees')">
             <div class="icon-box" style="background: rgba(16, 185, 129, 0.12); color: var(--orbit-green);"><i data-lucide="users"></i></div>
-            <div class="val" id="stat-employees">0</div>
-            <div class="lbl">Active Employees</div>
+            <div class="val" id="stat-employees-val">0</div>
+            <div class="lbl">Active Team</div>
           </div>
-          <div class="stat-card">
-            <div class="icon-box" style="background: rgba(139, 92, 246, 0.12); color: var(--orbit-purple);"><i data-lucide="plus-circle"></i></div>
-            <div class="val" id="stat-jobs">0</div>
-            <div class="lbl">Open Job Postings</div>
+          <div class="stat-card" style="cursor: pointer;" onclick="switchTab('jobs')">
+            <div class="icon-box" style="background: rgba(247, 147, 0, 0.12); color: var(--orbit-orange);"><i data-lucide="briefcase"></i></div>
+            <div class="val" id="stat-jobs-val">0</div>
+            <div class="lbl">Open Job Openings</div>
           </div>
         </div>
 
@@ -308,6 +378,193 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
             </h3>
             <div id="budget-analytics-bars" style="display: flex; flex-direction: column; gap: 14px;"></div>
           </div>
+        </div>
+      </section>
+
+      <!-- TAB: BI INSIGHTS -->
+      <section id="tab-insights" class="view-section">
+        <div style="background: linear-gradient(135deg, rgba(247, 147, 0, 0.1), rgba(45, 140, 255, 0.05)); border: 1px solid rgba(247, 147, 0, 0.2); border-radius: 18px; padding: 24px; margin-bottom: 24px;">
+          <h3 style="font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <i data-lucide="sparkles" style="color: var(--orbit-orange);"></i> OrbitOne Business Intelligence Engine
+          </h3>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">
+            Automated factual insights, conversion benchmarks, and growth recommendations evaluated from live traffic and sales pipelines.
+          </p>
+        </div>
+        <div id="insights-container" style="display: flex; flex-direction: column; gap: 16px;"></div>
+      </section>
+
+      <!-- TAB: REAL-TIME MONITOR -->
+      <section id="tab-realtime" class="view-section">
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
+          <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+              <span style="width: 12px; height: 12px; border-radius: 50%; background: #22c55e; display: inline-block; animation: pulse 1.5s infinite;"></span>
+              <h3 style="font-family: var(--font-display); font-weight: 700; margin: 0;">Users Online Now</h3>
+            </div>
+            <div style="font-size: 3.5rem; font-weight: 800; color: var(--text-primary);" id="rt-online-val">0</div>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Active sessions recorded in the last 15 minutes</p>
+
+            <h4 style="font-size: 0.95rem; font-weight: 700; margin-top: 24px; margin-bottom: 12px; color: var(--text-primary);">Top Active Pages</h4>
+            <div id="rt-active-pages" style="display: flex; flex-direction: column; gap: 8px;"></div>
+          </div>
+
+          <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px;">
+            <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="activity" style="color: var(--orbit-blue);"></i> Live Activity Feed
+            </h3>
+            <div id="rt-activity-stream" style="display: flex; flex-direction: column; gap: 10px; max-height: 450px; overflow-y: auto;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: TRAFFIC & SOURCES -->
+      <section id="tab-traffic" class="view-section">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 24px;">
+          <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px;">
+            <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="compass" style="color: var(--orbit-orange);"></i> Traffic Sources Breakdown
+            </h3>
+            <div id="traffic-sources-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+          </div>
+
+          <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px;">
+            <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="smartphone" style="color: var(--orbit-purple);"></i> Device Breakdown
+            </h3>
+            <div id="traffic-devices-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
+          </div>
+        </div>
+
+        <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px;">
+          <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="file" style="color: var(--orbit-blue);"></i> Top Performing Pages
+          </h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Page URL</th>
+                  <th>Page Title</th>
+                  <th>Total Views</th>
+                  <th>Unique Visitors</th>
+                </tr>
+              </thead>
+              <tbody id="top-pages-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: FINANCIAL LEDGER -->
+      <section id="tab-finance" class="view-section">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px;">
+          <div class="stat-card">
+            <div class="icon-box" style="background: rgba(16, 185, 129, 0.12); color: var(--orbit-green);"><i data-lucide="arrow-up-right"></i></div>
+            <div class="val" id="fin-rev-total">₹0</div>
+            <div class="lbl">Total Revenue</div>
+          </div>
+          <div class="stat-card">
+            <div class="icon-box" style="background: rgba(239, 68, 68, 0.12); color: #ef4444;"><i data-lucide="arrow-down-left"></i></div>
+            <div class="val" id="fin-exp-total">₹0</div>
+            <div class="lbl">Total Expenses</div>
+          </div>
+          <div class="stat-card">
+            <div class="icon-box" style="background: rgba(45, 140, 255, 0.12); color: var(--orbit-blue);"><i data-lucide="wallet"></i></div>
+            <div class="val" id="fin-net-profit">₹0</div>
+            <div class="lbl">Net Profit</div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
+          <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px;">
+            <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: 16px;">Add Financial Record</h3>
+            <form id="add-finance-form">
+              <div class="form-group">
+                <label>Entry Type</label>
+                <select id="fin-type" class="select-control" required>
+                  <option value="revenue">Revenue (Income)</option>
+                  <option value="expense">Expense (Outflow)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Category</label>
+                <select id="fin-cat" class="select-control" required>
+                  <option value="Client Project">Client Project</option>
+                  <option value="Salaries">Salaries</option>
+                  <option value="Software & Tools">Software & Tools</option>
+                  <option value="Hosting & Infra">Hosting & Infra</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Operations">Operations</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Title / Description</label>
+                <input type="text" id="fin-title" class="input-control" placeholder="e.g. Enterprise Web Project Milestone 1" required>
+              </div>
+              <div class="form-group">
+                <label>Amount (₹)</label>
+                <input type="number" id="fin-amount" class="input-control" placeholder="e.g. 150000" step="0.01" required>
+              </div>
+              <div class="form-group">
+                <label>Record Date</label>
+                <input type="date" id="fin-date" class="input-control" required>
+              </div>
+              <button type="submit" class="btn-login" style="margin-top: 10px;">Save Financial Record</button>
+            </form>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Title & Category</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="finance-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: REPORTS & EXPORT -->
+      <section id="tab-reports" class="view-section">
+        <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; margin-bottom: 24px;">
+          <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="download" style="color: var(--orbit-orange);"></i> Business Intelligence Report Generator
+          </h3>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
+            Generate formatted business reports for executive reviews, audit documentation, and team alignment.
+          </p>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button class="btn-export" onclick="exportToCSV('quotes')"><i data-lucide="file-spreadsheet"></i> Export Quotes CSV</button>
+            <button class="btn-export" onclick="exportToCSV('leads')"><i data-lucide="file-spreadsheet"></i> Export Leads CSV</button>
+            <button class="btn-export" onclick="exportToCSV('applications')"><i data-lucide="file-spreadsheet"></i> Export Applications CSV</button>
+            <button class="btn-export" onclick="window.print()" style="background: var(--orbit-blue); color: #fff; border: none;"><i data-lucide="printer"></i> Print Executive Summary PDF</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: AUDIT LOGS -->
+      <section id="tab-audit" class="view-section">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Admin User</th>
+                <th>Action</th>
+                <th>Resource</th>
+                <th>Details</th>
+                <th>IP Address</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody id="audit-tbody"></tbody>
+          </table>
         </div>
       </section>
 
@@ -369,6 +626,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
               <div class="form-group">
                 <label>Location</label>
                 <select id="job-loc" class="select-control" required>
+                  <option value="Vijayawada">Vijayawada</option>
                   <option value="Remote">Remote</option>
                   <option value="Hybrid">Hybrid</option>
                   <option value="On-site (Hyderabad / Vizag)">On-site (Hyderabad / Vizag)</option>
@@ -379,18 +637,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
                 <label>Employment Type</label>
                 <select id="job-type" class="select-control" required>
                   <option value="Full-time">Full-time</option>
+                  <option value="Internship">Internship</option>
                   <option value="Part-time">Part-time</option>
                   <option value="Contract">Contract</option>
-                  <option value="Internship">Internship</option>
                 </select>
               </div>
               <div class="form-group">
                 <label>Experience Required</label>
-                <input type="text" id="job-exp" class="input-control" value="2+ Years" required>
+                <input type="text" id="job-exp" class="input-control" value="1–3 Years" required>
               </div>
               <div class="form-group">
-                <label>Description</label>
-                <textarea id="job-desc" class="input-control" rows="4" required placeholder="Job responsibilities and qualifications..."></textarea>
+                <label>Salary / Stipend Range</label>
+                <input type="text" id="job-stipend" class="input-control" placeholder="e.g. ₹10,000–₹20,000 / month">
+              </div>
+              <div class="form-group">
+                <label>Requirements & Qualifications</label>
+                <textarea id="job-requirements" class="input-control" rows="3" placeholder="Key qualifications, degree, skills required..."></textarea>
+              </div>
+              <div class="form-group">
+                <label>Description & Roles/Responsibilities</label>
+                <textarea id="job-desc" class="input-control" rows="4" required placeholder="Job responsibilities and role summary..."></textarea>
+              </div>
+              <div class="form-group" style="display: flex; align-items: center; gap: 10px; background: rgba(247, 147, 0, 0.06); padding: 12px; border-radius: 10px; border: 1px solid rgba(247, 147, 0, 0.2);">
+                <input type="checkbox" id="job-req-demo" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--orbit-orange);">
+                <label for="job-req-demo" style="margin: 0; font-size: 0.88rem; font-weight: 700; cursor: pointer; color: var(--text-primary);">
+                  Require Mandatory Demo Reel / Portfolio File Upload (Video / Image / Zip)
+                </label>
               </div>
               <button type="submit" class="btn-login" style="margin-top: 10px;">Post Job Opening</button>
             </form>
@@ -400,7 +672,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
             <table>
               <thead>
                 <tr>
-                  <th>Job Title</th>
+                  <th>Job Title & Salary</th>
                   <th>Department</th>
                   <th>Location & Type</th>
                   <th>Status</th>
@@ -441,14 +713,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
         </div>
       </section>
 
-      <!-- TAB 5: ACTIVE EMPLOYEES -->
+      <!-- TAB 5: ACTIVE TEAM -->
       <section id="tab-employees" class="view-section">
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
           <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
-            <h3 style="font-family: var(--font-display); margin-bottom: 16px; font-weight: 700;">Add Employee Record</h3>
+            <h3 style="font-family: var(--font-display); margin-bottom: 16px; font-weight: 700;">Add Team Member</h3>
             <form id="add-emp-form">
               <div class="form-group">
-                <label>Employee Name</label>
+                <label>Team Member Name</label>
                 <input type="text" id="emp-name" class="input-control" required placeholder="e.g. John Doe">
               </div>
               <div class="form-group">
@@ -474,7 +746,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
                 <label>Designation / Role</label>
                 <input type="text" id="emp-role" class="input-control" required placeholder="e.g. Senior Software Engineer">
               </div>
-              <button type="submit" class="btn-login" style="margin-top: 10px;">Add Employee Record</button>
+              <button type="submit" class="btn-login" style="margin-top: 10px;">Add Team Member</button>
             </form>
           </div>
 
@@ -482,8 +754,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
             <table>
               <thead>
                 <tr>
-                  <th>Emp ID</th>
-                  <th>Employee Name</th>
+                  <th>Member ID</th>
+                  <th>Team Member Name</th>
                   <th>Department</th>
                   <th>Role / Designation</th>
                   <th>Status</th>
@@ -511,8 +783,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
                 <input type="text" id="proj-cat" class="input-control" value="AI & Web" required>
               </div>
               <div class="form-group">
-                <label>Image URL</label>
-                <input type="text" id="proj-img" class="input-control" value="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80">
+                <label style="font-weight: 700;">Upload Project Image</label>
+                <input type="file" id="proj-img-file" accept="image/*" class="input-control" style="padding: 8px; cursor: pointer;">
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">Or paste Image URL:</div>
+                <input type="text" id="proj-img-url" class="input-control" placeholder="https://images.unsplash.com/photo-...">
               </div>
               <div class="form-group">
                 <label>Description</label>
@@ -550,6 +824,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
               <div class="form-group">
                 <label>Category</label>
                 <input type="text" id="blog-cat" class="input-control" value="AI & Tech" required>
+              </div>
+              <div class="form-group">
+                <label style="font-weight: 700;">Upload Cover Image</label>
+                <input type="file" id="blog-img-file" accept="image/*" class="input-control" style="padding: 8px; cursor: pointer;">
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">Or paste Image URL:</div>
+                <input type="text" id="blog-img-url" class="input-control" placeholder="https://images.unsplash.com/photo-...">
               </div>
               <div class="form-group">
                 <label>Snippet</label>
@@ -633,6 +913,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
     </div>
   </div>
 
+  <!-- EDIT JOB MODAL -->
+  <div id="edit-job-modal" class="modal-overlay" style="display: none;" onclick="closeEditJobModal()">
+    <div class="modal-card" style="max-width: 700px; max-height: 90vh; overflow-y: auto;" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-family: var(--font-display); font-weight: 800; color: var(--text-primary);">Edit Job Posting</h3>
+        <button onclick="closeEditJobModal()" style="background: none; border: none; color: var(--text-primary); cursor: pointer;"><i data-lucide="x"></i></button>
+      </div>
+      <form id="edit-job-form">
+        <input type="hidden" id="edit-job-id">
+        <div class="form-group">
+          <label>Job Title</label>
+          <input type="text" id="edit-job-title" class="input-control" required>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label>Department</label>
+            <select id="edit-job-dept" class="select-control" required>
+              <option value="Engineering">Engineering</option>
+              <option value="AI & Machine Learning">AI & Machine Learning</option>
+              <option value="Design & Creative">Design & Creative</option>
+              <option value="Marketing & Sales">Marketing & Sales</option>
+              <option value="Data Analytics">Data Analytics</option>
+              <option value="Operations & PM">Operations & PM</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Location</label>
+            <input type="text" id="edit-job-loc" class="input-control" required>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label>Employment Type</label>
+            <select id="edit-job-type" class="select-control" required>
+              <option value="Full-time">Full-time</option>
+              <option value="Internship">Internship</option>
+              <option value="Part-time">Part-time</option>
+              <option value="Contract">Contract</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Experience Required</label>
+            <input type="text" id="edit-job-exp" class="input-control" required>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="edit-job-status" class="select-control" required>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Salary / Stipend Range</label>
+          <input type="text" id="edit-job-stipend" class="input-control" placeholder="e.g. ₹10,000–₹20,000 / month">
+        </div>
+        <div class="form-group">
+          <label>Requirements & Qualifications (Bullet Points / List)</label>
+          <textarea id="edit-job-requirements" class="input-control" rows="4" placeholder="Skills, qualifications, prerequisites..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Description & Roles/Responsibilities</label>
+          <textarea id="edit-job-desc" class="input-control" rows="4" required placeholder="Overview & responsibilities..."></textarea>
+        </div>
+        <div class="form-group" style="display: flex; align-items: center; gap: 10px; background: rgba(247, 147, 0, 0.06); padding: 12px; border-radius: 10px; border: 1px solid rgba(247, 147, 0, 0.2);">
+          <input type="checkbox" id="edit-job-req-demo" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--orbit-orange);">
+          <label for="edit-job-req-demo" style="margin: 0; font-size: 0.88rem; font-weight: 700; cursor: pointer; color: var(--text-primary);">
+            Require Mandatory Demo Reel / Portfolio File Upload (Video / Image / Zip)
+          </label>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+          <button type="button" onclick="closeEditJobModal()" class="action-btn" style="padding: 10px 18px;">Cancel</button>
+          <button type="submit" class="btn-login" style="width: auto; padding: 10px 24px;">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     let globalQuotes = [];
     let globalApps = [];
@@ -645,89 +1003,126 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       setupTabs();
     });
 
+    function switchTab(tab) {
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+      
+      const navItem = document.querySelector(`.nav-item[data-tab="${tab}"]`);
+      if (navItem) navItem.classList.add('active');
+      document.getElementById('tab-' + tab)?.classList.add('active');
+
+      const titles = {
+        overview: 'Executive Command Center',
+        insights: 'Business Intelligence & Insights',
+        realtime: 'Live Real-Time Monitor',
+        traffic: 'Website Traffic & Sources',
+        leads: 'Contact Leads & Messaging',
+        quotes: 'Quote Requests & Sales Pipeline',
+        finance: 'Financial Ledger & Net Profit',
+        projects: 'Projects Portfolio',
+        employees: 'Active Team Directory',
+        jobs: 'Job Postings Manager',
+        careers: 'Applications Received',
+        reports: 'Reports & Export Generator',
+        audit: 'System Audit Logs',
+        settings: 'System & Security Settings'
+      };
+      document.getElementById('page-title').textContent = titles[tab] || 'Dashboard';
+      lucide.createIcons();
+    }
+
     function setupTabs() {
       document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => {
-          document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-          document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-
-          item.classList.add('active');
           const tab = item.dataset.tab;
-          document.getElementById('tab-' + tab)?.classList.add('active');
-
-          const titles = {
-            overview: 'Executive Overview',
-            quotes: 'Quote Requests Manager',
-            jobs: 'Job Postings Manager',
-            careers: 'Applications Received',
-            employees: 'Active Employees Directory',
-            projects: 'Projects Portfolio',
-            blogs: 'Blog Articles Manager',
-            leads: 'Contact Leads & Messages',
-            settings: 'System & Security Settings'
-          };
-          document.getElementById('page-title').textContent = titles[tab] || 'Dashboard';
+          switchTab(tab);
         });
       });
     }
 
     async function loadAllData() {
-      try {
-        const resStats = await fetch('../api/admin.php?action=get_overview');
-        const dStats = await resStats.json();
-        if (dStats.success) {
-          document.getElementById('stat-quotes').textContent = dStats.counts.quotes || 0;
-          document.getElementById('stat-apps').textContent = dStats.counts.applications || 0;
-          document.getElementById('stat-employees').textContent = dStats.counts.employees || 0;
-          document.getElementById('stat-jobs').textContent = dStats.counts.jobs || 0;
+      const days = document.getElementById('date-range-select')?.value || 30;
 
-          document.getElementById('badge-quotes').textContent = dStats.counts.quotes || 0;
-          document.getElementById('badge-apps').textContent = dStats.counts.applications || 0;
-          document.getElementById('badge-employees').textContent = dStats.counts.employees || 0;
-          document.getElementById('badge-jobs').textContent = dStats.counts.jobs || 0;
-          document.getElementById('badge-leads').textContent = dStats.counts.leads || 0;
-        }
+      const safeFetch = async (url) => {
+        try {
+          const r = await fetch(url);
+          return await r.json();
+        } catch (e) { return null; }
+      };
 
-        const resQ = await fetch('../api/admin.php?action=get_quotes');
-        const dQ = await resQ.json();
-        if (dQ.success) {
-          globalQuotes = dQ.data || [];
-          renderQuotes();
-          renderAnalytics();
-        }
+      const [dStats, dQ, dA, dL] = await Promise.all([
+        safeFetch('../api/admin.php?action=get_overview&days=' + days),
+        safeFetch('../api/admin.php?action=get_quotes'),
+        safeFetch('../api/admin.php?action=get_applications'),
+        safeFetch('../api/admin.php?action=get_leads')
+      ]);
 
-        const resA = await fetch('../api/admin.php?action=get_applications');
-        const dA = await resA.json();
-        if (dA.success) {
-          globalApps = dA.data || [];
-          renderApps();
-        }
+      if (dStats && dStats.success) {
+        const c = dStats.counts;
+        if (document.getElementById('stat-visitors')) document.getElementById('stat-visitors').textContent = c.visitors || 0;
+        if (document.getElementById('stat-online')) document.getElementById('stat-online').textContent = c.sessions || 0;
+        if (document.getElementById('stat-leads-val')) document.getElementById('stat-leads-val').textContent = c.leads || 0;
+        if (document.getElementById('stat-quotes-val')) document.getElementById('stat-quotes-val').textContent = c.quotes || 0;
+        if (document.getElementById('stat-revenue')) document.getElementById('stat-revenue').textContent = '₹' + (c.revenue || 0).toLocaleString();
+        if (document.getElementById('stat-expenses')) document.getElementById('stat-expenses').textContent = '₹' + (c.expenses || 0).toLocaleString();
+        if (document.getElementById('stat-employees-val')) document.getElementById('stat-employees-val').textContent = c.employees || 0;
+        if (document.getElementById('stat-jobs-val')) document.getElementById('stat-jobs-val').textContent = c.jobs || 0;
 
-        const resL = await fetch('../api/admin.php?action=get_leads');
-        const dL = await resL.json();
-        if (dL.success) {
-          globalLeads = dL.data || [];
-          renderLeads();
-        }
-
-        loadJobs();
-        loadEmployees();
-        loadProjects();
-        loadBlogs();
-
-      } catch (e) {
-        console.error('Error loading admin data', e);
+        if (document.getElementById('badge-quotes')) document.getElementById('badge-quotes').textContent = c.quotes || 0;
+        if (document.getElementById('badge-apps')) document.getElementById('badge-apps').textContent = c.applications || 0;
+        if (document.getElementById('badge-employees')) document.getElementById('badge-employees').textContent = c.employees || 0;
+        if (document.getElementById('badge-jobs')) document.getElementById('badge-jobs').textContent = c.jobs || 0;
+        if (document.getElementById('badge-leads')) document.getElementById('badge-leads').textContent = c.leads || 0;
       }
+
+      if (dQ && dQ.success) {
+        globalQuotes = dQ.data || [];
+        renderQuotes();
+        renderAnalytics();
+      }
+
+      if (dA && dA.success) {
+        globalApps = dA.data || [];
+        renderApps();
+      }
+
+      if (dL && dL.success) {
+        globalLeads = dL.data || [];
+        renderLeads();
+      }
+
+      loadJobs();
+      loadEmployees();
+      loadProjects();
+      loadBlogs();
+      loadInsights();
+      loadRealtime();
+      loadTraffic();
+      loadFinance();
+      loadAuditLogs();
     }
 
     function renderQuotes() {
       const tbody = document.getElementById('quotes-tbody');
       const search = document.getElementById('search-quotes')?.value.toLowerCase() || '';
       const filtered = globalQuotes.filter(q => {
-        const matchesSearch = (q.contact_name + q.contact_email + q.reference_id + q.services).toLowerCase().includes(search);
+        const matchesSearch = ((q.contact_name || '') + (q.contact_email || '') + (q.reference_id || '') + (q.services || '')).toLowerCase().includes(search);
         const matchesFilter = currentQuoteFilter === 'All' || q.status === currentQuoteFilter;
         return matchesSearch && matchesFilter;
       });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+              <i data-lucide="file-text" style="width: 32px; height: 32px; margin-bottom: 8px; opacity: 0.5;"></i>
+              <div>No quote requests found. Submissions from orbitonetech.co.in will appear here.</div>
+            </td>
+          </tr>
+        `;
+        lucide.createIcons();
+        return;
+      }
 
       tbody.innerHTML = filtered.map(q => {
         const sList = (q.services || '').split(',').map(s => s.trim()).filter(Boolean);
@@ -799,7 +1194,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
     function renderApps() {
       const tbody = document.getElementById('apps-tbody');
       const search = document.getElementById('search-apps')?.value.toLowerCase() || '';
-      const filtered = globalApps.filter(a => (a.applicant_name + a.role + a.email).toLowerCase().includes(search));
+      const filtered = globalApps.filter(a => ((a.applicant_name || '') + (a.role || '') + (a.email || '')).toLowerCase().includes(search));
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+              <i data-lucide="briefcase" style="width: 32px; height: 32px; margin-bottom: 8px; opacity: 0.5;"></i>
+              <div>No applications received yet.</div>
+            </td>
+          </tr>
+        `;
+        lucide.createIcons();
+        return;
+      }
 
       tbody.innerHTML = filtered.map(a => `
         <tr>
@@ -810,7 +1218,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
           <td><span class="badge badge-info">${a.role}</span></td>
           <td>${a.experience || 'N/A'}</td>
           <td>
-            ${a.resume_file ? `<a href="../${a.resume_file}" target="_blank" class="action-btn" style="color: var(--orbit-orange);"><i data-lucide="file-text" style="width: 14px;"></i> Download Resume</a>` : `<span style="font-size: 0.8rem; color: var(--text-muted);">${a.resume_note || 'Note provided'}</span>`}
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              ${a.resume_file ? `<a href="../data/uploads/resumes/${a.resume_file}" target="_blank" class="action-btn" style="color: var(--orbit-orange);"><i data-lucide="file-text" style="width: 14px;"></i> Download Resume</a>` : `<span style="font-size: 0.8rem; color: var(--text-muted);">${a.resume_note || 'Note provided'}</span>`}
+              ${a.demo_file ? `<a href="../data/uploads/demos/${a.demo_file}" target="_blank" class="action-btn" style="color: var(--orbit-purple); margin-top: 4px;"><i data-lucide="video" style="width: 14px;"></i> View Demo / Portfolio File</a>` : ''}
+            </div>
           </td>
           <td>
             <select class="status-select" onchange="updateAppStatus(${a.id}, this.value)">
@@ -842,7 +1253,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
     function renderLeads() {
       const tbody = document.getElementById('leads-tbody');
       const search = document.getElementById('search-leads')?.value.toLowerCase() || '';
-      const filtered = globalLeads.filter(l => (l.name + l.email + l.message).toLowerCase().includes(search));
+      const filtered = globalLeads.filter(l => ((l.name || '') + (l.email || '') + (l.message || '')).toLowerCase().includes(search));
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
+              <i data-lucide="mail" style="width: 32px; height: 32px; margin-bottom: 8px; opacity: 0.5;"></i>
+              <div>No contact leads found. Messages submitted on orbitonetech.co.in will appear here.</div>
+            </td>
+          </tr>
+        `;
+        lucide.createIcons();
+        return;
+      }
 
       tbody.innerHTML = filtered.map(l => `
         <tr>
@@ -874,24 +1298,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       document.getElementById('modal').style.display = 'flex';
     }
 
+    let globalJobs = [];
+
     async function loadJobs() {
       const res = await fetch('../api/admin.php?action=get_jobs');
       const data = await res.json();
-      if (data.success) {
-        const tbody = document.getElementById('jobs-tbody');
+      const tbody = document.getElementById('jobs-tbody');
+      if (data.success && data.data && data.data.length > 0) {
+        globalJobs = data.data;
         tbody.innerHTML = data.data.map(j => `
           <tr>
-            <td><strong style="color: var(--text-primary);">${j.title}</strong></td>
-            <td><span class="badge badge-info">${j.department}</span></td>
-            <td>${j.location || 'Remote'} | ${j.type || 'Full-time'}</td>
-            <td><span class="badge badge-approved">${j.status || 'Active'}</span></td>
             <td>
-              <button class="action-btn" style="color: var(--orbit-red);" onclick="deleteItem('delete_job', ${j.id})"><i data-lucide="trash" style="width: 14px;"></i></button>
+              <div style="font-weight: 700; color: var(--text-primary);">${j.title}</div>
+              <div style="display: flex; gap: 6px; align-items: center; margin-top: 4px; flex-wrap: wrap;">
+                ${j.stipend ? `<span class="badge badge-pending">💼 ${j.stipend}</span>` : ''}
+                ${Number(j.requires_demo_file) === 1 ? `<span class="badge badge-info" style="font-size: 0.72rem;">🎥 Demo Required</span>` : ''}
+              </div>
+            </td>
+            <td><span class="badge badge-info">${j.department}</span></td>
+            <td>
+              <div style="font-size: 0.88rem; color: var(--text-primary); font-weight: 600;">📍 ${j.location || 'Vijayawada'} (${j.type || 'Full-time'})</div>
+              <div style="font-size: 0.78rem; color: var(--text-secondary);">⏱️ ${j.experience || '1–3 Years'}</div>
+            </td>
+            <td>
+              <select class="status-select" onchange="toggleJobStatus(${j.id}, this.value)" style="border-color: ${j.status === 'Active' ? 'var(--orbit-green)' : 'var(--border-color)'};">
+                <option value="Active" ${j.status === 'Active' ? 'selected' : ''}>Active</option>
+                <option value="Inactive" ${j.status === 'Inactive' ? 'selected' : ''}>Inactive</option>
+              </select>
+            </td>
+            <td>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <button class="action-btn" onclick='viewJobModal(${JSON.stringify(j)})' title="View Full Details"><i data-lucide="eye" style="width: 14px;"></i> View</button>
+                <button class="action-btn" style="color: var(--orbit-orange);" onclick='openEditJobModal(${JSON.stringify(j)})' title="Edit Job Opening"><i data-lucide="edit-3" style="width: 14px;"></i> Edit</button>
+                <button class="action-btn" style="color: var(--orbit-red);" onclick="deleteItem('delete_job', ${j.id})" title="Delete Job Opening"><i data-lucide="trash" style="width: 14px;"></i></button>
+              </div>
             </td>
           </tr>
         `).join('');
-        lucide.createIcons();
+      } else {
+        globalJobs = [];
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">
+              <i data-lucide="plus-circle" style="width: 32px; height: 32px; margin-bottom: 8px; opacity: 0.5;"></i>
+              <div>No job postings active. Fill in the form on the left to publish an opening.</div>
+            </td>
+          </tr>
+        `;
       }
+      lucide.createIcons();
     }
 
     document.getElementById('add-job-form')?.addEventListener('submit', async (e) => {
@@ -903,7 +1358,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       fd.append('location', document.getElementById('job-loc').value);
       fd.append('type', document.getElementById('job-type').value);
       fd.append('experience', document.getElementById('job-exp').value);
+      fd.append('stipend', document.getElementById('job-stipend').value);
+      fd.append('requirements', document.getElementById('job-requirements').value);
       fd.append('description', document.getElementById('job-desc').value);
+      fd.append('requires_demo_file', document.getElementById('job-req-demo').checked ? '1' : '0');
 
       const res = await fetch('../api/admin.php', { method: 'POST', body: fd });
       const data = await res.json();
@@ -912,14 +1370,104 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
         loadJobs();
         loadAllData();
         document.getElementById('add-job-form').reset();
+      } else {
+        alert(data.message || 'Error creating job posting.');
       }
     });
+
+    function viewJobModal(j) {
+      document.getElementById('modal-title').textContent = `Job Details: ${j.title}`;
+      document.getElementById('modal-body').innerHTML = `
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;">
+          <span class="badge badge-info">${j.department}</span>
+          <span class="badge badge-pending">📍 ${j.location} (${j.type})</span>
+          <span class="badge badge-approved">⏱️ ${j.experience}</span>
+          ${j.stipend ? `<span class="badge badge-pending">💼 ${j.stipend}</span>` : ''}
+          <span class="badge ${j.status === 'Active' ? 'badge-approved' : 'badge-rejected'}">Status: ${j.status}</span>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <strong>Mandatory Demo File Upload:</strong> ${Number(j.requires_demo_file) === 1 ? 'Yes (Portfolio Demo Video/Image required from applicants)' : 'No'}
+        </div>
+
+        ${j.requirements ? `
+          <div style="margin-bottom: 16px;">
+            <strong style="color: var(--text-primary);">Requirements & Qualifications:</strong>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; border-radius: 10px; color: var(--text-primary); margin-top: 6px; white-space: pre-line;">${j.requirements}</div>
+          </div>
+        ` : ''}
+
+        <div>
+          <strong style="color: var(--text-primary);">Description & Roles:</strong>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; border-radius: 10px; color: var(--text-primary); margin-top: 6px; white-space: pre-line;">${j.description}</div>
+        </div>
+      `;
+      document.getElementById('modal').style.display = 'flex';
+    }
+
+    function openEditJobModal(j) {
+      document.getElementById('edit-job-id').value = j.id;
+      document.getElementById('edit-job-title').value = j.title || '';
+      document.getElementById('edit-job-dept').value = j.department || 'Engineering';
+      document.getElementById('edit-job-loc').value = j.location || 'Vijayawada';
+      document.getElementById('edit-job-type').value = j.type || 'Full-time';
+      document.getElementById('edit-job-exp').value = j.experience || '1–3 Years';
+      document.getElementById('edit-job-status').value = j.status || 'Active';
+      document.getElementById('edit-job-stipend').value = j.stipend || '';
+      document.getElementById('edit-job-requirements').value = j.requirements || '';
+      document.getElementById('edit-job-desc').value = j.description || '';
+      document.getElementById('edit-job-req-demo').checked = Number(j.requires_demo_file) === 1;
+
+      document.getElementById('edit-job-modal').style.display = 'flex';
+    }
+
+    function closeEditJobModal() {
+      document.getElementById('edit-job-modal').style.display = 'none';
+    }
+
+    document.getElementById('edit-job-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData();
+      fd.append('action', 'update_job');
+      fd.append('id', document.getElementById('edit-job-id').value);
+      fd.append('title', document.getElementById('edit-job-title').value);
+      fd.append('department', document.getElementById('edit-job-dept').value);
+      fd.append('location', document.getElementById('edit-job-loc').value);
+      fd.append('type', document.getElementById('edit-job-type').value);
+      fd.append('experience', document.getElementById('edit-job-exp').value);
+      fd.append('status', document.getElementById('edit-job-status').value);
+      fd.append('stipend', document.getElementById('edit-job-stipend').value);
+      fd.append('requirements', document.getElementById('edit-job-requirements').value);
+      fd.append('description', document.getElementById('edit-job-desc').value);
+      fd.append('requires_demo_file', document.getElementById('edit-job-req-demo').checked ? '1' : '0');
+
+      const res = await fetch('../api/admin.php', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success) {
+        alert('Job opening updated successfully!');
+        closeEditJobModal();
+        loadJobs();
+        loadAllData();
+      } else {
+        alert(data.message || 'Failed to update job posting.');
+      }
+    });
+
+    async function toggleJobStatus(id, status) {
+      const fd = new FormData();
+      fd.append('action', 'toggle_job_status');
+      fd.append('id', id);
+      fd.append('status', status);
+      await fetch('../api/admin.php', { method: 'POST', body: fd });
+      loadJobs();
+      loadAllData();
+    }
 
     async function loadEmployees() {
       const res = await fetch('../api/admin.php?action=get_employees');
       const data = await res.json();
-      if (data.success) {
-        const tbody = document.getElementById('emp-tbody');
+      const tbody = document.getElementById('emp-tbody');
+      if (data.success && data.data && data.data.length > 0) {
         tbody.innerHTML = data.data.map(e => `
           <tr>
             <td><strong style="color: var(--orbit-orange);">${e.emp_id}</strong></td>
@@ -935,8 +1483,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
             </td>
           </tr>
         `).join('');
-        lucide.createIcons();
+      } else {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
+              <i data-lucide="users" style="width: 32px; height: 32px; margin-bottom: 8px; opacity: 0.5;"></i>
+              <div>No active team members registered. Fill in the form on the left to add a team member.</div>
+            </td>
+          </tr>
+        `;
       }
+      lucide.createIcons();
     }
 
     document.getElementById('add-emp-form')?.addEventListener('submit', async (e) => {
@@ -952,7 +1509,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       const res = await fetch('../api/admin.php', { method: 'POST', body: fd });
       const data = await res.json();
       if (data.success) {
-        alert('Employee record added successfully!');
+        alert('Team member record added successfully!');
         loadEmployees();
         loadAllData();
         document.getElementById('add-emp-form').reset();
@@ -962,8 +1519,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
     async function loadProjects() {
       const res = await fetch('../api/admin.php?action=get_projects');
       const data = await res.json();
-      if (data.success) {
-        const tbody = document.getElementById('proj-tbody');
+      const tbody = document.getElementById('proj-tbody');
+      if (data.success && data.data && data.data.length > 0) {
         tbody.innerHTML = data.data.map(p => `
           <tr>
             <td><strong style="color: var(--text-primary);">${p.title}</strong></td>
@@ -973,8 +1530,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
             </td>
           </tr>
         `).join('');
-        lucide.createIcons();
+      } else {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="3" style="text-align: center; padding: 40px; color: var(--text-muted);">
+              <i data-lucide="folder" style="width: 32px; height: 32px; margin-bottom: 8px; opacity: 0.5;"></i>
+              <div>No portfolio projects added yet. Use the form on the left to add your first case study.</div>
+            </td>
+          </tr>
+        `;
       }
+      lucide.createIcons();
     }
 
     document.getElementById('add-proj-form')?.addEventListener('submit', async (e) => {
@@ -983,14 +1549,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       fd.append('action', 'add_project');
       fd.append('title', document.getElementById('proj-title').value);
       fd.append('category', document.getElementById('proj-cat').value);
-      fd.append('image_url', document.getElementById('proj-img').value);
       fd.append('description', document.getElementById('proj-desc').value);
+      
+      const fileInput = document.getElementById('proj-img-file');
+      if (fileInput && fileInput.files && fileInput.files[0]) {
+        fd.append('image_file', fileInput.files[0]);
+      }
+      fd.append('image_url', document.getElementById('proj-img-url')?.value || '');
 
       const res = await fetch('../api/admin.php', { method: 'POST', body: fd });
       const data = await res.json();
       if (data.success) {
         alert('Project added successfully!');
         loadProjects();
+        loadAllData();
         document.getElementById('add-proj-form').reset();
       }
     });
@@ -998,8 +1570,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
     async function loadBlogs() {
       const res = await fetch('../api/admin.php?action=get_blogs');
       const data = await res.json();
-      if (data.success) {
-        const tbody = document.getElementById('blog-tbody');
+      const tbody = document.getElementById('blog-tbody');
+      if (data.success && data.data && data.data.length > 0) {
         tbody.innerHTML = data.data.map(b => `
           <tr>
             <td><strong style="color: var(--text-primary);">${b.title}</strong></td>
@@ -1009,8 +1581,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
             </td>
           </tr>
         `).join('');
-        lucide.createIcons();
+      } else {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="3" style="text-align: center; padding: 40px; color: var(--text-muted);">
+              <i data-lucide="newspaper" style="width: 32px; height: 32px; margin-bottom: 8px; opacity: 0.5;"></i>
+              <div>No blog articles published yet. Use the form on the left to publish an article.</div>
+            </td>
+          </tr>
+        `;
       }
+      lucide.createIcons();
     }
 
     document.getElementById('add-blog-form')?.addEventListener('submit', async (e) => {
@@ -1021,12 +1602,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       fd.append('category', document.getElementById('blog-cat').value);
       fd.append('snippet', document.getElementById('blog-snippet').value);
       fd.append('content', document.getElementById('blog-snippet').value);
+      
+      const fileInput = document.getElementById('blog-img-file');
+      if (fileInput && fileInput.files && fileInput.files[0]) {
+        fd.append('image_file', fileInput.files[0]);
+      }
+      fd.append('image_url', document.getElementById('blog-img-url')?.value || '');
 
       const res = await fetch('../api/admin.php', { method: 'POST', body: fd });
       const data = await res.json();
       if (data.success) {
         alert('Blog article published!');
         loadBlogs();
+        loadAllData();
         document.getElementById('add-blog-form').reset();
       }
     });
@@ -1124,6 +1712,250 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
 
       if (data.success) document.getElementById('pass-form').reset();
     });
+
+    async function loadInsights() {
+      const el = document.getElementById('insights-container');
+      if (!el) return;
+      try {
+        const res = await fetch('../api/admin.php?action=get_business_insights');
+        const data = await res.json();
+        if (data.success && data.insights) {
+          el.innerHTML = data.insights.map(item => `
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <span class="badge ${item.type === 'FACT' ? 'badge-info' : (item.type === 'OPPORTUNITY' ? 'badge-approved' : 'badge-pending')}" style="font-weight: 700;">${item.type}</span>
+              </div>
+              <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">${item.title}</h4>
+              <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 10px;">${item.description}</p>
+              <div style="background: rgba(247, 147, 0, 0.08); border-left: 3px solid var(--orbit-orange); padding: 10px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">
+                💡 Recommendation: ${item.recommendation}
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (e) {}
+    }
+
+    async function loadRealtime() {
+      try {
+        const res = await fetch('../api/admin.php?action=get_realtime');
+        const data = await res.json();
+        if (data.success && data.realtime) {
+          if (document.getElementById('rt-online-val')) document.getElementById('rt-online-val').textContent = data.realtime.online_users || 0;
+          
+          const pagesEl = document.getElementById('rt-active-pages');
+          if (pagesEl && data.realtime.active_pages) {
+            pagesEl.innerHTML = data.realtime.active_pages.map(p => `
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 8px; background: rgba(0,0,0,0.03); border-radius: 6px;">
+                <span style="font-weight: 600; color: var(--orbit-blue);">${p.page_url}</span>
+                <span style="font-weight: 700; color: var(--text-primary);">${p.active_views} active</span>
+              </div>
+            `).join('') || '<div style="color: var(--text-muted);">No active page views</div>';
+          }
+
+          const streamEl = document.getElementById('rt-activity-stream');
+          if (streamEl && data.realtime.recent_events) {
+            streamEl.innerHTML = data.realtime.recent_events.map(ev => `
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px;">
+                <div>
+                  <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-primary);">${ev.event_type.replace('_', ' ').toUpperCase()} • ${ev.page_url}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">${ev.traffic_source} • ${ev.device_type} • ${ev.browser}</div>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">${ev.created_at ? ev.created_at.substring(11,16) : ''}</div>
+              </div>
+            `).join('') || '<div style="color: var(--text-muted);">No recent events</div>';
+          }
+        }
+      } catch (e) {}
+    }
+
+    async function loadTraffic() {
+      try {
+        const res = await fetch('../api/admin.php?action=get_traffic_analytics');
+        const data = await res.json();
+        if (data.success && data.traffic) {
+          const srcEl = document.getElementById('traffic-sources-list');
+          if (srcEl && data.traffic.sources) {
+            srcEl.innerHTML = data.traffic.sources.map(s => `
+              <div style="display: flex; justify-content: space-between; padding: 10px; background: rgba(0,0,0,0.03); border-radius: 8px;">
+                <span style="font-weight: 700; color: var(--text-primary);">${s.source}</span>
+                <span style="font-weight: 800; color: var(--orbit-orange);">${s.visitors} visitors</span>
+              </div>
+            `).join('') || '<div style="color: var(--text-muted);">No traffic sources recorded yet.</div>';
+          }
+
+          const devEl = document.getElementById('traffic-devices-list');
+          if (devEl && data.traffic.devices) {
+            devEl.innerHTML = data.traffic.devices.map(d => `
+              <div style="display: flex; justify-content: space-between; padding: 10px; background: rgba(0,0,0,0.03); border-radius: 8px;">
+                <span style="font-weight: 700; color: var(--text-primary);">${d.device}</span>
+                <span style="font-weight: 800; color: var(--orbit-purple);">${d.count} sessions</span>
+              </div>
+            `).join('') || '<div style="color: var(--text-muted);">No device data recorded yet.</div>';
+          }
+
+          const topTbody = document.getElementById('top-pages-tbody');
+          if (topTbody && data.traffic.top_pages) {
+            topTbody.innerHTML = data.traffic.top_pages.map(p => `
+              <tr>
+                <td><strong style="color: var(--orbit-blue);">${p.page_url}</strong></td>
+                <td>${p.page_title || 'N/A'}</td>
+                <td><strong>${p.views}</strong></td>
+                <td>${p.visitors}</td>
+              </tr>
+            `).join('') || '<tr><td colspan="4">No page views recorded yet.</td></tr>';
+          }
+        }
+      } catch (e) {}
+    }
+
+    async function loadFinance() {
+      try {
+        const res = await fetch('../api/admin.php?action=get_financial_ledger');
+        const data = await res.json();
+        if (data.success) {
+          if (document.getElementById('fin-rev-total')) document.getElementById('fin-rev-total').textContent = '₹' + (data.summary.revenue || 0).toLocaleString();
+          if (document.getElementById('fin-exp-total')) document.getElementById('fin-exp-total').textContent = '₹' + (data.summary.expense || 0).toLocaleString();
+          if (document.getElementById('fin-net-profit')) document.getElementById('fin-net-profit').textContent = '₹' + (data.summary.profit || 0).toLocaleString();
+
+          const tbody = document.getElementById('finance-tbody');
+          if (tbody && data.records) {
+            tbody.innerHTML = data.records.map(r => `
+              <tr>
+                <td><span class="badge ${r.type === 'revenue' ? 'badge-approved' : 'badge-rejected'}">${r.type.toUpperCase()}</span></td>
+                <td>
+                  <div style="font-weight: 700; color: var(--text-primary);">${r.title}</div>
+                  <div style="font-size: 0.78rem; color: var(--text-secondary);">${r.category}</div>
+                </td>
+                <td><strong style="color: ${r.type === 'revenue' ? '#10b981' : '#ef4444'};">₹${floatVal(r.amount).toLocaleString()}</strong></td>
+                <td>${r.record_date}</td>
+                <td>
+                  <button class="action-btn" style="color: var(--orbit-red);" onclick="deleteFinanceRecord(${r.id})"><i data-lucide="trash" style="width: 14px;"></i></button>
+                </td>
+              </tr>
+            `).join('') || '<tr><td colspan="5" style="text-align:center; padding: 30px; color: var(--text-muted);">No financial records in ledger. Use form on left to add an entry.</td></tr>';
+          }
+        }
+      } catch (e) {}
+    }
+
+    function floatVal(v) { return parseFloat(v || 0); }
+
+    async function deleteFinanceRecord(id) {
+      if (!confirm('Are you sure you want to delete this financial entry?')) return;
+      const fd = new FormData();
+      fd.append('action', 'delete_financial_record');
+      fd.append('id', id);
+      await fetch('../api/admin.php', { method: 'POST', body: fd });
+      loadFinance();
+      loadAllData();
+    }
+
+    document.getElementById('add-finance-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData();
+      fd.append('action', 'add_financial_record');
+      fd.append('type', document.getElementById('fin-type').value);
+      fd.append('category', document.getElementById('fin-cat').value);
+      fd.append('title', document.getElementById('fin-title').value);
+      fd.append('amount', document.getElementById('fin-amount').value);
+      fd.append('record_date', document.getElementById('fin-date').value || new Date().toISOString().substring(0,10));
+
+      const res = await fetch('../api/admin.php', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success) {
+        alert('Financial record saved successfully!');
+        loadFinance();
+        loadAllData();
+        document.getElementById('add-finance-form').reset();
+      }
+    });
+
+    async function loadAuditLogs() {
+      try {
+        const res = await fetch('../api/admin.php?action=get_audit_logs');
+        const data = await res.json();
+        const tbody = document.getElementById('audit-tbody');
+        if (tbody && data.success && data.logs) {
+          tbody.innerHTML = data.logs.map(l => `
+            <tr>
+              <td><strong>${l.admin_username}</strong></td>
+              <td><span class="badge badge-info">${l.action}</span></td>
+              <td>${l.resource}</td>
+              <td style="font-size: 0.85rem; color: var(--text-secondary);">${l.details || ''}</td>
+              <td style="font-size: 0.8rem; color: var(--text-muted);">${l.ip_address || ''}</td>
+              <td style="font-size: 0.8rem;">${l.created_at}</td>
+            </tr>
+          `).join('') || '<tr><td colspan="6" style="text-align:center;">No audit log entries recorded yet.</td></tr>';
+        }
+      } catch (e) {}
+    }
+
+    let lastUnreadCount = 0;
+
+    async function pollNotifications() {
+      try {
+        const res = await fetch('../api/admin.php?action=get_notifications');
+        const data = await res.json();
+        if (data.success) {
+          const badge = document.getElementById('notif-badge-count');
+          const count = data.unread_count || 0;
+          if (badge) {
+            if (count > 0) {
+              badge.style.display = 'inline-block';
+              badge.textContent = count;
+            } else {
+              badge.style.display = 'none';
+            }
+          }
+
+          if (count > lastUnreadCount && data.notifications && data.notifications.length > 0) {
+            const latest = data.notifications[0];
+            showNotificationToast(`🔔 ${latest.message}`);
+            loadAllData();
+          }
+          lastUnreadCount = count;
+
+          const listContainer = document.getElementById('notif-list-container');
+          if (listContainer && data.notifications) {
+            listContainer.innerHTML = data.notifications.map(n => `
+              <div style="padding: 10px; border-radius: 8px; background: ${n.is_read == 0 ? 'rgba(247, 147, 0, 0.08)' : 'rgba(0,0,0,0.02)'}; border-left: 3px solid ${n.is_read == 0 ? 'var(--orbit-orange)' : '#94a3b8'};">
+                <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">${n.message}</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">${n.created_at || ''}</div>
+              </div>
+            `).join('') || '<div style="color: var(--text-muted); font-size: 0.85rem; text-align: center;">No notifications yet</div>';
+          }
+        }
+      } catch (e) {}
+    }
+
+    function showNotificationToast(msg) {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.style.cssText = 'background: #0f172a; color: #ffffff; border: 1px solid var(--orbit-orange); border-radius: 12px; padding: 14px 20px; font-size: 0.9rem; font-weight: 700; box-shadow: 0 10px 30px rgba(0,0,0,0.5); pointer-events: auto; transition: all 0.3s ease;';
+      toast.innerHTML = msg;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 400);
+      }, 5000);
+    }
+
+    function toggleNotifDropdown() {
+      const dropdown = document.getElementById('notif-dropdown');
+      if (dropdown) {
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+
+    async function markNotificationsRead() {
+      await fetch('../api/admin.php?action=mark_notifications_read');
+      pollNotifications();
+    }
+
+    setInterval(pollNotifications, 4000);
+    pollNotifications();
 
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
