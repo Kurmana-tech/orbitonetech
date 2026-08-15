@@ -1,4 +1,12 @@
 <?php
+if (function_exists('opcache_reset')) {
+    @opcache_reset();
+}
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
+
 session_start();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset($_POST['action']))) {
     if (!empty($_POST['password'])) {
