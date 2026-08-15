@@ -153,6 +153,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
     .nav-item.active button { background: linear-gradient(135deg, rgba(247, 147, 0, 0.2), rgba(247, 147, 0, 0.08)); border: 1px solid rgba(247, 147, 0, 0.4); color: #f79300; font-weight: 700; box-shadow: 0 4px 12px rgba(247, 147, 0, 0.15); }
     .nav-badge { margin-left: auto; background: rgba(247, 147, 0, 0.2); color: #ffb03a; border: 1px solid rgba(247, 147, 0, 0.3); font-size: 0.75rem; font-weight: 800; padding: 2px 8px; border-radius: 20px; }
 
+    .mail-folder-btn {
+      width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border-radius: 10px; background: transparent; border: none; color: var(--text-secondary);
+      font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+    }
+    .mail-folder-btn:hover { background: #e2e8f0; color: var(--text-primary); }
+    .mail-folder-btn.active { background: var(--orbit-orange); color: #ffffff; font-weight: 700; }
+    .mail-folder-btn.active .nav-badge { background: #ffffff; color: var(--orbit-orange); }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .spin-anim { animation: spin 1s linear infinite; }
+
     .user-profile { padding: 14px; background: rgba(255, 255, 255, 0.04); border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
     .user-profile .user-name { color: #ffffff !important; font-weight: 700; font-size: 0.85rem; }
     .user-profile .user-role { color: #94a3b8 !important; font-size: 0.72rem; }
@@ -285,6 +296,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
         </li>
 
         <li class="nav-section-label" style="padding: 14px 16px 4px 16px; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #64748b;">Business</li>
+        <li class="nav-item" data-tab="webmail">
+          <button><i data-lucide="inbox" style="color: var(--orbit-orange);"></i> <span>Hostinger Webmail</span> <span class="nav-badge" id="badge-webmail" style="background: var(--orbit-orange); color: #fff;">0</span></button>
+        </li>
         <li class="nav-item" data-tab="leads">
           <button><i data-lucide="mail"></i> <span>Contact Leads</span> <span class="nav-badge" id="badge-leads">0</span></button>
         </li>
@@ -970,6 +984,145 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
         </div>
       </section>
 
+      <!-- TAB: HOSTINGER WEBMAIL & SUPPORT DESK -->
+      <section id="tab-webmail" class="view-section">
+        <!-- Top Toolbar Controls -->
+        <div class="table-controls" style="margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; flex: 1;">
+            <button class="btn-login" style="width: auto; padding: 10px 20px; font-size: 0.9rem;" onclick="openComposeModal()">
+              <i data-lucide="edit-3"></i> Compose New Mail
+            </button>
+            <button class="btn-export" onclick="syncMailbox()" style="background: rgba(247, 147, 0, 0.12); color: var(--orbit-orange); border-color: rgba(247, 147, 0, 0.3);">
+              <i data-lucide="refresh-cw" id="icon-sync-mail"></i> Sync Hostinger IMAP
+            </button>
+            <button class="btn-export" onclick="openMailConfigModal()" style="background: #f1f5f9; color: var(--text-primary); border-color: var(--border-color);">
+              <i data-lucide="key"></i> Mail Server Config
+            </button>
+          </div>
+          <div class="search-box" style="max-width: 320px;">
+            <i data-lucide="search"></i>
+            <input type="text" id="search-mail" placeholder="Search sender, subject, body..." onkeyup="filterWebmail()">
+          </div>
+        </div>
+
+        <!-- Main 3-Column Webmail Layout -->
+        <div style="display: grid; grid-template-columns: 220px 380px 1fr; gap: 16px; min-height: 680px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-card);">
+          
+          <!-- Column 1: Mail Folders Navigation -->
+          <div style="background: #f8fafc; border-right: 1px solid var(--border-color); padding: 20px 14px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); padding: 0 8px 12px 8px; letter-spacing: 0.5px;">
+                Hostinger Folders
+              </div>
+              <ul style="list-style: none; display: flex; flex-direction: column; gap: 4px;">
+                <li>
+                  <button class="mail-folder-btn active" data-folder="inbox" onclick="selectMailFolder('inbox')">
+                    <i data-lucide="inbox" style="width: 16px;"></i> Inbox <span class="nav-badge" id="folder-count-inbox" style="margin-left: auto;">0</span>
+                  </button>
+                </li>
+                <li>
+                  <button class="mail-folder-btn" data-folder="sent" onclick="selectMailFolder('sent')">
+                    <i data-lucide="send" style="width: 16px;"></i> Sent Mails
+                  </button>
+                </li>
+                <li>
+                  <button class="mail-folder-btn" data-folder="starred" onclick="selectMailFolder('starred')">
+                    <i data-lucide="star" style="width: 16px; color: #f59e0b;"></i> Starred
+                  </button>
+                </li>
+                <li>
+                  <button class="mail-folder-btn" data-folder="all" onclick="selectMailFolder('all')">
+                    <i data-lucide="mail-check" style="width: 16px;"></i> All Messages
+                  </button>
+                </li>
+                <li>
+                  <button class="mail-folder-btn" data-folder="trash" onclick="selectMailFolder('trash')">
+                    <i data-lucide="trash-2" style="width: 16px;"></i> Trash
+                  </button>
+                </li>
+              </ul>
+
+              <div style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); padding: 24px 8px 12px 8px; letter-spacing: 0.5px;">
+                Mail Account Info
+              </div>
+              <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; font-size: 0.82rem;">
+                <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 2px;" id="disp-mail-user">support@orbitonetech.co.in</div>
+                <div style="color: var(--orbit-green); font-weight: 600; font-size: 0.75rem;" id="disp-mail-status">✓ Hostinger IMAP Connected</div>
+              </div>
+            </div>
+
+            <!-- Quick Template Hint -->
+            <div style="background: rgba(247, 147, 0, 0.08); border: 1px dashed var(--border-accent); padding: 12px; border-radius: 12px;">
+              <div style="font-weight: 700; font-size: 0.8rem; color: var(--orbit-orange); margin-bottom: 4px;">⚡ Quick Responses</div>
+              <div style="font-size: 0.75rem; color: var(--text-secondary);">Use pre-saved templates when replying to client inquiries.</div>
+            </div>
+          </div>
+
+          <!-- Column 2: Email Messages List -->
+          <div style="border-right: 1px solid var(--border-color); display: flex; flex-direction: column;">
+            <div style="padding: 14px 16px; border-bottom: 1px solid var(--border-color); background: #ffffff; display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-weight: 700; font-size: 0.95rem; text-transform: capitalize; color: var(--text-primary);" id="current-folder-title">Inbox Messages</span>
+              <span style="font-size: 0.78rem; color: var(--text-muted);" id="mail-list-count">0 emails</span>
+            </div>
+            <div id="mail-list-container" style="flex: 1; overflow-y: auto; background: #ffffff;"></div>
+          </div>
+
+          <!-- Column 3: Email Reader & Quick Reply Workspace -->
+          <div style="display: flex; flex-direction: column; background: #ffffff;" id="mail-reader-column">
+            <!-- Blank State -->
+            <div id="mail-empty-state" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; color: var(--text-muted);">
+              <i data-lucide="mail-open" style="width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.4; color: var(--orbit-orange);"></i>
+              <h3 style="font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">No Message Selected</h3>
+              <p style="font-size: 0.88rem; max-width: 320px;">Select an email from the inbox list on the left to read and reply.</p>
+            </div>
+
+            <!-- Email Content Viewer (Hidden by default) -->
+            <div id="mail-reader-view" style="display: none; flex: 1; flex-direction: column; overflow-y: auto;">
+              <!-- Header -->
+              <div style="padding: 20px 24px; border-bottom: 1px solid var(--border-color); background: #f8fafc;">
+                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 12px;">
+                  <h3 id="read-subject" style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; color: var(--text-primary); line-height: 1.3;"></h3>
+                  <div style="display: flex; gap: 8px;">
+                    <button class="action-btn" id="btn-star-mail" onclick="toggleCurrentStar()"><i data-lucide="star" style="width: 14px;"></i> Star</button>
+                    <button class="action-btn" style="color: var(--orbit-red);" onclick="deleteCurrentMail()"><i data-lucide="trash-2" style="width: 14px;"></i> Delete</button>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--orbit-orange); color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 1rem;" id="read-avatar"></div>
+                  <div>
+                    <div style="font-weight: 700; color: var(--text-primary); font-size: 0.92rem;" id="read-sender-name"></div>
+                    <div style="font-size: 0.78rem; color: var(--text-secondary);" id="read-sender-email"></div>
+                  </div>
+                  <div style="margin-left: auto; font-size: 0.78rem; color: var(--text-muted);" id="read-date"></div>
+                </div>
+              </div>
+
+              <!-- Message Body -->
+              <div style="padding: 24px; flex: 1; font-size: 0.95rem; line-height: 1.6; color: var(--text-primary); background: #ffffff;" id="read-body"></div>
+
+              <!-- Quick Reply Drawer -->
+              <div style="padding: 20px 24px; border-top: 1px solid var(--border-color); background: #f8fafc;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                  <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="corner-up-left" style="width: 16px; color: var(--orbit-orange);"></i> Reply from support@orbitonetech.co.in
+                  </div>
+                  <select id="select-quick-template" class="status-select" onchange="applyQuickTemplate()" style="font-size: 0.8rem; padding: 4px 8px;">
+                    <option value="">-- Load Quick Response Template --</option>
+                  </select>
+                </div>
+                <textarea id="reply-body-text" class="input-control" rows="4" placeholder="Write your official response to client..." style="margin-bottom: 12px; font-family: var(--font-main);"></textarea>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">Delivers via Hostinger SSL SMTP (smtp.hostinger.com:465)</span>
+                  <button class="btn-login" style="width: auto; padding: 8px 20px; font-size: 0.88rem;" onclick="submitEmailReply()">
+                    <i data-lucide="send" style="width: 14px;"></i> Send Official Reply
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- TAB 8: CONTACT LEADS -->
       <section id="tab-leads" class="view-section">
         <div class="table-controls">
@@ -1100,6 +1253,94 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
     </div>
   </div>
 
+  <!-- COMPOSE MAIL MODAL -->
+  <div id="compose-mail-modal" class="modal-overlay" style="display: none;" onclick="closeComposeModal()">
+    <div class="modal-card" style="max-width: 650px;" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-family: var(--font-display); font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="send" style="color: var(--orbit-orange);"></i> Compose Official Email
+        </h3>
+        <button onclick="closeComposeModal()" style="background: none; border: none; color: var(--text-primary); cursor: pointer;"><i data-lucide="x"></i></button>
+      </div>
+      <form id="compose-mail-form" onsubmit="submitComposeMail(event)">
+        <div class="form-group">
+          <label>From (Hostinger Support Account)</label>
+          <input type="text" class="input-control" value="support@orbitonetech.co.in" readonly style="background: #e2e8f0; font-weight: 600;">
+        </div>
+        <div class="form-group">
+          <label>Recipient Email Address (To:)</label>
+          <input type="email" id="compose-to" class="input-control" required placeholder="client@company.com">
+        </div>
+        <div class="form-group">
+          <label>Subject</label>
+          <input type="text" id="compose-subject" class="input-control" required placeholder="Proposal / Technical Query Response">
+        </div>
+        <div class="form-group">
+          <label>Quick Template (Optional)</label>
+          <select id="compose-template-select" class="select-control" onchange="applyComposeTemplate()">
+            <option value="">-- Select Template --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Message Content</label>
+          <textarea id="compose-body" class="input-control" rows="6" required placeholder="Type your official response or email content here..."></textarea>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+          <button type="button" class="action-btn" onclick="closeComposeModal()">Cancel</button>
+          <button type="submit" class="btn-login" style="width: auto; padding: 10px 24px;">
+            <i data-lucide="send"></i> Deliver Email
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIL CONFIG MODAL -->
+  <div id="mail-config-modal" class="modal-overlay" style="display: none;" onclick="closeMailConfigModal()">
+    <div class="modal-card" style="max-width: 550px;" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-family: var(--font-display); font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="settings" style="color: var(--orbit-orange);"></i> Hostinger Mail Server Config
+        </h3>
+        <button onclick="closeMailConfigModal()" style="background: none; border: none; color: var(--text-primary); cursor: pointer;"><i data-lucide="x"></i></button>
+      </div>
+      <form id="mail-config-form" onsubmit="submitMailConfig(event)">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="cfg-mail-email" class="input-control" value="support@orbitonetech.co.in" required>
+        </div>
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label>IMAP Host (Incoming)</label>
+            <input type="text" id="cfg-mail-imap-host" class="input-control" value="imap.hostinger.com" required>
+          </div>
+          <div class="form-group">
+            <label>IMAP Port</label>
+            <input type="number" id="cfg-mail-imap-port" class="input-control" value="993" required>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label>SMTP Host (Outgoing)</label>
+            <input type="text" id="cfg-mail-smtp-host" class="input-control" value="smtp.hostinger.com" required>
+          </div>
+          <div class="form-group">
+            <label>SMTP Port</label>
+            <input type="number" id="cfg-mail-smtp-port" class="input-control" value="465" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Mailbox Password (support@orbitonetech.co.in)</label>
+          <input type="password" id="cfg-mail-pass" class="input-control" placeholder="•••••••• (leave empty to keep existing)">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+          <button type="button" class="action-btn" onclick="closeMailConfigModal()">Cancel</button>
+          <button type="submit" class="btn-login" style="width: auto; padding: 10px 24px;">Save Settings</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     let globalQuotes = [];
     let globalApps = [];
@@ -1126,6 +1367,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
         insights: 'Business Intelligence & Insights',
         realtime: 'Live Real-Time Monitor',
         traffic: 'Website Traffic & Sources',
+        webmail: 'Hostinger Webmail & Support Desk',
         leads: 'Contact Leads & Messaging',
         quotes: 'Quote Requests & Sales Pipeline',
         finance: 'Financial Ledger & Net Profit',
@@ -1138,6 +1380,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
         settings: 'System & Security Settings'
       };
       document.getElementById('page-title').textContent = titles[tab] || 'Dashboard';
+      if (tab === 'webmail') loadWebmail();
       lucide.createIcons();
     }
 
@@ -2263,6 +2506,288 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+    }
+    // --- WEBMAIL JS LOGIC ---
+    let currentMailFolder = 'inbox';
+    let globalEmails = [];
+    let currentMailDetail = null;
+    let globalEmailTemplates = [];
+
+    function nl2br(str) {
+      if (!str) return '';
+      return str.replace(/(?:\r\n|\r|\n)/g, '<br>');
+    }
+
+    async function loadWebmail() {
+      try {
+        const q = document.getElementById('search-mail')?.value || '';
+        const res = await fetch(API_BASE + `?action=get_emails&folder=${currentMailFolder}&q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        if (data.success) {
+          globalEmails = data.emails || [];
+          renderMailList();
+          if (document.getElementById('badge-webmail')) {
+            document.getElementById('badge-webmail').textContent = data.counts?.unread_inbox || 0;
+          }
+          if (document.getElementById('folder-count-inbox')) {
+            document.getElementById('folder-count-inbox').textContent = data.counts?.unread_inbox || 0;
+          }
+        }
+      } catch (e) {}
+    }
+
+    function renderMailList() {
+      const container = document.getElementById('mail-list-container');
+      const countEl = document.getElementById('mail-list-count');
+      if (!container) return;
+
+      if (countEl) countEl.textContent = `${globalEmails.length} emails`;
+
+      if (globalEmails.length === 0) {
+        container.innerHTML = `
+          <div style="padding: 40px 20px; text-align: center; color: var(--text-muted);">
+            <i data-lucide="inbox" style="width: 32px; height: 32px; opacity: 0.4; margin-bottom: 8px;"></i>
+            <div style="font-size: 0.9rem;">No emails in ${currentMailFolder}.</div>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      container.innerHTML = globalEmails.map(m => {
+        const isSelected = currentMailDetail && currentMailDetail.id === m.id;
+        return `
+          <div class="mail-item ${m.is_read == 0 ? 'unread' : ''} ${isSelected ? 'selected' : ''}" onclick="openMailDetail(${m.id})" style="padding: 14px 16px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s; background: ${isSelected ? 'rgba(247, 147, 0, 0.08)' : (m.is_read == 0 ? '#f8fafc' : '#ffffff')}; border-left: ${m.is_read == 0 ? '4px solid var(--orbit-orange)' : 'none'};">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+              <div style="display: flex; align-items: center; gap: 8px; font-weight: ${m.is_read == 0 ? '800' : '600'}; color: var(--text-primary); font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <span>${m.sender_name || m.sender_email}</span>
+              </div>
+              <span style="font-size: 0.72rem; color: var(--text-muted); flex-shrink: 0;">${m.received_at ? m.received_at.substring(5, 16) : ''}</span>
+            </div>
+            <div style="font-weight: ${m.is_read == 0 ? '700' : '500'}; font-size: 0.85rem; color: var(--text-primary); margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              ${m.is_starred == 1 ? '⭐ ' : ''}${m.subject || 'No Subject'}
+            </div>
+            <div style="font-size: 0.78rem; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              ${m.snippet || ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    async function openMailDetail(id) {
+      try {
+        const res = await fetch(API_BASE + `?action=get_email_detail&id=${id}`);
+        const data = await res.json();
+        if (data.success && data.email) {
+          currentMailDetail = data.email;
+          renderMailList();
+
+          document.getElementById('mail-empty-state').style.display = 'none';
+          const reader = document.getElementById('mail-reader-view');
+          reader.style.display = 'flex';
+
+          document.getElementById('read-subject').textContent = currentMailDetail.subject || 'No Subject';
+          document.getElementById('read-sender-name').textContent = currentMailDetail.sender_name || currentMailDetail.sender_email;
+          document.getElementById('read-sender-email').textContent = `<${currentMailDetail.sender_email}>`;
+          document.getElementById('read-date').textContent = currentMailDetail.received_at;
+          document.getElementById('read-avatar').textContent = (currentMailDetail.sender_name || currentMailDetail.sender_email).substring(0, 2).toUpperCase();
+          document.getElementById('read-body').innerHTML = currentMailDetail.body_html || nl2br(currentMailDetail.body_text || '');
+
+          loadEmailTemplates();
+        }
+      } catch (e) {}
+    }
+
+    function selectMailFolder(folder) {
+      currentMailFolder = folder;
+      document.querySelectorAll('.mail-folder-btn').forEach(b => {
+        if (b.dataset.folder === folder) b.classList.add('active');
+        else b.classList.remove('active');
+      });
+      document.getElementById('current-folder-title').textContent = `${folder} Messages`;
+      loadWebmail();
+    }
+
+    function filterWebmail() {
+      loadWebmail();
+    }
+
+    async function syncMailbox() {
+      const icon = document.getElementById('icon-sync-mail');
+      if (icon) icon.classList.add('spin-anim');
+      try {
+        const res = await fetch(API_BASE + '?action=sync_emails');
+        const data = await res.json();
+        if (data.success) {
+          alert(`Hostinger IMAP Sync Complete!\n\n${data.new_count || 0} new messages fetched into inbox.`);
+          loadWebmail();
+        }
+      } catch (e) {
+        alert('Failed to sync Hostinger mailbox.');
+      } finally {
+        if (icon) icon.classList.remove('spin-anim');
+      }
+    }
+
+    async function loadEmailTemplates() {
+      try {
+        const res = await fetch(API_BASE + '?action=get_email_templates');
+        const data = await res.json();
+        if (data.success) {
+          globalEmailTemplates = data.templates || [];
+          const selReply = document.getElementById('select-quick-template');
+          const selCompose = document.getElementById('compose-template-select');
+          const options = '<option value="">-- Load Quick Response Template --</option>' + globalEmailTemplates.map(t => `<option value="${t.id}">${t.title}</option>`).join('');
+          if (selReply) selReply.innerHTML = options;
+          if (selCompose) selCompose.innerHTML = options;
+        }
+      } catch (e) {}
+    }
+
+    function applyQuickTemplate() {
+      const id = document.getElementById('select-quick-template')?.value;
+      if (!id) return;
+      const tpl = globalEmailTemplates.find(t => t.id == id);
+      if (tpl) {
+        document.getElementById('reply-body-text').value = tpl.content;
+      }
+    }
+
+    function applyComposeTemplate() {
+      const id = document.getElementById('compose-template-select')?.value;
+      if (!id) return;
+      const tpl = globalEmailTemplates.find(t => t.id == id);
+      if (tpl) {
+        document.getElementById('compose-subject').value = tpl.subject;
+        document.getElementById('compose-body').value = tpl.content;
+      }
+    }
+
+    async function submitEmailReply() {
+      if (!currentMailDetail) return;
+      const text = document.getElementById('reply-body-text')?.value.trim();
+      if (!text) {
+        alert('Please write a reply message before sending.');
+        return;
+      }
+
+      const fd = new FormData();
+      fd.append('action', 'send_email');
+      fd.append('to', currentMailDetail.sender_email);
+      fd.append('subject', currentMailDetail.subject.startsWith('Re:') ? currentMailDetail.subject : 'Re: ' + currentMailDetail.subject);
+      fd.append('body', text);
+      fd.append('in_reply_to', currentMailDetail.msg_uid || '');
+
+      const res = await fetch(API_BASE, { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Reply delivered successfully from support@orbitonetech.co.in to ${currentMailDetail.sender_email}!`);
+        document.getElementById('reply-body-text').value = '';
+        loadWebmail();
+      } else {
+        alert('Failed to send reply: ' + (data.message || 'SMTP error'));
+      }
+    }
+
+    function openComposeModal() {
+      document.getElementById('compose-mail-modal').style.display = 'flex';
+      loadEmailTemplates();
+    }
+    function closeComposeModal() {
+      document.getElementById('compose-mail-modal').style.display = 'none';
+    }
+
+    async function submitComposeMail(e) {
+      e.preventDefault();
+      const to = document.getElementById('compose-to').value;
+      const subject = document.getElementById('compose-subject').value;
+      const body = document.getElementById('compose-body').value;
+
+      const fd = new FormData();
+      fd.append('action', 'send_email');
+      fd.append('to', to);
+      fd.append('subject', subject);
+      fd.append('body', body);
+
+      const res = await fetch(API_BASE, { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Email delivered successfully to ${to}!`);
+        closeComposeModal();
+        document.getElementById('compose-mail-form').reset();
+        loadWebmail();
+      } else {
+        alert('Failed to send email.');
+      }
+    }
+
+    function openMailConfigModal() {
+      document.getElementById('mail-config-modal').style.display = 'flex';
+      loadMailConfig();
+    }
+    function closeMailConfigModal() {
+      document.getElementById('mail-config-modal').style.display = 'none';
+    }
+
+    async function loadMailConfig() {
+      try {
+        const res = await fetch(API_BASE + '?action=get_mail_settings');
+        const data = await res.json();
+        if (data.success && data.settings) {
+          const s = data.settings;
+          if (document.getElementById('cfg-mail-email')) document.getElementById('cfg-mail-email').value = s.email_address || 'support@orbitonetech.co.in';
+          if (document.getElementById('cfg-mail-imap-host')) document.getElementById('cfg-mail-imap-host').value = s.imap_host || 'imap.hostinger.com';
+          if (document.getElementById('cfg-mail-imap-port')) document.getElementById('cfg-mail-imap-port').value = s.imap_port || 993;
+          if (document.getElementById('cfg-mail-smtp-host')) document.getElementById('cfg-mail-smtp-host').value = s.smtp_host || 'smtp.hostinger.com';
+          if (document.getElementById('cfg-mail-smtp-port')) document.getElementById('cfg-mail-smtp-port').value = s.smtp_port || 465;
+        }
+      } catch (e) {}
+    }
+
+    async function submitMailConfig(e) {
+      e.preventDefault();
+      const fd = new FormData();
+      fd.append('action', 'save_mail_settings');
+      fd.append('email_address', document.getElementById('cfg-mail-email').value);
+      fd.append('imap_host', document.getElementById('cfg-mail-imap-host').value);
+      fd.append('imap_port', document.getElementById('cfg-mail-imap-port').value);
+      fd.append('smtp_host', document.getElementById('cfg-mail-smtp-host').value);
+      fd.append('smtp_port', document.getElementById('cfg-mail-smtp-port').value);
+      fd.append('smtp_user', document.getElementById('cfg-mail-email').value);
+      fd.append('smtp_pass', document.getElementById('cfg-mail-pass').value);
+
+      const res = await fetch(API_BASE, { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success) {
+        alert('Hostinger Mail Server configuration saved successfully!');
+        closeMailConfigModal();
+        loadWebmail();
+      }
+    }
+
+    async function toggleCurrentStar() {
+      if (!currentMailDetail) return;
+      const fd = new FormData();
+      fd.append('action', 'toggle_star_email');
+      fd.append('id', currentMailDetail.id);
+      await fetch(API_BASE, { method: 'POST', body: fd });
+      currentMailDetail.is_starred = currentMailDetail.is_starred == 1 ? 0 : 1;
+      loadWebmail();
+    }
+
+    async function deleteCurrentMail() {
+      if (!currentMailDetail) return;
+      if (!confirm('Are you sure you want to move this email to trash?')) return;
+      const fd = new FormData();
+      fd.append('action', 'delete_email');
+      fd.append('id', currentMailDetail.id);
+      await fetch(API_BASE, { method: 'POST', body: fd });
+      document.getElementById('mail-reader-view').style.display = 'none';
+      document.getElementById('mail-empty-state').style.display = 'flex';
+      currentMailDetail = null;
+      loadWebmail();
     }
   </script>
 <?php endif; ?>

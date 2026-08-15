@@ -34,6 +34,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/mail_helper.php';
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
@@ -545,6 +546,152 @@ try {
         $stmt->execute([$id]);
         logAudit($db, 'DELETE_LEAD', 'Leads', "Deleted contact lead ID #$id");
         echo json_encode(['success' => true]);
+        exit;
+    }
+
+    // --- MAIL API HANDLERS ---
+    if ($action === 'get_mail_settings') {
+        $settings = getMailSettings($db);
+        $hasPassword = !empty($settings['smtp_pass']);
+        unset($settings['smtp_pass']);
+        $settings['has_password'] = $hasPassword;
+        echo json_encode(['success' => true, 'settings' => $settings]);
+        exit;
+    }
+
+    if ($action === 'save_mail_settings') {
+        $email = trim($_POST['email_address'] ?? 'support@orbitonetech.co.in');
+        $imapHost = trim($_POST['imap_host'] ?? 'imap.hostinger.com');
+        $imapPort = intval($_POST['imap_port'] ?? 993);
+        $smtpHost = trim($_POST['smtp_host'] ?? 'smtp.hostinger.com');
+        $smtpPort = intval($_POST['smtp_port'] ?? 465);
+        $smtpUser = trim($_POST['smtp_user'] ?? $email);
+        $smtpPass = trim($_POST['smtp_pass'] ?? '');
+
+        $curr = getMailSettings($db);
+        if (empty($smtpPass) && isset($curr['smtp_pass'])) {
+            $smtpPass = $curr['smtp_pass'];
+        }
+
+        $stmt = $db->prepare("DELETE FROM mail_settings");
+        $stmt->execute();
+
+        $stmtIns = $db->prepare("INSERT INTO mail_settings (email_address, imap_host, imap_port, smtp_host, smtp_port, smtp_user, smtp_pass) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmtIns->execute([$email, $imapHost, $imapPort, $smtpHost, $smtpPort, $smtpUser, $smtpPass]);
+
+        logAudit($db, 'UPDATE_MAIL_SETTINGS', 'Mailbox', "Updated Hostinger Mail Settings for $email");
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    if ($action === 'get_emails') {
+        $folder = trim($_GET['folder'] ?? 'inbox');
+        $q = trim($_GET['q'] ?? '');
+
+        $sql = "SELECT id, msg_uid, folder, sender_name, sender_email, recipient_email, subject, snippet, is_read, is_starred, has_attachments, received_at FROM email_messages WHERE 1=1";
+        $params = [];
+
+        if ($folder === 'starred') {
+            $sql .= " AND is_starred = 1";
+        } elseif ($folder === 'all') {
+            $sql .= " AND folder != 'trash'";
+        } else {
+            $sql .= " AND folder = ?";
+            $params[] = $folder;
+        }
+
+        if (!empty($q)) {
+            $sql .= " AND (sender_name LIKE ? OR sender_email LIKE ? OR subject LIKE ? OR snippet LIKE ?)";
+            $term = "%$q%";
+            $params[] = $term;
+            $params[] = $term;
+            $params[] = $term;
+            $params[] = $term;
+        }
+
+        $sql .= " ORDER BY received_at DESC, id DESC LIMIT 100";
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        $emails = $stmt->fetchAll();
+
+        $unreadInbox = $db->query("SELECT COUNT(*) FROM email_messages WHERE folder = 'inbox' AND is_read = 0")->fetchColumn();
+        $unreadAll = $db->query("SELECT COUNT(*) FROM email_messages WHERE is_read = 0 AND folder != 'trash'")->fetchColumn();
+
+        echo json_encode([
+            'success' => true,
+            'emails' => $emails,
+            'counts' => [
+                'unread_inbox' => intval($unreadInbox),
+                'unread_total' => intval($unreadAll)
+            ]
+        ]);
+        exit;
+    }
+
+    if ($action === 'get_email_detail') {
+        $id = intval($_GET['id'] ?? 0);
+        $stmt = $db->prepare("SELECT * FROM email_messages WHERE id = ?");
+        $stmt->execute([$id]);
+        $email = $stmt->fetch();
+        if ($email) {
+            $db->exec("UPDATE email_messages SET is_read = 1 WHERE id = $id");
+            echo json_encode(['success' => true, 'email' => $email]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Email not found']);
+        }
+        exit;
+    }
+
+    if ($action === 'sync_emails') {
+        $newCount = syncHostingerIMAP($db);
+        logAudit($db, 'SYNC_HOSTINGER_MAIL', 'Mailbox', "Synced Hostinger IMAP ($newCount new emails fetched)");
+        echo json_encode(['success' => true, 'new_count' => $newCount]);
+        exit;
+    }
+
+    if ($action === 'send_email') {
+        $to = trim($_POST['to'] ?? '');
+        $subject = trim($_POST['subject'] ?? 'No Subject');
+        $body = trim($_POST['body'] ?? '');
+        $inReplyTo = trim($_POST['in_reply_to'] ?? '');
+
+        if (empty($to) || empty($body)) {
+            echo json_encode(['success' => false, 'message' => 'Recipient email and message body are required.']);
+            exit;
+        }
+
+        $res = sendHostingerSMTP($db, $to, $subject, $body, nl2br(htmlspecialchars($body)), $inReplyTo);
+        logAudit($db, 'SEND_EMAIL', 'Mailbox', "Sent email to $to ($subject)");
+        echo json_encode(['success' => true, 'res' => $res]);
+        exit;
+    }
+
+    if ($action === 'toggle_star_email') {
+        $id = intval($_POST['id'] ?? 0);
+        $stmt = $db->prepare("UPDATE email_messages SET is_starred = CASE WHEN is_starred = 1 THEN 0 ELSE 1 END WHERE id = ?");
+        $stmt->execute([$id]);
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    if ($action === 'delete_email') {
+        $id = intval($_POST['id'] ?? 0);
+        $stmtCheck = $db->prepare("SELECT folder FROM email_messages WHERE id = ?");
+        $stmtCheck->execute([$id]);
+        $folder = $stmtCheck->fetchColumn();
+
+        if ($folder === 'trash') {
+            $db->prepare("DELETE FROM email_messages WHERE id = ?")->execute([$id]);
+        } else {
+            $db->prepare("UPDATE email_messages SET folder = 'trash' WHERE id = ?")->execute([$id]);
+        }
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    if ($action === 'get_email_templates') {
+        $tpls = $db->query("SELECT * FROM email_templates ORDER BY id ASC")->fetchAll();
+        echo json_encode(['success' => true, 'templates' => $tpls]);
         exit;
     }
 

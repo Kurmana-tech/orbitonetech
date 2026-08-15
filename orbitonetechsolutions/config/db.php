@@ -212,11 +212,63 @@ function initDatabaseSchema($db) {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )");
 
+        $db->exec("CREATE TABLE IF NOT EXISTS mail_settings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email_address TEXT NOT NULL,
+            imap_host TEXT DEFAULT 'imap.hostinger.com',
+            imap_port INTEGER DEFAULT 993,
+            smtp_host TEXT DEFAULT 'smtp.hostinger.com',
+            smtp_port INTEGER DEFAULT 465,
+            smtp_user TEXT,
+            smtp_pass TEXT,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS email_messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            msg_uid TEXT,
+            folder TEXT DEFAULT 'inbox',
+            sender_name TEXT,
+            sender_email TEXT NOT NULL,
+            recipient_email TEXT NOT NULL,
+            subject TEXT,
+            snippet TEXT,
+            body_html TEXT,
+            body_text TEXT,
+            is_read INTEGER DEFAULT 0,
+            is_starred INTEGER DEFAULT 0,
+            has_attachments INTEGER DEFAULT 0,
+            received_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS email_templates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            subject TEXT NOT NULL,
+            content TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )");
+
         $checkAdmin = $db->query("SELECT COUNT(*) FROM admin_users")->fetchColumn();
         if ($checkAdmin == 0) {
             $defaultHash = password_hash('orbitone123', PASSWORD_DEFAULT);
             $stmtSeed = $db->prepare("INSERT INTO admin_users (username, password_hash) VALUES (?, ?)");
             $stmtSeed->execute(['admin', $defaultHash]);
+        }
+
+        $checkMailSettings = $db->query("SELECT COUNT(*) FROM mail_settings")->fetchColumn();
+        if ($checkMailSettings == 0) {
+            $db->exec("INSERT INTO mail_settings (email_address, imap_host, imap_port, smtp_host, smtp_port, smtp_user) 
+                       VALUES ('support@orbitonetech.co.in', 'imap.hostinger.com', 993, 'smtp.hostinger.com', 465, 'support@orbitonetech.co.in')");
+        }
+
+        $checkTpl = $db->query("SELECT COUNT(*) FROM email_templates")->fetchColumn();
+        if ($checkTpl == 0) {
+            $db->exec("INSERT INTO email_templates (title, subject, content) VALUES 
+                ('Quote Request Acknowledgment', 'Orbitone Tech Solutions - Proposal Request Received', 'Dear Client,\n\nThank you for reaching out to Orbitone Tech Solutions. We have received your project requirements and our solutions engineering team is actively reviewing your details.\n\nWe will get back to you within 24 hours with a custom proposal and architectural breakdown.\n\nBest regards,\nExecutive Support Team\nOrbitone Tech Solutions'),
+                ('Discovery Meeting Schedule', 'Scheduling Project Discovery Meeting - Orbitone Tech Solutions', 'Hi,\n\nWe would love to schedule a quick 15-minute technical discovery call to discuss your project scope, timeline, and tech stack options.\n\nPlease let us know your convenient time slots for this week.\n\nBest regards,\nOrbitone Engineering Team'),
+                ('Support Inquiry Received', 'Orbitone Support Ticket Update', 'Hello,\n\nYour technical inquiry has been assigned to a senior engineer. We are looking into your request and will provide an update shortly.\n\nThank you for your patience.\n\nOrbitone Technical Support')");
         }
     } else {
         // MySQL Schema
@@ -363,6 +415,44 @@ function initDatabaseSchema($db) {
             resource VARCHAR(100) NOT NULL,
             details TEXT,
             ip_address VARCHAR(100),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS mail_settings (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            email_address VARCHAR(255) NOT NULL,
+            imap_host VARCHAR(255) DEFAULT 'imap.hostinger.com',
+            imap_port INT DEFAULT 993,
+            smtp_host VARCHAR(255) DEFAULT 'smtp.hostinger.com',
+            smtp_port INT DEFAULT 465,
+            smtp_user VARCHAR(255),
+            smtp_pass VARCHAR(255),
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS email_messages (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            msg_uid VARCHAR(255),
+            folder VARCHAR(50) DEFAULT 'inbox',
+            sender_name VARCHAR(255),
+            sender_email VARCHAR(255) NOT NULL,
+            recipient_email VARCHAR(255) NOT NULL,
+            subject VARCHAR(500),
+            snippet TEXT,
+            body_html LONGTEXT,
+            body_text LONGTEXT,
+            is_read TINYINT(1) DEFAULT 0,
+            is_starred TINYINT(1) DEFAULT 0,
+            has_attachments TINYINT(1) DEFAULT 0,
+            received_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS email_templates (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            subject VARCHAR(255) NOT NULL,
+            content TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     }
