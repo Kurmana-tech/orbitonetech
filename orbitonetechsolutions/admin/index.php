@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --bg-main: #f8fafc;
@@ -345,7 +346,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
           <div class="stat-card" style="cursor: pointer;" onclick="switchTab('finance')">
             <div class="icon-box" style="background: rgba(16, 185, 129, 0.12); color: var(--orbit-green);"><i data-lucide="dollar-sign"></i></div>
             <div class="val" id="stat-revenue">₹0</div>
-            <div class="lbl">Revenue Ledger</div>
+            <div class="lbl">Realized Net Profit</div>
+          </div>
+          <div class="stat-card" style="cursor: pointer;" onclick="switchTab('finance')">
+            <div class="icon-box" style="background: rgba(247, 147, 0, 0.12); color: var(--orbit-orange);"><i data-lucide="clock"></i></div>
+            <div class="val" id="stat-working-rev">₹0</div>
+            <div class="lbl">Working Projects Revenue</div>
           </div>
           <div class="stat-card" style="cursor: pointer;" onclick="switchTab('finance')">
             <div class="icon-box" style="background: rgba(239, 68, 68, 0.12); color: #ef4444;"><i data-lucide="trending-down"></i></div>
@@ -357,10 +363,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
             <div class="val" id="stat-employees-val">0</div>
             <div class="lbl">Active Team</div>
           </div>
-          <div class="stat-card" style="cursor: pointer;" onclick="switchTab('jobs')">
-            <div class="icon-box" style="background: rgba(247, 147, 0, 0.12); color: var(--orbit-orange);"><i data-lucide="briefcase"></i></div>
-            <div class="val" id="stat-jobs-val">0</div>
-            <div class="lbl">Open Job Openings</div>
+        </div>
+
+        <!-- CHARTS & VISUAL ANALYTICS SECTION -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 24px; margin-bottom: 32px;">
+          <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
+            <h3 style="font-family: var(--font-display); margin-bottom: 16px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="trending-up" style="color: var(--orbit-blue); width: 20px;"></i> Visitor Traffic & Session Growth
+            </h3>
+            <canvas id="chart-traffic-trend" style="max-height: 260px; width: 100%;"></canvas>
+          </div>
+
+          <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; box-shadow: var(--shadow-card);">
+            <h3 style="font-family: var(--font-display); margin-bottom: 16px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="bar-chart-3" style="color: var(--orbit-orange); width: 20px;"></i> Lead & Project Conversion Funnel
+            </h3>
+            <canvas id="chart-conversion-funnel" style="max-height: 260px; width: 100%;"></canvas>
           </div>
         </div>
 
@@ -436,7 +454,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
           </div>
         </div>
 
-        <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px;">
+        <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; margin-bottom: 24px;">
           <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
             <i data-lucide="file" style="color: var(--orbit-blue);"></i> Top Performing Pages
           </h3>
@@ -454,25 +472,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
             </table>
           </div>
         </div>
+
+        <!-- IP ADDRESS ANALYTICS TABLE -->
+        <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px;">
+          <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="shield-check" style="color: var(--orbit-orange);"></i> Visitor IP Address & User Identification Log
+          </h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Visitor IP Address</th>
+                  <th>Total Pageviews</th>
+                  <th>Unique Sessions</th>
+                  <th>Last Active Page</th>
+                  <th>Last Seen Timestamp</th>
+                </tr>
+              </thead>
+              <tbody id="ip-logs-tbody"></tbody>
+            </table>
+          </div>
+        </div>
       </section>
 
       <!-- TAB: FINANCIAL LEDGER -->
       <section id="tab-finance" class="view-section">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
           <div class="stat-card">
-            <div class="icon-box" style="background: rgba(16, 185, 129, 0.12); color: var(--orbit-green);"><i data-lucide="arrow-up-right"></i></div>
+            <div class="icon-box" style="background: rgba(16, 185, 129, 0.12); color: var(--orbit-green);"><i data-lucide="check-circle-2"></i></div>
+            <div class="val" id="fin-net-profit">₹0</div>
+            <div class="lbl">Realized Net Profit</div>
+          </div>
+          <div class="stat-card">
+            <div class="icon-box" style="background: rgba(247, 147, 0, 0.12); color: var(--orbit-orange);"><i data-lucide="clock"></i></div>
+            <div class="val" id="fin-working-total">₹0</div>
+            <div class="lbl">Working Projects (In Progress)</div>
+          </div>
+          <div class="stat-card">
+            <div class="icon-box" style="background: rgba(45, 140, 255, 0.12); color: var(--orbit-blue);"><i data-lucide="arrow-up-right"></i></div>
             <div class="val" id="fin-rev-total">₹0</div>
-            <div class="lbl">Total Revenue</div>
+            <div class="lbl">Total Realized Revenue</div>
           </div>
           <div class="stat-card">
             <div class="icon-box" style="background: rgba(239, 68, 68, 0.12); color: #ef4444;"><i data-lucide="arrow-down-left"></i></div>
             <div class="val" id="fin-exp-total">₹0</div>
-            <div class="lbl">Total Expenses</div>
+            <div class="lbl">Operational Expenses</div>
           </div>
-          <div class="stat-card">
-            <div class="icon-box" style="background: rgba(45, 140, 255, 0.12); color: var(--orbit-blue);"><i data-lucide="wallet"></i></div>
-            <div class="val" id="fin-net-profit">₹0</div>
-            <div class="lbl">Net Profit</div>
+        </div>
+
+        <!-- WORKING PROJECTS IN PROGRESS SECTION -->
+        <div class="card-box" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow-card);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+              <h3 style="font-family: var(--font-display); font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="briefcase" style="color: var(--orbit-orange);"></i> Working Projects Pipeline (In Progress Revenue)
+              </h3>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Accepted project contracts currently being executed. When completed, click "Mark Completed" to transfer revenue into Realized Net Profit.</p>
+            </div>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Client Project Name</th>
+                  <th>Category / Services</th>
+                  <th>Accepted Value (₹)</th>
+                  <th>Stage</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="working-projects-tbody"></tbody>
+            </table>
           </div>
         </div>
 
@@ -515,6 +585,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
           </div>
 
           <div class="table-container">
+            <h4 style="padding: 16px 20px; border-bottom: 1px solid var(--border-color); font-family: var(--font-display); font-weight: 700;">Realized Financial Ledger</h4>
             <table>
               <thead>
                 <tr>
@@ -1063,22 +1134,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
         if (document.getElementById('stat-online')) document.getElementById('stat-online').textContent = c.sessions || 0;
         if (document.getElementById('stat-leads-val')) document.getElementById('stat-leads-val').textContent = c.leads || 0;
         if (document.getElementById('stat-quotes-val')) document.getElementById('stat-quotes-val').textContent = c.quotes || 0;
-        if (document.getElementById('stat-revenue')) document.getElementById('stat-revenue').textContent = '₹' + (c.revenue || 0).toLocaleString();
+        if (document.getElementById('stat-revenue')) document.getElementById('stat-revenue').textContent = '₹' + (c.net_profit || c.revenue || 0).toLocaleString();
+        if (document.getElementById('stat-working-rev')) document.getElementById('stat-working-rev').textContent = '₹' + (c.working_revenue || 0).toLocaleString();
         if (document.getElementById('stat-expenses')) document.getElementById('stat-expenses').textContent = '₹' + (c.expenses || 0).toLocaleString();
         if (document.getElementById('stat-employees-val')) document.getElementById('stat-employees-val').textContent = c.employees || 0;
-        if (document.getElementById('stat-jobs-val')) document.getElementById('stat-jobs-val').textContent = c.jobs || 0;
 
         if (document.getElementById('badge-quotes')) document.getElementById('badge-quotes').textContent = c.quotes || 0;
         if (document.getElementById('badge-apps')) document.getElementById('badge-apps').textContent = c.applications || 0;
         if (document.getElementById('badge-employees')) document.getElementById('badge-employees').textContent = c.employees || 0;
         if (document.getElementById('badge-jobs')) document.getElementById('badge-jobs').textContent = c.jobs || 0;
         if (document.getElementById('badge-leads')) document.getElementById('badge-leads').textContent = c.leads || 0;
+
+        renderOverviewCharts(dStats);
       }
 
       if (dQ && dQ.success) {
         globalQuotes = dQ.data || [];
         renderQuotes();
         renderAnalytics();
+        renderWorkingProjectsPipeline();
       }
 
       if (dA && dA.success) {
@@ -1100,6 +1174,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
       loadTraffic();
       loadFinance();
       loadAuditLogs();
+    }
+
+    let chartTrafficTrend = null;
+    let chartConversionFunnel = null;
+
+    function renderOverviewCharts(dStats) {
+      if (typeof Chart === 'undefined') return;
+
+      const ctxTraffic = document.getElementById('chart-traffic-trend')?.getContext('2d');
+      if (ctxTraffic && dStats.daily_traffic) {
+        const labels = dStats.daily_traffic.map(t => t.date_val);
+        const visitors = dStats.daily_traffic.map(t => t.visitors);
+        const pageviews = dStats.daily_traffic.map(t => t.pageviews);
+
+        if (chartTrafficTrend) chartTrafficTrend.destroy();
+        chartTrafficTrend = new Chart(ctxTraffic, {
+          type: 'line',
+          data: {
+            labels: labels.length > 0 ? labels : ['Today'],
+            datasets: [
+              {
+                label: 'Unique Visitors',
+                data: visitors.length > 0 ? visitors : [dStats.counts.visitors || 0],
+                borderColor: '#2d8cff',
+                backgroundColor: 'rgba(45, 140, 255, 0.1)',
+                tension: 0.4,
+                fill: true
+              },
+              {
+                label: 'Total Pageviews',
+                data: pageviews.length > 0 ? pageviews : [dStats.counts.pageviews || 0],
+                borderColor: '#f79300',
+                backgroundColor: 'rgba(247, 147, 0, 0.05)',
+                tension: 0.4,
+                fill: true
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top' } }
+          }
+        });
+      }
+
+      const ctxFunnel = document.getElementById('chart-conversion-funnel')?.getContext('2d');
+      if (ctxFunnel) {
+        const c = dStats.counts;
+        if (chartConversionFunnel) chartConversionFunnel.destroy();
+        chartConversionFunnel = new Chart(ctxFunnel, {
+          type: 'bar',
+          data: {
+            labels: ['Unique Visitors', 'Contact Leads', 'Quote Requests', 'Working Projects', 'Active Team'],
+            datasets: [{
+              label: 'Metrics Volume',
+              data: [c.visitors || 0, c.leads || 0, c.quotes || 0, Math.round((c.working_revenue || 0) / 25000), c.employees || 0],
+              backgroundColor: [
+                'rgba(45, 140, 255, 0.85)',
+                'rgba(247, 147, 0, 0.85)',
+                'rgba(168, 85, 247, 0.85)',
+                'rgba(234, 179, 8, 0.85)',
+                'rgba(16, 185, 129, 0.85)'
+              ],
+              borderRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
     }
 
     function renderQuotes() {
@@ -1130,6 +1278,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
           ? `<div style="display: flex; flex-wrap: wrap; gap: 4px; max-width: 260px;"><span class="badge badge-info">${sList[0]}</span><span class="badge badge-info">${sList[1]}</span><span class="badge badge-pending" title="${sList.slice(2).join(', ')}">+${sList.length - 2} more</span></div>`
           : `<div style="display: flex; flex-wrap: wrap; gap: 4px; max-width: 260px;">${sList.map(s => `<span class="badge badge-info">${s}</span>`).join('')}</div>`;
 
+        const statusLower = (q.status || 'Pending').toLowerCase();
+        const priceVal = parseFloat(q.accepted_price || 0);
+        const priceDisplay = priceVal > 0 ? `₹${priceVal.toLocaleString()}` : (q.budget || 'N/A');
+
         return `
           <tr>
             <td style="white-space: nowrap;"><strong style="color: var(--orbit-orange);">${q.reference_id}</strong></td>
@@ -1138,12 +1290,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
               <div style="font-size: 0.78rem; color: var(--text-secondary);">${q.contact_email}</div>
             </td>
             <td>${sHtml}</td>
-            <td style="white-space: nowrap;"><strong>${q.budget || 'N/A'}</strong></td>
+            <td style="white-space: nowrap;"><strong style="color: ${priceVal > 0 ? '#10b981' : 'inherit'};">${priceDisplay}</strong></td>
             <td style="white-space: nowrap;">
               <select class="status-select" onchange="updateQuoteStatus(${q.id}, this.value)">
-                <option value="Pending" ${q.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                <option value="Approved" ${q.status === 'Approved' ? 'selected' : ''}>Approved</option>
-                <option value="Rejected" ${q.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                <option value="Pending" ${statusLower === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="Accepted" ${statusLower === 'accepted' || statusLower === 'approved' || statusLower === 'working' ? 'selected' : ''}>Accepted (Working)</option>
+                <option value="Completed" ${statusLower === 'completed' ? 'selected' : ''}>Completed (Net Profit)</option>
+                <option value="Rejected" ${statusLower === 'rejected' ? 'selected' : ''}>Rejected</option>
               </select>
             </td>
             <td style="font-size: 0.82rem; color: var(--text-secondary); white-space: nowrap; font-weight: 600;">${q.created_at ? q.created_at.substring(0,10) : ''}</td>
@@ -1152,6 +1305,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
                 <button class="action-btn" onclick='viewQuoteModal(${JSON.stringify(q)})'><i data-lucide="eye" style="width: 14px;"></i> View</button>
                 <button class="action-btn" style="color: var(--orbit-red);" onclick="deleteItem('delete_quote', ${q.id})"><i data-lucide="trash" style="width: 14px;"></i></button>
               </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    function renderWorkingProjectsPipeline() {
+      const tbody = document.getElementById('working-projects-tbody');
+      if (!tbody) return;
+
+      const workingQuotes = globalQuotes.filter(q => {
+        const s = (q.status || '').toLowerCase();
+        return s === 'accepted' || s === 'approved' || s === 'working';
+      });
+
+      if (workingQuotes.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; padding: 30px; color: var(--text-muted);">
+              <i data-lucide="briefcase" style="width: 28px; height: 28px; margin-bottom: 6px; opacity: 0.4;"></i>
+              <div>No active working projects currently in progress. Select "Accepted (Working)" on a quote request to move it here.</div>
+            </td>
+          </tr>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      tbody.innerHTML = workingQuotes.map(q => {
+        const priceVal = parseFloat(q.accepted_price || 0);
+        return `
+          <tr>
+            <td>
+              <strong style="color: var(--text-primary);">${q.contact_name}</strong>
+              <div style="font-size: 0.78rem; color: var(--text-secondary);">${q.reference_id}</div>
+            </td>
+            <td><span class="badge badge-info">${q.services}</span></td>
+            <td><strong style="color: var(--orbit-orange); font-size: 1rem;">₹${priceVal.toLocaleString()}</strong></td>
+            <td><span class="badge badge-pending">In Progress (Working)</span></td>
+            <td>
+              <button class="action-btn" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 700;" onclick="updateQuoteStatus(${q.id}, 'Completed')">
+                <i data-lucide="check-circle" style="width: 14px;"></i> Mark Completed
+              </button>
             </td>
           </tr>
         `;
@@ -1169,10 +1366,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
     function filterQuotes() { renderQuotes(); }
 
     async function updateQuoteStatus(id, status) {
+      let acceptedPrice = 0;
+      const q = globalQuotes.find(item => item.id == id);
+      
+      if (status === 'Approved' || status === 'Accepted' || status === 'Working') {
+        let defaultPrice = q ? (parseFloat(q.accepted_price) || 50000) : 50000;
+        let inputPrice = prompt(`Project Request Accepted!\nEnter the agreed project budget price (₹):`, defaultPrice);
+        if (inputPrice === null) {
+          renderQuotes();
+          return;
+        }
+        acceptedPrice = parseFloat(inputPrice) || defaultPrice;
+        status = 'Accepted';
+      } else if (status === 'Completed') {
+        if (!confirm(`Mark project "${q ? q.reference_id : id}" as Completed?\nThis will transfer the project revenue directly into Realized Net Profit!`)) {
+          renderQuotes();
+          return;
+        }
+      }
+
       const fd = new FormData();
       fd.append('action', 'update_quote_status');
       fd.append('id', id);
       fd.append('status', status);
+      fd.append('accepted_price', acceptedPrice);
+
       await fetch('../api/admin.php', { method: 'POST', body: fd });
       loadAllData();
     }
@@ -1185,6 +1403,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
         <div style="margin-bottom: 12px;"><strong>Phone:</strong> ${q.contact_phone || 'N/A'}</div>
         <div style="margin-bottom: 12px;"><strong>Services:</strong> ${q.services}</div>
         <div style="margin-bottom: 12px;"><strong>Budget:</strong> ${q.budget}</div>
+        <div style="margin-bottom: 12px;"><strong>Accepted Price:</strong> ₹${parseFloat(q.accepted_price || 0).toLocaleString()}</div>
         <div style="margin-bottom: 12px;"><strong>Requirements:</strong></div>
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; border-radius: 10px; color: var(--text-primary);">${q.requirements || 'No extra requirements specified.'}</div>
       `;
@@ -1805,6 +2024,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
               </tr>
             `).join('') || '<tr><td colspan="4">No page views recorded yet.</td></tr>';
           }
+
+          const ipTbody = document.getElementById('ip-logs-tbody');
+          if (ipTbody && data.traffic.ip_logs) {
+            ipTbody.innerHTML = data.traffic.ip_logs.map(log => `
+              <tr>
+                <td><strong style="color: var(--orbit-blue); font-family: monospace;">${log.ip || '127.0.0.1'}</strong></td>
+                <td><span class="badge badge-info">${log.pageviews} views</span></td>
+                <td><strong>${log.sessions}</strong></td>
+                <td><span style="font-size: 0.85rem; color: var(--text-secondary);">${log.last_page || '/'}</span></td>
+                <td style="font-size: 0.8rem; color: var(--text-muted);">${log.last_seen || ''}</td>
+              </tr>
+            `).join('') || '<tr><td colspan="5" style="text-align:center; padding: 20px;">No IP visitor logs recorded yet.</td></tr>';
+          }
         }
       } catch (e) {}
     }
@@ -1814,13 +2046,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
         const res = await fetch('../api/admin.php?action=get_financial_ledger');
         const data = await res.json();
         if (data.success) {
-          if (document.getElementById('fin-rev-total')) document.getElementById('fin-rev-total').textContent = '₹' + (data.summary.revenue || 0).toLocaleString();
-          if (document.getElementById('fin-exp-total')) document.getElementById('fin-exp-total').textContent = '₹' + (data.summary.expense || 0).toLocaleString();
           if (document.getElementById('fin-net-profit')) document.getElementById('fin-net-profit').textContent = '₹' + (data.summary.profit || 0).toLocaleString();
+          if (document.getElementById('fin-working-total')) document.getElementById('fin-working-total').textContent = '₹' + (data.summary.working_revenue || 0).toLocaleString();
+          if (document.getElementById('fin-rev-total')) document.getElementById('fin-rev-total').textContent = '₹' + (data.summary.realized_revenue || 0).toLocaleString();
+          if (document.getElementById('fin-exp-total')) document.getElementById('fin-exp-total').textContent = '₹' + (data.summary.expense || 0).toLocaleString();
 
           const tbody = document.getElementById('finance-tbody');
-          if (tbody && data.records) {
-            tbody.innerHTML = data.records.map(r => `
+          const recordsToRender = data.completed_records || data.records || [];
+          if (tbody) {
+            tbody.innerHTML = recordsToRender.map(r => `
               <tr>
                 <td><span class="badge ${r.type === 'revenue' ? 'badge-approved' : 'badge-rejected'}">${r.type.toUpperCase()}</span></td>
                 <td>
@@ -1833,7 +2067,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['password']) || isset
                   <button class="action-btn" style="color: var(--orbit-red);" onclick="deleteFinanceRecord(${r.id})"><i data-lucide="trash" style="width: 14px;"></i></button>
                 </td>
               </tr>
-            `).join('') || '<tr><td colspan="5" style="text-align:center; padding: 30px; color: var(--text-muted);">No financial records in ledger. Use form on left to add an entry.</td></tr>';
+            `).join('') || '<tr><td colspan="5" style="text-align:center; padding: 30px; color: var(--text-muted);">No realized financial records in ledger. Use form on left to add an entry.</td></tr>';
           }
         }
       } catch (e) {}

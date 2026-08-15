@@ -155,6 +155,49 @@ function initDatabaseSchema($db) {
             status TEXT DEFAULT 'Active'
         )");
 
+        $db->exec("CREATE TABLE IF NOT EXISTS website_analytics (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT,
+            visitor_id TEXT,
+            page_url TEXT NOT NULL,
+            page_title TEXT,
+            referrer TEXT,
+            traffic_source TEXT,
+            device_type TEXT,
+            browser TEXT,
+            country TEXT DEFAULT 'India',
+            ip_address TEXT,
+            ip_hash TEXT,
+            utm_source TEXT,
+            utm_medium TEXT,
+            utm_campaign TEXT,
+            event_type TEXT DEFAULT 'page_view',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS financial_records (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            type TEXT NOT NULL,
+            category TEXT NOT NULL,
+            title TEXT NOT NULL,
+            amount REAL NOT NULL,
+            record_date DATE NOT NULL,
+            notes TEXT,
+            quote_id INTEGER DEFAULT 0,
+            status TEXT DEFAULT 'completed',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS audit_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            admin_username TEXT NOT NULL,
+            action TEXT NOT NULL,
+            resource TEXT NOT NULL,
+            details TEXT,
+            ip_address TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )");
+
         $db->exec("CREATE TABLE IF NOT EXISTS admin_users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
@@ -267,44 +310,47 @@ function initDatabaseSchema($db) {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
         $db->exec("CREATE TABLE IF NOT EXISTS website_analytics (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            session_id TEXT,
-            visitor_id TEXT,
-            page_url TEXT NOT NULL,
-            page_title TEXT,
-            referrer TEXT,
-            traffic_source TEXT,
-            device_type TEXT,
-            browser TEXT,
-            country TEXT DEFAULT 'India',
-            ip_hash TEXT,
-            utm_source TEXT,
-            utm_medium TEXT,
-            utm_campaign TEXT,
-            event_type TEXT DEFAULT 'page_view',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )");
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            session_id VARCHAR(255),
+            visitor_id VARCHAR(255),
+            page_url VARCHAR(500) NOT NULL,
+            page_title VARCHAR(255),
+            referrer VARCHAR(500),
+            traffic_source VARCHAR(100),
+            device_type VARCHAR(100),
+            browser VARCHAR(100),
+            country VARCHAR(100) DEFAULT 'India',
+            ip_address VARCHAR(100),
+            ip_hash VARCHAR(100),
+            utm_source VARCHAR(100),
+            utm_medium VARCHAR(100),
+            utm_campaign VARCHAR(100),
+            event_type VARCHAR(100) DEFAULT 'page_view',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
         $db->exec("CREATE TABLE IF NOT EXISTS financial_records (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            type TEXT NOT NULL,
-            category TEXT NOT NULL,
-            title TEXT NOT NULL,
-            amount REAL NOT NULL,
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            type VARCHAR(50) NOT NULL,
+            category VARCHAR(100) NOT NULL,
+            title VARCHAR(255) NOT NULL,
+            amount DECIMAL(12,2) NOT NULL,
             record_date DATE NOT NULL,
             notes TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )");
+            quote_id INT DEFAULT 0,
+            status VARCHAR(50) DEFAULT 'completed',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
         $db->exec("CREATE TABLE IF NOT EXISTS audit_logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            admin_username TEXT NOT NULL,
-            action TEXT NOT NULL,
-            resource TEXT NOT NULL,
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            admin_username VARCHAR(100) NOT NULL,
+            action VARCHAR(100) NOT NULL,
+            resource VARCHAR(100) NOT NULL,
             details TEXT,
-            ip_address TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )");
+            ip_address VARCHAR(100),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     }
 
     // Add columns dynamically if they do not exist
@@ -336,16 +382,19 @@ function initDatabaseSchema($db) {
         $db->exec("ALTER TABLE contact_leads ADD COLUMN notes TEXT");
     } catch (Exception $e) {}
     try {
-        $db->exec("ALTER TABLE quote_requests ADD COLUMN lead_status TEXT DEFAULT 'New'");
+        $db->exec("ALTER TABLE website_analytics ADD COLUMN ip_address TEXT");
     } catch (Exception $e) {}
     try {
-        $db->exec("ALTER TABLE quote_requests ADD COLUMN estimated_value REAL DEFAULT 0");
+        $db->exec("ALTER TABLE quote_requests ADD COLUMN accepted_price REAL DEFAULT 0");
     } catch (Exception $e) {}
     try {
-        $db->exec("ALTER TABLE quote_requests ADD COLUMN assigned_to TEXT");
+        $db->exec("ALTER TABLE quote_requests ADD COLUMN project_stage TEXT DEFAULT 'Pending'");
     } catch (Exception $e) {}
     try {
-        $db->exec("ALTER TABLE quote_requests ADD COLUMN notes TEXT");
+        $db->exec("ALTER TABLE financial_records ADD COLUMN quote_id INTEGER DEFAULT 0");
+    } catch (Exception $e) {}
+    try {
+        $db->exec("ALTER TABLE financial_records ADD COLUMN status TEXT DEFAULT 'completed'");
     } catch (Exception $e) {}
 
     seedJobsIfEmpty($db);

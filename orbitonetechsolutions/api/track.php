@@ -6,7 +6,7 @@ if (isset($_SERVER['HTTP_ORIGIN'])) {
     header("Access-Control-Allow-Origin: " . $_SERVER['HTTP_ORIGIN']);
     header("Access-Control-Allow-Credentials: true");
 }
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
     header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
     exit(0);
@@ -61,9 +61,13 @@ try {
     elseif (strpos($ua, 'Firefox') !== false) $browser = 'Firefox';
     elseif (strpos($ua, 'Edge') !== false) $browser = 'Edge';
 
-    $ipHash = md5($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
+    $clientIp = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+    if (strpos($clientIp, ',') !== false) {
+        $clientIp = trim(explode(',', $clientIp)[0]);
+    }
+    $ipHash = md5($clientIp);
 
-    $stmt = $db->prepare("INSERT INTO website_analytics (session_id, visitor_id, page_url, page_title, referrer, traffic_source, device_type, browser, ip_hash, utm_source, utm_medium, utm_campaign, event_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $db->prepare("INSERT INTO website_analytics (session_id, visitor_id, page_url, page_title, referrer, traffic_source, device_type, browser, ip_address, ip_hash, utm_source, utm_medium, utm_campaign, event_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([
         $sessionId,
         $visitorId,
@@ -73,6 +77,7 @@ try {
         $trafficSource,
         $deviceType,
         $browser,
+        $clientIp,
         $ipHash,
         $utmSource,
         $utmMedium,

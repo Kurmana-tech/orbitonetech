@@ -57,6 +57,19 @@ function logAudit($db, $action, $resource, $details = '') {
     } catch (Exception $e) {}
 }
 
+function parseBudgetAmount($budgetText) {
+    if (empty($budgetText)) return 25000;
+    preg_match_all('/[\d,]+/', $budgetText, $matches);
+    if (!empty($matches[0])) {
+        $nums = array_map(fn($n) => intval(str_replace(',', '', $n)), $matches[0]);
+        $nums = array_filter($nums, fn($n) => $n > 100);
+        if (!empty($nums)) {
+            return array_sum($nums) / count($nums);
+        }
+    }
+    return 35000;
+}
+
 if ($action === 'logout') {
     logAudit($db, 'LOGOUT', 'Admin Session', 'User logged out');
     unset($_SESSION['orbitone_admin']);
@@ -76,7 +89,6 @@ try {
     if ($action === 'get_overview' || $action === 'get_analytics_overview') {
         $days = intval($_GET['days'] ?? 30);
         $startDate = date('Y-m-d H:i:s', strtotime("-$days days"));
-        $prevStartDate = date('Y-m-d H:i:s', strtotime("-" . ($days * 2) . " days"));
 
         // Current period counts
         $visitorsCount = $db->query("SELECT COUNT(DISTINCT visitor_id) FROM website_analytics WHERE created_at >= '$startDate'")->fetchColumn();
@@ -89,11 +101,15 @@ try {
         $projectsCount = $db->query("SELECT COUNT(*) FROM projects")->fetchColumn();
         $empCount = $db->query("SELECT COUNT(*) FROM active_employees")->fetchColumn();
 
-        // Financials
-        $revTotal = $db->query("SELECT COALESCE(SUM(amount), 0) FROM financial_records WHERE type = 'revenue'")->fetchColumn();
+        // Financials: Realized Profit vs Working Revenue
+        $realizedRev = $db->query("SELECT COALESCE(SUM(amount), 0) FROM financial_records WHERE type = 'revenue' AND (status IS NULL OR status = 'completed' OR status = '')")->fetchColumn();
+        $workingRev = $db->query("SELECT COALESCE(SUM(amount), 0) FROM financial_records WHERE type = 'revenue' AND status = 'working'")->fetchColumn();
         $expTotal = $db->query("SELECT COALESCE(SUM(amount), 0) FROM financial_records WHERE type = 'expense'")->fetchColumn();
-        $netProfit = $revTotal - $expTotal;
-        $profitMargin = $revTotal > 0 ? round(($netProfit / $revTotal) * 100, 1) : 0;
+        $netProfit = $realizedRev - $expTotal;
+        $profitMargin = $realizedRev > 0 ? round(($netProfit / $realizedRev) * 100, 1) : 0;
+
+        // Daily trend data for overview line charts
+        $dailyTraffic = $db->query("SELECT DATE(created_at) as date_val, COUNT(DISTINCT visitor_id) as visitors, COUNT(*) as pageviews FROM website_analytics WHERE created_at >= '$startDate' GROUP BY DATE(created_at) ORDER BY date_val ASC")->fetchAll();
 
         // Calculate conversions
         $totalConversions = $leadsCount + $quotesCount;
@@ -111,12 +127,14 @@ try {
                 'visitors' => intval($visitorsCount),
                 'sessions' => intval($sessionsCount),
                 'pageviews' => intval($pageviewsCount),
-                'revenue' => floatval($revTotal),
+                'revenue' => floatval($realizedRev),
+                'working_revenue' => floatval($workingRev),
                 'expenses' => floatval($expTotal),
                 'net_profit' => floatval($netProfit),
                 'profit_margin' => $profitMargin,
                 'conversion_rate' => $conversionRate
-            ]
+            ],
+            'daily_traffic' => $dailyTraffic
         ]);
         exit;
     }
@@ -126,7 +144,7 @@ try {
         $onlineUsers = $db->query("SELECT COUNT(DISTINCT session_id) FROM website_analytics WHERE created_at >= '$recentCutoff'")->fetchColumn();
         
         $activePages = $db->query("SELECT page_url, COUNT(*) as active_views FROM website_analytics WHERE created_at >= '$recentCutoff' GROUP BY page_url ORDER BY active_views DESC LIMIT 5")->fetchAll();
-        $recentEvents = $db->query("SELECT * FROM website_analytics ORDER BY id DESC LIMIT 10")->fetchAll();
+        $recentEvents = $db->query("SELECT id, session_id, page_url, page_title, traffic_source, device_type, COALESCE(NULLIF(ip_address, ''), ip_hash) as ip_address, created_at FROM website_analytics ORDER BY id DESC LIMIT 15")->fetchAll();
 
         echo json_encode([
             'success' => true,
@@ -146,13 +164,16 @@ try {
         $sources = $db->query("SELECT traffic_source as source, COUNT(*) as visitors FROM website_analytics WHERE created_at >= '$startDate' GROUP BY traffic_source ORDER BY visitors DESC")->fetchAll();
         $devices = $db->query("SELECT device_type as device, COUNT(*) as count FROM website_analytics WHERE created_at >= '$startDate' GROUP BY device_type ORDER BY count DESC")->fetchAll();
         $topPages = $db->query("SELECT page_url, page_title, COUNT(*) as views, COUNT(DISTINCT visitor_id) as visitors FROM website_analytics WHERE created_at >= '$startDate' GROUP BY page_url ORDER BY views DESC LIMIT 10")->fetchAll();
+        
+        $ipLogs = $db->query("SELECT COALESCE(NULLIF(ip_address, ''), ip_hash) as ip, COUNT(*) as pageviews, COUNT(DISTINCT session_id) as sessions, MAX(created_at) as last_seen, MAX(page_url) as last_page FROM website_analytics WHERE created_at >= '$startDate' GROUP BY COALESCE(NULLIF(ip_address, ''), ip_hash) ORDER BY pageviews DESC LIMIT 20")->fetchAll();
 
         echo json_encode([
             'success' => true,
             'traffic' => [
                 'sources' => $sources,
                 'devices' => $devices,
-                'top_pages' => $topPages
+                'top_pages' => $topPages,
+                'ip_logs' => $ipLogs
             ]
         ]);
         exit;
@@ -160,16 +181,27 @@ try {
 
     if ($action === 'get_financial_ledger') {
         $records = $db->query("SELECT * FROM financial_records ORDER BY record_date DESC, id DESC")->fetchAll();
-        $revTotal = $db->query("SELECT COALESCE(SUM(amount), 0) FROM financial_records WHERE type = 'revenue'")->fetchColumn();
+        
+        $workingRecords = array_values(array_filter($records, fn($r) => ($r['type'] === 'revenue' && ($r['status'] ?? '') === 'working')));
+        $completedRecords = array_values(array_filter($records, fn($r) => !($r['type'] === 'revenue' && ($r['status'] ?? '') === 'working')));
+
+        $realizedRev = $db->query("SELECT COALESCE(SUM(amount), 0) FROM financial_records WHERE type = 'revenue' AND (status IS NULL OR status = 'completed' OR status = '')")->fetchColumn();
+        $workingRev = $db->query("SELECT COALESCE(SUM(amount), 0) FROM financial_records WHERE type = 'revenue' AND status = 'working'")->fetchColumn();
         $expTotal = $db->query("SELECT COALESCE(SUM(amount), 0) FROM financial_records WHERE type = 'expense'")->fetchColumn();
+
+        $realizedNetProfit = $realizedRev - $expTotal;
 
         echo json_encode([
             'success' => true,
             'records' => $records,
+            'working_records' => $workingRecords,
+            'completed_records' => $completedRecords,
             'summary' => [
-                'revenue' => floatval($revTotal),
+                'realized_revenue' => floatval($realizedRev),
+                'working_revenue' => floatval($workingRev),
                 'expense' => floatval($expTotal),
-                'profit' => floatval($revTotal - $expTotal)
+                'profit' => floatval($realizedNetProfit),
+                'total_potential' => floatval($realizedRev + $workingRev - $expTotal)
             ]
         ]);
         exit;
@@ -182,14 +214,15 @@ try {
         $amount = floatval($_POST['amount'] ?? 0);
         $date = $_POST['record_date'] ?? date('Y-m-d');
         $notes = trim($_POST['notes'] ?? '');
+        $status = $_POST['status'] ?? 'completed';
 
         if (empty($title) || $amount <= 0) {
             echo json_encode(['success' => false, 'message' => 'Please enter a valid title and amount.']);
             exit;
         }
 
-        $stmt = $db->prepare("INSERT INTO financial_records (type, category, title, amount, record_date, notes) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$type, $category, $title, $amount, $date, $notes]);
+        $stmt = $db->prepare("INSERT INTO financial_records (type, category, title, amount, record_date, notes, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$type, $category, $title, $amount, $date, $notes, $status]);
         logAudit($db, 'ADD_FINANCIAL_RECORD', 'Finance', "Added $type record '$title' (₹$amount)");
 
         echo json_encode(['success' => true]);
@@ -209,16 +242,17 @@ try {
         $leadsCount = $db->query("SELECT COUNT(*) FROM contact_leads")->fetchColumn();
         $quotesCount = $db->query("SELECT COUNT(*) FROM quote_requests")->fetchColumn();
         $visitorsCount = $db->query("SELECT COUNT(DISTINCT visitor_id) FROM website_analytics")->fetchColumn();
-        $revTotal = $db->query("SELECT COALESCE(SUM(amount), 0) FROM financial_records WHERE type = 'revenue'")->fetchColumn();
+        $realizedRev = $db->query("SELECT COALESCE(SUM(amount), 0) FROM financial_records WHERE type = 'revenue' AND (status IS NULL OR status = 'completed' OR status = '')")->fetchColumn();
+        $workingRev = $db->query("SELECT COALESCE(SUM(amount), 0) FROM financial_records WHERE type = 'revenue' AND status = 'working'")->fetchColumn();
 
         $insights = [];
 
-        // Insight 1: Traffic & Lead Ratio
+        // Insight 1: Conversion Benchmark
         if ($visitorsCount > 0) {
             $conv = round((($leadsCount + $quotesCount) / $visitorsCount) * 100, 1);
             $insights[] = [
                 'type' => 'FACT',
-                'title' => 'Website Conversion Benchmark',
+                'title' => 'Website Conversion & Lead Capture',
                 'description' => "Current website conversion rate is $conv% across $visitorsCount unique visitors.",
                 'recommendation' => 'Optimize CTA buttons on /services and landing pages to increase lead capture.'
             ];
@@ -231,38 +265,23 @@ try {
             ];
         }
 
-        // Insight 2: Service Demand
-        $topService = $db->query("SELECT services, COUNT(*) as cnt FROM quote_requests GROUP BY services ORDER BY cnt DESC LIMIT 1")->fetch();
-        if ($topService && !empty($topService['services'])) {
+        // Insight 2: Working Revenue Pipeline
+        if ($workingRev > 0) {
             $insights[] = [
                 'type' => 'OPPORTUNITY',
-                'title' => 'High Demand Service Identified',
-                'description' => "'{$topService['services']}' is currently generating the highest volume of quote requests ({$topService['cnt']} requests).",
-                'recommendation' => "Consider featuring '{$topService['services']}' prominently on the homepage banner."
-            ];
-        } else {
-            $insights[] = [
-                'type' => 'OPPORTUNITY',
-                'title' => 'AI & Web Solutions Growth',
-                'description' => 'AI & Web Development solution pages receive consistent high interest.',
-                'recommendation' => 'Highlight AI FinTech case studies in client proposals.'
+                'title' => 'Active Working Projects Pipeline',
+                'description' => "Currently tracking ₹" . number_format($workingRev, 2) . " in active working projects waiting to be completed.",
+                'recommendation' => "Mark projects as 'Completed' upon final delivery to release them into realized net profit."
             ];
         }
 
         // Insight 3: Financial Health
-        if ($revTotal > 0) {
+        if ($realizedRev > 0) {
             $insights[] = [
                 'type' => 'TREND',
-                'title' => 'Positive Revenue Stream',
-                'description' => "Recorded revenue stands at ₹" . number_format($revTotal, 2) . " across active accounts.",
+                'title' => 'Realized Net Profit Stream',
+                'description' => "Realized project revenue stands at ₹" . number_format($realizedRev, 2) . " across completed accounts.",
                 'recommendation' => 'Maintain quarterly financial ledger entries to track net profit margins accurately.'
-            ];
-        } else {
-            $insights[] = [
-                'type' => 'WARNING',
-                'title' => 'Financial Ledger Ready',
-                'description' => 'No financial entries recorded in the ledger yet.',
-                'recommendation' => 'Use the Financial Ledger tab to log client revenue and operational expenses.'
             ];
         }
 
@@ -503,9 +522,56 @@ try {
     if ($action === 'update_quote_status') {
         $id = intval($_POST['id'] ?? 0);
         $status = $_POST['status'] ?? 'Pending';
-        $stmt = $db->prepare("UPDATE quote_requests SET status = ? WHERE id = ?");
-        $stmt->execute([$status, $id]);
-        logAudit($db, 'UPDATE_QUOTE_STATUS', 'Quotes', "Updated quote #$id status to '$status'");
+        $acceptedPrice = floatval($_POST['accepted_price'] ?? 0);
+
+        // Fetch current quote details
+        $stmtQ = $db->prepare("SELECT * FROM quote_requests WHERE id = ?");
+        $stmtQ->execute([$id]);
+        $quote = $stmtQ->fetch();
+
+        if ($quote) {
+            if ($acceptedPrice <= 0) {
+                $acceptedPrice = floatval($quote['accepted_price'] ?? 0);
+                if ($acceptedPrice <= 0) {
+                    $acceptedPrice = parseBudgetAmount($quote['budget'] ?? '');
+                }
+            }
+
+            $stmtUpdate = $db->prepare("UPDATE quote_requests SET status = ?, accepted_price = ? WHERE id = ?");
+            $stmtUpdate->execute([$status, $acceptedPrice, $id]);
+
+            $isAccepted = in_array(strtolower($status), ['accepted', 'approved', 'working', 'in progress']);
+            $isCompleted = (strtolower($status) === 'completed');
+            $isRejected = (strtolower($status) === 'rejected');
+
+            // Check existing financial record linked to quote
+            $stmtFinCheck = $db->prepare("SELECT * FROM financial_records WHERE quote_id = ?");
+            $stmtFinCheck->execute([$id]);
+            $existingFin = $stmtFinCheck->fetch();
+
+            if ($isAccepted || strtolower($status) === 'in progress') {
+                if ($existingFin) {
+                    $stmtFinUpd = $db->prepare("UPDATE financial_records SET amount = ?, status = 'working', title = ? WHERE id = ?");
+                    $stmtFinUpd->execute([$acceptedPrice, "Client Project: {$quote['contact_name']} ({$quote['reference_id']})", $existingFin['id']]);
+                } else {
+                    $stmtFinIns = $db->prepare("INSERT INTO financial_records (type, category, title, amount, record_date, notes, quote_id, status) VALUES ('revenue', 'Client Project', ?, ?, CURRENT_DATE, ?, ?, 'working')");
+                    $stmtFinIns->execute(["Client Project: {$quote['contact_name']} ({$quote['reference_id']})", $acceptedPrice, "Accepted project budget ({$quote['services']})", $id]);
+                }
+            } elseif ($isCompleted) {
+                if ($existingFin) {
+                    $stmtFinUpd = $db->prepare("UPDATE financial_records SET amount = ?, status = 'completed', title = ? WHERE id = ?");
+                    $stmtFinUpd->execute([$acceptedPrice, "Client Project: {$quote['contact_name']} ({$quote['reference_id']})", $existingFin['id']]);
+                } else {
+                    $stmtFinIns = $db->prepare("INSERT INTO financial_records (type, category, title, amount, record_date, notes, quote_id, status) VALUES ('revenue', 'Client Project', ?, ?, CURRENT_DATE, ?, ?, 'completed')");
+                    $stmtFinIns->execute(["Client Project: {$quote['contact_name']} ({$quote['reference_id']})", $acceptedPrice, "Completed project revenue ({$quote['services']})", $id]);
+                }
+            } elseif ($isRejected && $existingFin) {
+                $stmtDel = $db->prepare("DELETE FROM financial_records WHERE id = ?");
+                $stmtDel->execute([$existingFin['id']]);
+            }
+        }
+
+        logAudit($db, 'UPDATE_QUOTE_STATUS', 'Quotes', "Updated quote #$id status to '$status' (Price: ₹$acceptedPrice)");
         echo json_encode(['success' => true]);
         exit;
     }
@@ -514,6 +580,11 @@ try {
         $id = intval($_POST['id'] ?? 0);
         $stmt = $db->prepare("DELETE FROM quote_requests WHERE id = ?");
         $stmt->execute([$id]);
+        
+        // Remove linked financial record if any
+        $stmtFin = $db->prepare("DELETE FROM financial_records WHERE quote_id = ?");
+        $stmtFin->execute([$id]);
+
         logAudit($db, 'DELETE_QUOTE', 'Quotes', "Deleted quote request ID #$id");
         echo json_encode(['success' => true]);
         exit;
